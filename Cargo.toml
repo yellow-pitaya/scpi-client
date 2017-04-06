@@ -1,0 +1,6 @@
+[package]
+name = "redpitaya-scpi"
+version = "0.0.0"
+authors = ["Sanpi <sanpi@homecomputing.fr>"]
+
+[dependencies]
