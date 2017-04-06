@@ -4,3 +4,4 @@ version = "0.0.0"
 authors = ["Sanpi <sanpi@homecomputing.fr>"]
 
 [dependencies]
+log = "0.3"
