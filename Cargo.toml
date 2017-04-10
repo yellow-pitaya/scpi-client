@@ -1,7 +1,17 @@
 [package]
 name = "redpitaya-scpi"
+description = "Controlling your redpitaya via SCPI commands"
+license = "MIT"
 version = "0.0.0"
 authors = ["Sanpi <sanpi@homecomputing.fr>"]
+repository = "https://github.com/sanpii/redpitaya-scpi.git"
+documentation = "https://docs.rs/redpitaya-scpi/"
+keywords = ["redpitaya", "scpi"]
+categories = ["hardware-support"]
 
 [dependencies]
 log = "0.3"
+
+[badges]
+travis-ci = { repository = "sanpii/redpitaya-scpi" }
+gitlab = { repository = "sanpi/redpitaya-scpi" }
