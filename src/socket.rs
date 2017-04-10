@@ -19,16 +19,16 @@ impl Socket {
     pub fn send<D>(&mut self, command: D) where D: ::std::fmt::Display {
         info!("> {}", command);
 
-        self.socket.write(
-            format!("{}\r\n", command).as_bytes()
-        );
+        self.socket.write(format!("{}\r\n", command).as_bytes())
+            .unwrap();
     }
 
     pub fn receive(&mut self) -> String {
         let mut message = String::new();
         let mut reader = ::std::io::BufReader::new(self.socket.try_clone().unwrap());
 
-        reader.read_line(&mut message);
+        reader.read_line(&mut message)
+            .unwrap();
 
         let message = message.trim_right_matches("\r\n");
 
