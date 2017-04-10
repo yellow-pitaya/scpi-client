@@ -65,6 +65,10 @@ mod test {
                                 stream.write("{1.2,3.2,-1.2}\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "ACQ:AVG?\r\n" => {
+                                stream.write("ON\r\n".as_bytes())
+                                    .unwrap();
+                            },
                             _ => tx.send(message).unwrap(),
                         };
                     });

@@ -47,6 +47,25 @@ impl Acquire {
             .unwrap()
     }
 
+    pub fn enable_average(&mut self) {
+        self.socket.send("ACQ:AVG ON");
+    }
+
+    pub fn disable_average(&mut self) {
+        self.socket.send("ACQ:AVG OFF");
+    }
+
+    pub fn is_average_enabled(&mut self) -> bool {
+        self.socket.send("ACQ:AVG?");
+
+        let message = self.socket.receive();
+
+        match message.as_str() {
+            "ON" => true,
+            _ => false,
+        }
+    }
+
     pub fn get_data(&mut self) -> String {
         self.socket.send("ACQ:SOUR1:DATA?");
 
@@ -63,16 +82,6 @@ mod test {
             acquire.$f();
             assert_eq!($e, rx.recv().unwrap());
         }
-    }
-
-    fn create_acquire() -> (::std::sync::mpsc::Receiver<String>, ::acquire::Acquire) {
-        let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(
-            format!("{}", addr.ip()).as_str(),
-            addr.port()
-        );
-
-        (rx, ::acquire::Acquire::new(socket))
     }
 
     #[test]
@@ -125,9 +134,36 @@ mod test {
     }
 
     #[test]
+    fn test_enable_average() {
+        acquire_assert!(enable_average, "ACQ:AVG ON\r\n");
+    }
+
+    #[test]
+    fn test_disable_average() {
+        acquire_assert!(disable_average, "ACQ:AVG OFF\r\n");
+    }
+
+    #[test]
+    fn test_is_average_enabled() {
+        let (_, mut acquire) = create_acquire();
+
+        assert_eq!(acquire.is_average_enabled(), true);
+    }
+
+    #[test]
     fn test_data() {
         let (_, mut acquire) = create_acquire();
 
         assert_eq!(acquire.get_data(), String::from("{1.2,3.2,-1.2}"));
+    }
+
+    fn create_acquire() -> (::std::sync::mpsc::Receiver<String>, ::acquire::Acquire) {
+        let (addr, rx) = ::test::launch_server();
+        let socket = ::socket::Socket::new(
+            format!("{}", addr.ip()).as_str(),
+            addr.port()
+        );
+
+        (rx, ::acquire::Acquire::new(socket))
     }
 }
