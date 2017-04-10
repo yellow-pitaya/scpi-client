@@ -2,6 +2,7 @@
 extern crate log;
 
 mod acquire;
+mod data;
 mod generator;
 mod socket;
 mod trigger;
@@ -10,6 +11,7 @@ pub struct Redpitaya {
     pub acquire: acquire::Acquire,
     pub generator: generator::Generator,
     pub trigger: trigger::Trigger,
+    pub data: data::Data,
 }
 
 impl Redpitaya {
@@ -20,6 +22,7 @@ impl Redpitaya {
             acquire: acquire::Acquire::new(socket.clone()),
             generator: generator::Generator::new(socket.clone()),
             trigger: trigger::Trigger::new(socket.clone()),
+            data: data::Data::new(socket.clone()),
         }
     }
 }
@@ -61,12 +64,40 @@ mod test {
                                 stream.write("1\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "ACQ:AVG?\r\n" => {
+                                stream.write("ON\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "ACQ:WPOS?\r\n" => {
+                                stream.write("1024\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "ACQ:TPOS?\r\n" => {
+                                stream.write("512\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "ACQ:SOUR1:DATA:STA:END? 10,13\r\n" => {
+                                stream.write("{123,231,-231}\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "ACQ:SOUR1:DATA:STA:N? 10,3\r\n" => {
+                                stream.write("{1.2,3.2,-1.2}\r\n".as_bytes())
+                                    .unwrap();
+                            },
                             "ACQ:SOUR1:DATA?\r\n" => {
                                 stream.write("{1.2,3.2,-1.2}\r\n".as_bytes())
                                     .unwrap();
                             },
-                            "ACQ:AVG?\r\n" => {
-                                stream.write("ON\r\n".as_bytes())
+                            "ACQ:SOUR1:DATA:OLD:N? 2\r\n" => {
+                                stream.write("{3.2,-1.2}\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "ACQ:SOUR1:DATA:LAT:N? 2\r\n" => {
+                                stream.write("{1.2,3.2}\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "ACQ:BUF:SIZE?\r\n" => {
+                                stream.write("16384\r\n".as_bytes())
                                     .unwrap();
                             },
                             "ACQ:TRIG:STAT?\r\n" => {

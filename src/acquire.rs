@@ -31,10 +31,6 @@ impl Acquire {
         self.socket.send("ACQ:RST");
     }
 
-    pub fn set_units(&mut self, unit: &str) {
-        self.socket.send(format!("ACQ:DATA:UNITS {}", unit));
-    }
-
     pub fn set_decimation(&mut self, decimation: u8) {
         self.socket.send(format!("ACQ:DEC {}", decimation));
     }
@@ -64,12 +60,6 @@ impl Acquire {
             "ON" => true,
             _ => false,
         }
-    }
-
-    pub fn get_data(&mut self) -> String {
-        self.socket.send("ACQ:SOUR1:DATA?");
-
-        self.socket.receive()
     }
 }
 
@@ -111,14 +101,6 @@ mod test {
     }
 
     #[test]
-    fn test_set_units() {
-        let (rx, mut acquire) = create_acquire();
-
-        acquire.set_units("VOLTS");
-        assert_eq!("ACQ:DATA:UNITS VOLTS\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
     fn test_set_decimation() {
         let (rx, mut acquire) = create_acquire();
 
@@ -148,13 +130,6 @@ mod test {
         let (_, mut acquire) = create_acquire();
 
         assert_eq!(acquire.is_average_enabled(), true);
-    }
-
-    #[test]
-    fn test_data() {
-        let (_, mut acquire) = create_acquire();
-
-        assert_eq!(acquire.get_data(), String::from("{1.2,3.2,-1.2}"));
     }
 
     fn create_acquire() -> (::std::sync::mpsc::Receiver<String>, ::acquire::Acquire) {
