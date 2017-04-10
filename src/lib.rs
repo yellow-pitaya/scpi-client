@@ -69,6 +69,22 @@ mod test {
                                 stream.write("ON\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "ACQ:TRIG:STAT?\r\n" => {
+                                stream.write("WAIT\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "ACQ:TRIG:DLY?\r\n" => {
+                                stream.write("2314\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "ACQ:TRIG:DLY:NS?\r\n" => {
+                                stream.write("128ns\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "ACQ:TRIG:LEV?\r\n" => {
+                                stream.write("123mV\r\n".as_bytes())
+                                    .unwrap();
+                            },
                             _ => tx.send(message).unwrap(),
                         };
                     });
