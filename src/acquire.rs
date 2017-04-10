@@ -53,3 +53,81 @@ impl Acquire {
         self.socket.receive()
     }
 }
+
+#[cfg(test)]
+mod test {
+    macro_rules! acquire_assert {
+        ($f:ident, $e:expr) => {
+            let (rx, mut acquire) = create_acquire();
+
+            acquire.$f();
+            assert_eq!($e, rx.recv().unwrap());
+        }
+    }
+
+    fn create_acquire() -> (::std::sync::mpsc::Receiver<String>, ::acquire::Acquire) {
+        let (addr, rx) = ::test::launch_server();
+        let socket = ::socket::Socket::new(
+            format!("{}", addr.ip()).as_str(),
+            addr.port()
+        );
+
+        (rx, ::acquire::Acquire::new(socket))
+    }
+
+    #[test]
+    fn test_start() {
+        acquire_assert!(start, "ACQ:START\r\n");
+    }
+
+    #[test]
+    fn test_stop() {
+        acquire_assert!(stop, "ACQ:STOP\r\n");
+    }
+
+    #[test]
+    fn test_is_started() {
+        let (_, mut acquire) = create_acquire();
+
+        assert_eq!(acquire.is_started(), false);
+        acquire.start();
+        assert_eq!(acquire.is_started(), true);
+        acquire.stop();
+        assert_eq!(acquire.is_started(), false);
+    }
+
+    #[test]
+    fn test_reset() {
+        acquire_assert!(reset, "ACQ:RST\r\n");
+    }
+
+    #[test]
+    fn test_set_units() {
+        let (rx, mut acquire) = create_acquire();
+
+        acquire.set_units("VOLTS");
+        assert_eq!("ACQ:DATA:UNITS VOLTS\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_set_decimation() {
+        let (rx, mut acquire) = create_acquire();
+
+        acquire.set_decimation(1);
+        assert_eq!("ACQ:DEC 1\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_decimation() {
+        let (_, mut acquire) = create_acquire();
+
+        assert_eq!(acquire.get_decimation(), 1);
+    }
+
+    #[test]
+    fn test_data() {
+        let (_, mut acquire) = create_acquire();
+
+        assert_eq!(acquire.get_data(), String::from("{1.2,3.2,-1.2}"));
+    }
+}

@@ -71,3 +71,85 @@ impl Generator {
         self.dcyc
     }
 }
+
+#[cfg(test)]
+mod test {
+    macro_rules! generator_assert {
+        ($f:ident, $e:expr) => {
+            let (rx, mut generator) = create_generator();
+
+            generator.$f();
+            assert_eq!($e, rx.recv().unwrap());
+        }
+    }
+
+    fn create_generator() -> (::std::sync::mpsc::Receiver<String>, ::generator::Generator) {
+        let (addr, rx) = ::test::launch_server();
+        let socket = ::socket::Socket::new(
+            format!("{}", addr.ip()).as_str(),
+            addr.port()
+        );
+
+        (rx, ::generator::Generator::new(socket))
+    }
+
+    #[test]
+    fn test_start() {
+        generator_assert!(start, "OUTPUT1:STATE ON\r\n");
+    }
+
+    #[test]
+    fn test_stop() {
+        generator_assert!(stop, "OUTPUT1:STATE OFF\r\n");
+    }
+
+    #[test]
+    fn test_is_started() {
+        let (_, mut generator) = create_generator();
+
+        assert_eq!(generator.is_started(), false);
+        generator.start();
+        assert_eq!(generator.is_started(), true);
+        generator.stop();
+        assert_eq!(generator.is_started(), false);
+    }
+
+    #[test]
+    fn test_form() {
+        let (rx, mut generator) = create_generator();
+
+        generator.set_form("SINE");
+        assert_eq!("SOUR1:FUNC SINE\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_amplitude() {
+        let (rx, mut generator) = create_generator();
+
+        generator.set_amplitude(-0.9);
+        assert_eq!("SOUR1:VOLT -0.9\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_set_frequency() {
+        let (rx, mut generator) = create_generator();
+
+        generator.set_frequency(500);
+        assert_eq!("SOUR1:FREQ:FIX 500\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_frequency() {
+        let (_, generator) = create_generator();
+
+        assert_eq!(generator.get_frequency(), 1000);
+    }
+
+    #[test]
+    fn test_dcyc() {
+        let (rx, mut generator) = create_generator();
+
+        generator.set_dcyc(100);
+        assert_eq!("SOUR1:DCYC 100\r\n", rx.recv().unwrap());
+    }
+}
