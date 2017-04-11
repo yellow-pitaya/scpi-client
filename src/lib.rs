@@ -21,8 +21,8 @@ pub struct Redpitaya {
 }
 
 impl Redpitaya {
-    pub fn new(ip: &str, port: u16) -> Redpitaya {
-        let socket = socket::Socket::new(ip, port);
+    pub fn new(addr: ::std::net::SocketAddr) -> Redpitaya {
+        let socket = socket::Socket::new(addr);
 
         Redpitaya {
             acquire: acquire::Acquire::new(socket.clone()),

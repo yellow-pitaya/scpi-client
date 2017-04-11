@@ -191,10 +191,7 @@ mod test {
 
     fn create_digital() -> (::std::sync::mpsc::Receiver<String>, ::digital::Digital) {
         let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(
-            format!("{}", addr.ip()).as_str(),
-            addr.port()
-        );
+        let socket = ::socket::Socket::new(addr);
 
         (rx, ::digital::Digital::new(socket))
     }

@@ -186,10 +186,7 @@ mod test {
 
     fn create_trigger() -> (::std::sync::mpsc::Receiver<String>, ::trigger::Trigger) {
         let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(
-            format!("{}", addr.ip()).as_str(),
-            addr.port()
-        );
+        let socket = ::socket::Socket::new(addr);
 
         (rx, ::trigger::Trigger::new(socket))
     }

@@ -216,10 +216,7 @@ mod test {
 
     fn create_acquire() -> (::std::sync::mpsc::Receiver<String>, ::acquire::Acquire) {
         let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(
-            format!("{}", addr.ip()).as_str(),
-            addr.port()
-        );
+        let socket = ::socket::Socket::new(addr);
 
         (rx, ::acquire::Acquire::new(socket))
     }

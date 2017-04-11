@@ -5,10 +5,10 @@ pub struct Socket {
 }
 
 impl Socket {
-    pub fn new(ip: &str, port: u16) -> Self {
-        let socket = match ::std::net::TcpStream::connect((ip, port)) {
+    pub fn new(addr: ::std::net::SocketAddr) -> Self {
+        let socket = match ::std::net::TcpStream::connect(addr) {
             Ok(socket) => socket,
-            Err(_) => panic!("Unable to connect to {}:{}", ip, port),
+            Err(_) => panic!("Unable to connect to {}", addr),
         };
 
         Socket {

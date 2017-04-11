@@ -92,10 +92,7 @@ mod test {
 
     fn create_analog() -> (::std::sync::mpsc::Receiver<String>, ::analog::Analog) {
         let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(
-            format!("{}", addr.ip()).as_str(),
-            addr.port()
-        );
+        let socket = ::socket::Socket::new(addr);
 
         (rx, ::analog::Analog::new(socket))
     }

@@ -108,10 +108,7 @@ mod test {
 
     fn create_burst() -> (::std::sync::mpsc::Receiver<String>, ::burst::Burst) {
         let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(
-            format!("{}", addr.ip()).as_str(),
-            addr.port()
-        );
+        let socket = ::socket::Socket::new(addr);
 
         (rx, ::burst::Burst::new(socket))
     }
