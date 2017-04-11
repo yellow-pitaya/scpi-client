@@ -16,6 +16,22 @@ impl ::std::fmt::Display for Source {
     }
 }
 
+enum State {
+    ON,
+    OFF,
+}
+
+impl ::std::fmt::Display for State {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &State::ON => "ON",
+            &State::OFF => "OFF",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 pub struct Burst {
     socket: Socket,
 }
@@ -28,11 +44,11 @@ impl Burst {
     }
 
     pub fn enable(&mut self, source: Source) {
-        self.socket.send(format!("{}:BURS:STAT ON", source));
+        self.socket.send(format!("{}:BURS:STAT {}", source, State::ON));
     }
 
     pub fn disable(&mut self, source: Source) {
-        self.socket.send(format!("{}:BURS:STAT OFF", source));
+        self.socket.send(format!("{}:BURS:STAT {}", source, State::OFF));
     }
 
     pub fn set_count(&mut self, source: Source, count: u32) {
