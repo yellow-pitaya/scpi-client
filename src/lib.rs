@@ -4,6 +4,7 @@ extern crate log;
 mod acquire;
 mod burst;
 mod data;
+mod digital;
 mod generator;
 mod socket;
 mod trigger;
@@ -11,6 +12,7 @@ mod trigger;
 pub struct Redpitaya {
     pub acquire: acquire::Acquire,
     pub burst: burst::Burst,
+    pub digital: digital::Digital,
     pub generator: generator::Generator,
     pub trigger: trigger::Trigger,
     pub data: data::Data,
@@ -23,6 +25,7 @@ impl Redpitaya {
         Redpitaya {
             acquire: acquire::Acquire::new(socket.clone()),
             burst: burst::Burst::new(socket.clone()),
+            digital: digital::Digital::new(socket.clone()),
             generator: generator::Generator::new(socket.clone()),
             trigger: trigger::Trigger::new(socket.clone()),
             data: data::Data::new(socket.clone()),
@@ -117,6 +120,10 @@ mod test {
                             },
                             "ACQ:TRIG:LEV?\r\n" => {
                                 stream.write("123mV\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "DIG:PIN? DIO0_N\r\n" => {
+                                stream.write("1\r\n".as_bytes())
                                     .unwrap();
                             },
                             _ => tx.send(message).unwrap(),
