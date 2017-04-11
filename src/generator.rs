@@ -53,13 +53,12 @@ impl Generator {
         self.amplitude
     }
 
-    pub fn set_frequency(&mut self, frequency: u32) {
-        self.socket.send(format!("SOUR1:FREQ:FIX {}", frequency));
-        self.frequency = frequency;
+    pub fn set_offset(&mut self, offset: f32) {
+        self.socket.send(format!("SOUR1:VOLT:OFFS {}", offset));
     }
 
-    pub fn get_frequency(&self) -> u32 {
-        self.frequency
+    pub fn set_phase(&mut self, phase: i32) {
+        self.socket.send(format!("SOUR1:PHAS {}", phase));
     }
 
     pub fn set_dcyc(&mut self, dcyc: u32) {
@@ -69,6 +68,41 @@ impl Generator {
 
     pub fn get_dcyc(&self) -> u32 {
         self.dcyc
+    }
+
+    pub fn arbitrary_waveform(&mut self, data: Vec<f32>) {
+        let mut data = data.iter()
+            .fold(String::new(), |acc, e| {
+                format!("{}{},", acc, e)
+            });
+        data.pop();
+
+        self.socket.send(format!("SOUR1:TRAC:DATA:DATA {}", data));
+    }
+
+    pub fn set_frequency(&mut self, frequency: u32) {
+        self.socket.send(format!("SOUR1:FREQ:FIX {}", frequency));
+        self.frequency = frequency;
+    }
+
+    pub fn get_frequency(&self) -> u32 {
+        self.frequency
+    }
+
+    pub fn set_trigger_source(&mut self, source: &str) {
+        self.socket.send(format!("SOUR1:TRIG:SOUR {}", source));
+    }
+
+    pub fn trigger(&mut self) {
+        self.socket.send("SOUR1:TRIG:IMM");
+    }
+
+    pub fn trigger_all(&mut self) {
+        self.socket.send("TRIG:IMM");
+    }
+
+    pub fn reset(&mut self) {
+        self.socket.send("GEN:RST");
     }
 }
 
@@ -81,16 +115,6 @@ mod test {
             generator.$f();
             assert_eq!($e, rx.recv().unwrap());
         }
-    }
-
-    fn create_generator() -> (::std::sync::mpsc::Receiver<String>, ::generator::Generator) {
-        let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(
-            format!("{}", addr.ip()).as_str(),
-            addr.port()
-        );
-
-        (rx, ::generator::Generator::new(socket))
     }
 
     #[test]
@@ -131,6 +155,38 @@ mod test {
     }
 
     #[test]
+    fn test_set_offset() {
+        let (rx, mut generator) = create_generator();
+
+        generator.set_offset(-1.0);
+        assert_eq!("SOUR1:VOLT:OFFS -1\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_set_phase() {
+        let (rx, mut generator) = create_generator();
+
+        generator.set_phase(-360);
+        assert_eq!("SOUR1:PHAS -360\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_dcyc() {
+        let (rx, mut generator) = create_generator();
+
+        generator.set_dcyc(100);
+        assert_eq!("SOUR1:DCYC 100\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_arbitrary_waveform() {
+        let (rx, mut generator) = create_generator();
+
+        generator.arbitrary_waveform(vec![1.0, 0.5, 0.2]);
+        assert_eq!("SOUR1:TRAC:DATA:DATA 1,0.5,0.2\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
     fn test_set_frequency() {
         let (rx, mut generator) = create_generator();
 
@@ -146,10 +202,35 @@ mod test {
     }
 
     #[test]
-    fn test_dcyc() {
+    fn test_set_trigger_source() {
         let (rx, mut generator) = create_generator();
 
-        generator.set_dcyc(100);
-        assert_eq!("SOUR1:DCYC 100\r\n", rx.recv().unwrap());
+        generator.set_trigger_source("EXT");
+        assert_eq!("SOUR1:TRIG:SOUR EXT\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_trigger() {
+        generator_assert!(trigger, "SOUR1:TRIG:IMM\r\n");
+    }
+
+    #[test]
+    fn test_trigger_all() {
+        generator_assert!(trigger_all, "TRIG:IMM\r\n");
+    }
+
+    #[test]
+    fn test_reset() {
+        generator_assert!(reset, "GEN:RST\r\n");
+    }
+
+    fn create_generator() -> (::std::sync::mpsc::Receiver<String>, ::generator::Generator) {
+        let (addr, rx) = ::test::launch_server();
+        let socket = ::socket::Socket::new(
+            format!("{}", addr.ip()).as_str(),
+            addr.port()
+        );
+
+        (rx, ::generator::Generator::new(socket))
     }
 }
