@@ -2,6 +2,7 @@
 extern crate log;
 
 mod acquire;
+mod burst;
 mod data;
 mod generator;
 mod socket;
@@ -9,6 +10,7 @@ mod trigger;
 
 pub struct Redpitaya {
     pub acquire: acquire::Acquire,
+    pub burst: burst::Burst,
     pub generator: generator::Generator,
     pub trigger: trigger::Trigger,
     pub data: data::Data,
@@ -20,6 +22,7 @@ impl Redpitaya {
 
         Redpitaya {
             acquire: acquire::Acquire::new(socket.clone()),
+            burst: burst::Burst::new(socket.clone()),
             generator: generator::Generator::new(socket.clone()),
             trigger: trigger::Trigger::new(socket.clone()),
             data: data::Data::new(socket.clone()),
