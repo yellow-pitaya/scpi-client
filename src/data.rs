@@ -1,5 +1,6 @@
 use socket::Socket;
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Unit {
     RAW,
     VOLTS,
@@ -16,6 +17,7 @@ impl ::std::fmt::Display for Unit {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Format {
     FLOAT,
     ASCII,

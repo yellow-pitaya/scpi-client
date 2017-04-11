@@ -1,5 +1,6 @@
 use socket::Socket;
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum TriggerSource {
     EXT_PE,
     EXT_NE,
@@ -20,7 +21,7 @@ impl ::std::fmt::Display for TriggerSource {
     }
 }
 
-#[derive(Clone)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Form {
     SINE,
     SQUARE,
@@ -47,6 +48,7 @@ impl ::std::fmt::Display for Form {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Source {
     OUT1,
     OUT2,

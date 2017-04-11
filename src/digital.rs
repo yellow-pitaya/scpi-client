@@ -3,6 +3,7 @@ use socket::Socket;
 pub trait Pin: ::std::fmt::Display {
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Gpio {
     DIO0_N,
     DIO0_P,
@@ -50,6 +51,7 @@ impl ::std::fmt::Display for Gpio {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Led {
     LED0,
     LED1,
@@ -83,7 +85,7 @@ impl ::std::fmt::Display for Led {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum State {
     LOW,
     HIGH,
@@ -112,6 +114,7 @@ impl ::std::str::FromStr for State {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Direction {
     OUT,
     IN,

@@ -3,6 +3,7 @@ use socket::Socket;
 pub trait Pin: ::std::fmt::Display {
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum OutputPin {
     AOUT0,
     AOUT1,
@@ -26,6 +27,7 @@ impl ::std::fmt::Display for OutputPin {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum InputPin {
     AIN0,
     AIN1,

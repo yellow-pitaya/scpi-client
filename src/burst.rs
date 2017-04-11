@@ -1,5 +1,6 @@
 use socket::Socket;
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Source {
     OUT1,
     OUT2,

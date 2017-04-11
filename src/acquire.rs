@@ -1,5 +1,6 @@
 use socket::Socket;
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Gain {
     LV,
     HV,
@@ -16,6 +17,7 @@ impl ::std::fmt::Display for Gain {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Source {
     IN1,
     IN2,
@@ -32,7 +34,7 @@ impl ::std::fmt::Display for Source {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Decimation {
     DEC_1,
     DEC_8,

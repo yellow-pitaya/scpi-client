@@ -1,5 +1,6 @@
 use socket::Socket;
 
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Source {
     DISABLED,
     NOW,
@@ -32,7 +33,7 @@ impl ::std::fmt::Display for Source {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum State {
     WAIT,
     TD,
