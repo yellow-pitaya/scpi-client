@@ -195,12 +195,12 @@ impl Generator {
     /**
      * Set duty cycle of PWM waveform.
      */
-    pub fn set_dcyc(&mut self, source: Source, dcyc: u32) {
+    pub fn set_duty_cicle(&mut self, source: Source, dcyc: u32) {
         self.socket.send(format!("{}:DCYC {}", source, dcyc));
         self.states[source as usize].dcyc = dcyc;
     }
 
-    pub fn get_dcyc(&self, source: Source) -> u32 {
+    pub fn get_duty_cicle(&self, source: Source) -> u32 {
         self.states[source as usize].dcyc
     }
 
@@ -300,7 +300,7 @@ mod test {
     }
 
     #[test]
-    fn test_form() {
+    fn test_set_form() {
         let (rx, mut generator) = create_generator();
 
         generator.set_form(::generator::Source::OUT1, ::generator::Form::SINE);
@@ -332,10 +332,10 @@ mod test {
     }
 
     #[test]
-    fn test_dcyc() {
+    fn test_set_duty_cicle() {
         let (rx, mut generator) = create_generator();
 
-        generator.set_dcyc(::generator::Source::OUT1, 100);
+        generator.set_duty_cicle(::generator::Source::OUT1, 100);
         assert_eq!("SOUR1:DCYC 100\r\n", rx.recv().unwrap());
     }
 
