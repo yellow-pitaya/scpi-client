@@ -16,6 +16,22 @@ impl ::std::fmt::Display for Unit {
     }
 }
 
+pub enum Format {
+    FLOAT,
+    ASCII,
+}
+
+impl ::std::fmt::Display for Format {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Format::FLOAT => "FLOAT",
+            &Format::ASCII => "ASCII",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 pub struct Data {
     socket: Socket,
 }
@@ -47,7 +63,7 @@ impl Data {
         self.socket.send(format!("ACQ:DATA:UNITS {}", unit));
     }
 
-    pub fn set_format(&mut self, format: &str) {
+    pub fn set_format(&mut self, format: Format) {
         self.socket.send(format!("ACQ:DATA:FORMAT {}", format));
     }
 
@@ -118,7 +134,7 @@ mod test {
     fn test_set_format() {
         let (rx, mut data) = create_data();
 
-        data.set_format("FLOAT");
+        data.set_format(::data::Format::FLOAT);
         assert_eq!("ACQ:DATA:FORMAT FLOAT\r\n", rx.recv().unwrap());
     }
 
