@@ -1,5 +1,44 @@
 use socket::Socket;
 
+#[derive(Debug, PartialEq)]
+pub enum Decimation {
+    DEC_1,
+    DEC_8,
+    DEC_64,
+    DEC_1024,
+    DEC_8192,
+    DEC_65536,
+}
+
+impl ::std::fmt::Display for Decimation {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Decimation::DEC_1 => "1",
+            &Decimation::DEC_8 => "8",
+            &Decimation::DEC_64 => "64",
+            &Decimation::DEC_1024 => "1024",
+            &Decimation::DEC_8192 => "8192",
+            &Decimation::DEC_65536 => "65536",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
+impl ::std::convert::From<String> for Decimation {
+    fn from(s: String) -> Self {
+        match s.as_str() {
+            "1" => Decimation::DEC_1,
+            "8" => Decimation::DEC_8,
+            "64" => Decimation::DEC_64,
+            "1024" => Decimation::DEC_1024,
+            "8192" => Decimation::DEC_8192,
+            "65536" => Decimation::DEC_65536,
+            _ => Decimation::DEC_1,
+        }
+    }
+}
+
 pub struct Acquire {
     socket: Socket,
     started: bool,
@@ -31,16 +70,15 @@ impl Acquire {
         self.socket.send("ACQ:RST");
     }
 
-    pub fn set_decimation(&mut self, decimation: u8) {
+    pub fn set_decimation(&mut self, decimation: Decimation) {
         self.socket.send(format!("ACQ:DEC {}", decimation));
     }
 
-    pub fn get_decimation(&mut self) -> u8 {
+    pub fn get_decimation(&mut self) -> Decimation {
         self.socket.send("ACQ:DEC?");
 
         self.socket.receive()
-            .parse()
-            .unwrap()
+            .into()
     }
 
     pub fn enable_average(&mut self) {
@@ -108,15 +146,15 @@ mod test {
     fn test_set_decimation() {
         let (rx, mut acquire) = create_acquire();
 
-        acquire.set_decimation(1);
-        assert_eq!("ACQ:DEC 1\r\n", rx.recv().unwrap());
+        acquire.set_decimation(::acquire::Decimation::DEC_8);
+        assert_eq!("ACQ:DEC 8\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_get_decimation() {
         let (_, mut acquire) = create_acquire();
 
-        assert_eq!(acquire.get_decimation(), 1);
+        assert_eq!(acquire.get_decimation(), ::acquire::Decimation::DEC_1);
     }
 
     #[test]
