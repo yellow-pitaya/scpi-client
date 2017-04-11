@@ -125,7 +125,7 @@ mod test {
                                 stream.write("123mV\r\n".as_bytes())
                                     .unwrap();
                             },
-                            "ANALOG:PIN? AOUT2\r\n" => {
+                            "ANALOG:PIN? AIN1\r\n" => {
                                 stream.write("1.34\r\n".as_bytes())
                                     .unwrap();
                             },
