@@ -32,6 +32,23 @@ impl ::std::fmt::Display for Source {
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub enum State {
+    WAIT,
+    TD,
+    UNKNOW,
+}
+
+impl ::std::convert::From<String> for State {
+    fn from(s: String) -> Self {
+        match s.as_str() {
+            "WAIT" => State::WAIT,
+            "TD" => State::TD,
+            _ => State::UNKNOW,
+        }
+    }
+}
+
 pub struct Trigger {
     socket: Socket,
 }
@@ -51,10 +68,11 @@ impl Trigger {
         self.enable(Source::DISABLED);
     }
 
-    pub fn get_state(&mut self) -> String {
+    pub fn get_state(&mut self) -> State {
         self.socket.send("ACQ:TRIG:STAT?");
 
         self.socket.receive()
+            .into()
     }
 
     pub fn set_delay(&mut self, delay: u8) {
@@ -118,7 +136,7 @@ mod test {
     fn test_get_state() {
         let (_, mut trigger) = create_trigger();
 
-        assert_eq!(trigger.get_state(), "WAIT");
+        assert_eq!(trigger.get_state(), ::trigger::State::WAIT);
     }
 
     #[test]
