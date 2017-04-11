@@ -1,5 +1,21 @@
 use socket::Socket;
 
+pub enum Gain {
+    LV,
+    HV,
+}
+
+impl ::std::fmt::Display for Gain {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Gain::LV => "LV",
+            &Gain::HV => "HV",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 pub enum Source {
     IN1,
     IN2,
@@ -116,7 +132,7 @@ impl Acquire {
         }
     }
 
-    pub fn set_gain(&mut self, source: Source, gain: &str) {
+    pub fn set_gain(&mut self, source: Source, gain: Gain) {
         self.socket.send(format!("ACQ:{}:GAIN {}", source, gain));
     }
 }
@@ -194,7 +210,7 @@ mod test {
     fn test_set_gain() {
         let (rx, mut trigger) = create_acquire();
 
-        trigger.set_gain(::acquire::Source::IN1, "LV");
+        trigger.set_gain(::acquire::Source::IN1, ::acquire::Gain::LV);
         assert_eq!("ACQ:SOUR1:GAIN LV\r\n", rx.recv().unwrap());
     }
 
