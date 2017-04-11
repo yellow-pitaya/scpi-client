@@ -1,5 +1,21 @@
 use socket::Socket;
 
+pub enum Direction {
+    OUT,
+    IN,
+}
+
+impl ::std::fmt::Display for Direction {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Direction::OUT => "OUT",
+            &Direction::IN => "IN",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 pub struct Digital {
     socket: Socket,
 }
@@ -11,7 +27,7 @@ impl Digital {
         }
     }
 
-    pub fn set_direction(&mut self, pin: &str, direction: &str) {
+    pub fn set_direction(&mut self, pin: &str, direction: Direction) {
         self.socket.send(format!("DIG:PIN:DIR {},{}", direction, pin));
     }
 
@@ -31,10 +47,18 @@ impl Digital {
 #[cfg(test)]
 mod test {
     #[test]
-    fn test_set_direction() {
+    fn test_set_direction_in() {
         let (rx, mut digital) = create_digital();
 
-        digital.set_direction("DIO0_N", "OUT");
+        digital.set_direction("DIO0_N", ::digital::Direction::IN);
+        assert_eq!("DIG:PIN:DIR IN,DIO0_N\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_set_direction_out() {
+        let (rx, mut digital) = create_digital();
+
+        digital.set_direction("DIO0_N", ::digital::Direction::OUT);
         assert_eq!("DIG:PIN:DIR OUT,DIO0_N\r\n", rx.recv().unwrap());
     }
 
