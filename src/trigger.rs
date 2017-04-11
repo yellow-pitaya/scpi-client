@@ -1,5 +1,37 @@
 use socket::Socket;
 
+pub enum Source {
+    DISABLED,
+    NOW,
+    CH1_PE,
+    CH1_NE,
+    CH2_PE,
+    CH2_NE,
+    EXT_PE,
+    EXT_NE,
+    AWG_PE,
+    AWG_NE,
+}
+
+impl ::std::fmt::Display for Source {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Source::DISABLED => "DISABLED",
+            &Source::NOW => "NOW",
+            &Source::CH1_PE => "CH1_PE",
+            &Source::CH1_NE => "CH1_NE",
+            &Source::CH2_PE => "CH2_PE",
+            &Source::CH2_NE => "CH2_NE",
+            &Source::EXT_PE => "EXT_PE",
+            &Source::EXT_NE => "EXT_NE",
+            &Source::AWG_PE => "AWG_PE",
+            &Source::AWG_NE => "AWG_NE",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 pub struct Trigger {
     socket: Socket,
 }
@@ -11,12 +43,12 @@ impl Trigger {
         }
     }
 
-    pub fn enable(&mut self, source: &str) {
+    pub fn enable(&mut self, source: Source) {
         self.socket.send(format!("ACQ:TRIG {}", source));
     }
 
     pub fn disable(&mut self) {
-        self.enable("DISABLED");
+        self.enable(Source::DISABLED);
     }
 
     pub fn get_state(&mut self) -> String {
@@ -73,7 +105,7 @@ mod test {
     fn test_enable() {
         let (rx, mut trigger) = create_trigger();
 
-        trigger.enable("NOW");
+        trigger.enable(::trigger::Source::NOW);
         assert_eq!("ACQ:TRIG NOW\r\n", rx.recv().unwrap());
     }
 
