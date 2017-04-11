@@ -1,14 +1,14 @@
 #[macro_use]
 extern crate log;
 
-mod acquire;
-mod analog;
-mod burst;
-mod data;
-mod digital;
-mod generator;
-mod socket;
-mod trigger;
+pub mod acquire;
+pub mod analog;
+pub mod burst;
+pub mod data;
+pub mod digital;
+pub mod generator;
+pub mod socket;
+pub mod trigger;
 
 pub struct Redpitaya {
     pub acquire: acquire::Acquire,
