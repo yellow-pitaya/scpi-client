@@ -61,6 +61,10 @@ impl Acquire {
             _ => false,
         }
     }
+
+    pub fn set_gain(&mut self, source: u8, gain: &str) {
+        self.socket.send(format!("ACQ:SOUR{}:GAIN {}", source, gain));
+    }
 }
 
 #[cfg(test)]
@@ -130,6 +134,14 @@ mod test {
         let (_, mut acquire) = create_acquire();
 
         assert_eq!(acquire.is_average_enabled(), true);
+    }
+
+    #[test]
+    fn test_set_gain() {
+        let (rx, mut trigger) = create_acquire();
+
+        trigger.set_gain(1, "LV");
+        assert_eq!("ACQ:SOUR1:GAIN LV\r\n", rx.recv().unwrap());
     }
 
     fn create_acquire() -> (::std::sync::mpsc::Receiver<String>, ::acquire::Acquire) {

@@ -47,10 +47,6 @@ impl Trigger {
         self.socket.receive()
     }
 
-    pub fn set_gain(&mut self, source: u8, gain: &str) {
-        self.socket.send(format!("ACQ:SOUR{}:GAIN {}", source, gain));
-    }
-
     pub fn set_level(&mut self, level: u8) {
         self.socket.send(format!("ACQ:TRIG:LEV {}", level));
     }
@@ -121,14 +117,6 @@ mod test {
         let (_, mut trigger) = create_trigger();
 
         assert_eq!(trigger.get_delay_in_ns().as_str(), "128ns");
-    }
-
-    #[test]
-    fn test_set_gain() {
-        let (rx, mut trigger) = create_trigger();
-
-        trigger.set_gain(1, "LV");
-        assert_eq!("ACQ:SOUR1:GAIN LV\r\n", rx.recv().unwrap());
     }
 
     #[test]
