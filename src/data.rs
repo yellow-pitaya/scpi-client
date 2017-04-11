@@ -1,5 +1,21 @@
 use socket::Socket;
 
+pub enum Unit {
+    RAW,
+    VOLTS,
+}
+
+impl ::std::fmt::Display for Unit {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Unit::RAW => "RAW",
+            &Unit::VOLTS => "VOLTS",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 pub struct Data {
     socket: Socket,
 }
@@ -27,7 +43,7 @@ impl Data {
             .unwrap()
     }
 
-    pub fn set_units(&mut self, unit: &str) {
+    pub fn set_units(&mut self, unit: Unit) {
         self.socket.send(format!("ACQ:DATA:UNITS {}", unit));
     }
 
@@ -94,7 +110,7 @@ mod test {
     fn test_set_units() {
         let (rx, mut data) = create_data();
 
-        data.set_units("VOLTS");
+        data.set_units(::data::Unit::VOLTS);
         assert_eq!("ACQ:DATA:UNITS VOLTS\r\n", rx.recv().unwrap());
     }
 
