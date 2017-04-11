@@ -1,5 +1,32 @@
 use socket::Socket;
 
+#[derive(Clone)]
+pub enum Form {
+    SINE,
+    SQUARE,
+    TRIANGLE,
+    SAWU,
+    SAWD,
+    PWM,
+    ARBITRARY,
+}
+
+impl ::std::fmt::Display for Form {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Form::SINE => "SINE",
+            &Form::SQUARE => "SQUARE",
+            &Form::TRIANGLE => "TRIANGLE",
+            &Form::SAWU => "SAWU",
+            &Form::SAWD => "SAWD",
+            &Form::PWM => "PWM",
+            &Form::ARBITRARY => "ARBITRARY",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 pub enum Source {
     OUT1,
     OUT2,
@@ -28,7 +55,7 @@ impl ::std::convert::Into<usize> for Source {
 
 struct State {
     started: bool,
-    form: String,
+    form: Form,
     amplitude: f32,
     frequency: u32,
     dcyc: u32,
@@ -38,7 +65,7 @@ impl State {
     pub fn new() -> Self {
         State {
             started: false,
-            form: "SYN".into(),
+            form: Form::SINE,
             amplitude: 1.0,
             frequency: 1000,
             dcyc: 50,
@@ -85,14 +112,12 @@ impl Generator {
         self.states[source as usize].started
     }
 
-    pub fn set_form<S>(&mut self, source: Source, form: S) where S: Into<String> {
-        let form = form.into();
-
+    pub fn set_form(&mut self, source: Source, form: Form) {
         self.socket.send(format!("{}:FUNC {}", source, form));
         self.states[source as usize].form = form;
     }
 
-    pub fn get_form(&self, source: Source) -> String {
+    pub fn get_form(&self, source: Source) -> Form {
         self.states[source as usize].form.clone()
     }
 
@@ -200,7 +225,7 @@ mod test {
     fn test_form() {
         let (rx, mut generator) = create_generator();
 
-        generator.set_form(::generator::Source::OUT1, "SINE");
+        generator.set_form(::generator::Source::OUT1, ::generator::Form::SINE);
         assert_eq!("SOUR1:FUNC SINE\r\n", rx.recv().unwrap());
     }
 
