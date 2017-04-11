@@ -85,8 +85,8 @@ impl Data {
      * start = {0,1,...,16384}
      * stop_pos = {0,1,...116384}
      */
-    pub fn read_slice(&mut self, source: u8, start: u16, end: u16) -> String {
-        self.socket.send(format!("ACQ:SOUR{}:DATA:STA:END? {},{}", source, start, end));
+    pub fn read_slice(&mut self, source: ::acquire::Source, start: u16, end: u16) -> String {
+        self.socket.send(format!("ACQ:{}:DATA:STA:END? {},{}", source, start, end));
 
         self.socket.receive()
     }
@@ -94,8 +94,8 @@ impl Data {
     /**
      * Read `m` samples from start position on.
      */
-    pub fn read(&mut self, source: u8, start: u16, len: u32) -> String {
-        self.socket.send(format!("ACQ:SOUR{}:DATA:STA:N? {},{}", source, start, len));
+    pub fn read(&mut self, source: ::acquire::Source, start: u16, len: u32) -> String {
+        self.socket.send(format!("ACQ:{}:DATA:STA:N? {},{}", source, start, len));
 
         self.socket.receive()
     }
@@ -108,8 +108,8 @@ impl Data {
      * in seconds). If trigger delay is set to zero it will read full buf.
      * Size starting from trigger.
      */
-    pub fn read_all(&mut self, source: u8) -> String {
-        self.socket.send(format!("ACQ:SOUR{}:DATA?", source));
+    pub fn read_all(&mut self, source: ::acquire::Source) -> String {
+        self.socket.send(format!("ACQ:{}:DATA?", source));
 
         self.socket.receive()
     }
@@ -121,8 +121,8 @@ impl Data {
      * Trigger delay by default is set to zero (in samples or in seconds). If
      * trigger delay is set to zero it will read m samples starting from trigger.
      */
-    pub fn read_oldest(&mut self, source: u8, len: u32) -> String {
-        self.socket.send(format!("ACQ:SOUR{}:DATA:OLD:N? {}", source, len));
+    pub fn read_oldest(&mut self, source: ::acquire::Source, len: u32) -> String {
+        self.socket.send(format!("ACQ:{}:DATA:OLD:N? {}", source, len));
 
         self.socket.receive()
     }
@@ -133,8 +133,8 @@ impl Data {
      * Trigger delay by default is set to zero (in samples or in seconds). If
      * trigger delay is set to zero it will read m samples before trigger.
      */
-    pub fn read_latest(&mut self, source: u8, len: u32) -> String {
-        self.socket.send(format!("ACQ:SOUR{}:DATA:LAT:N? {}", source, len));
+    pub fn read_latest(&mut self, source: ::acquire::Source, len: u32) -> String {
+        self.socket.send(format!("ACQ:{}:DATA:LAT:N? {}", source, len));
 
         self.socket.receive()
     }
@@ -187,35 +187,35 @@ mod test {
     fn test_read_slice() {
         let (_, mut data) = create_data();
 
-        assert_eq!(data.read_slice(1, 10, 13), "{123,231,-231}");
+        assert_eq!(data.read_slice(::acquire::Source::IN1, 10, 13), "{123,231,-231}");
     }
 
     #[test]
     fn test_read() {
         let (_, mut data) = create_data();
 
-        assert_eq!(data.read(1, 10, 3), "{1.2,3.2,-1.2}");
+        assert_eq!(data.read(::acquire::Source::IN1, 10, 3), "{1.2,3.2,-1.2}");
     }
 
     #[test]
     fn test_read_all() {
         let (_, mut data) = create_data();
 
-        assert_eq!(data.read_all(1), "{1.2,3.2,-1.2}");
+        assert_eq!(data.read_all(::acquire::Source::IN1), "{1.2,3.2,-1.2}");
     }
 
     #[test]
     fn test_read_oldest() {
         let (_, mut data) = create_data();
 
-        assert_eq!(data.read_oldest(1, 2), "{3.2,-1.2}");
+        assert_eq!(data.read_oldest(::acquire::Source::IN1, 2), "{3.2,-1.2}");
     }
 
     #[test]
     fn test_read_latest() {
         let (_, mut data) = create_data();
 
-        assert_eq!(data.read_latest(1, 2), "{1.2,3.2}");
+        assert_eq!(data.read_latest(::acquire::Source::IN1, 2), "{1.2,3.2}");
     }
 
     #[test]
