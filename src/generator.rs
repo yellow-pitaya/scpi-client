@@ -1,5 +1,25 @@
 use socket::Socket;
 
+pub enum TriggerSource {
+    EXT_PE,
+    EXT_NE,
+    INT,
+    GATED,
+}
+
+impl ::std::fmt::Display for TriggerSource {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &TriggerSource::EXT_PE => "EXT_PE",
+            &TriggerSource::EXT_NE => "EXT_NE",
+            &TriggerSource::INT => "INT",
+            &TriggerSource::GATED => "GATED",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 #[derive(Clone)]
 pub enum Form {
     SINE,
@@ -166,7 +186,7 @@ impl Generator {
         self.states[source as usize].frequency
     }
 
-    pub fn set_trigger_source(&mut self, source: Source, trigger: &str) {
+    pub fn set_trigger_source(&mut self, source: Source, trigger: TriggerSource) {
         self.socket.send(format!("{}:TRIG:SOUR {}", source, trigger));
     }
 
@@ -288,8 +308,8 @@ mod test {
     fn test_set_trigger_source() {
         let (rx, mut generator) = create_generator();
 
-        generator.set_trigger_source(::generator::Source::OUT1, "EXT");
-        assert_eq!("SOUR1:TRIG:SOUR EXT\r\n", rx.recv().unwrap());
+        generator.set_trigger_source(::generator::Source::OUT1, ::generator::TriggerSource::EXT_PE);
+        assert_eq!("SOUR1:TRIG:SOUR EXT_PE\r\n", rx.recv().unwrap());
     }
 
     #[test]
