@@ -1,5 +1,21 @@
 use socket::Socket;
 
+pub enum Source {
+    IN1,
+    IN2,
+}
+
+impl ::std::fmt::Display for Source {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Source::IN1 => "SOUR1",
+            &Source::IN2 => "SOUR2",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum Decimation {
     DEC_1,
@@ -100,8 +116,8 @@ impl Acquire {
         }
     }
 
-    pub fn set_gain(&mut self, source: u8, gain: &str) {
-        self.socket.send(format!("ACQ:SOUR{}:GAIN {}", source, gain));
+    pub fn set_gain(&mut self, source: Source, gain: &str) {
+        self.socket.send(format!("ACQ:{}:GAIN {}", source, gain));
     }
 }
 
@@ -178,7 +194,7 @@ mod test {
     fn test_set_gain() {
         let (rx, mut trigger) = create_acquire();
 
-        trigger.set_gain(1, "LV");
+        trigger.set_gain(::acquire::Source::IN1, "LV");
         assert_eq!("ACQ:SOUR1:GAIN LV\r\n", rx.recv().unwrap());
     }
 
