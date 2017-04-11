@@ -21,7 +21,7 @@ pub struct Redpitaya {
 }
 
 impl Redpitaya {
-    pub fn new(addr: ::std::net::SocketAddr) -> Redpitaya {
+    pub fn new<S>(addr: S) -> Redpitaya where S: ::std::net::ToSocketAddrs {
         let socket = socket::Socket::new(addr);
 
         Redpitaya {
