@@ -43,6 +43,9 @@ impl Data {
         }
     }
 
+    /**
+     * Returns current position of write pointer.
+     */
     pub fn get_write_pointer(&mut self) -> u32 {
         self.socket.send("ACQ:WPOS?");
 
@@ -51,6 +54,9 @@ impl Data {
             .unwrap()
     }
 
+    /**
+     * Returns position where trigger event appeared.
+     */
     pub fn get_trigger_position(&mut self) -> u32 {
         self.socket.send("ACQ:TPOS?");
 
@@ -59,44 +65,83 @@ impl Data {
             .unwrap()
     }
 
+    /**
+     * Selects units in which acquired data will be returned.
+     */
     pub fn set_units(&mut self, unit: Unit) {
         self.socket.send(format!("ACQ:DATA:UNITS {}", unit));
     }
 
+    /**
+     * Selects format acquired data will be returned.
+     */
     pub fn set_format(&mut self, format: Format) {
         self.socket.send(format!("ACQ:DATA:FORMAT {}", format));
     }
 
-    pub fn read_slice(&mut self, source: u8, start: u32, end: u32) -> String {
+    /**
+     * Read samples from start to stop position.
+     *
+     * start = {0,1,...,16384}
+     * stop_pos = {0,1,...116384}
+     */
+    pub fn read_slice(&mut self, source: u8, start: u16, end: u16) -> String {
         self.socket.send(format!("ACQ:SOUR{}:DATA:STA:END? {},{}", source, start, end));
 
         self.socket.receive()
     }
 
-    pub fn read(&mut self, source: u8, start: u32, len: u32) -> String {
+    /**
+     * Read `m` samples from start position on.
+     */
+    pub fn read(&mut self, source: u8, start: u16, len: u32) -> String {
         self.socket.send(format!("ACQ:SOUR{}:DATA:STA:N? {},{}", source, start, len));
 
         self.socket.receive()
     }
 
+    /**
+     * Read full buf.
+     *
+     * Size starting from oldest sample in buffer (this is first sample after
+     * trigger delay). Trigger delay by default is set to zero (in samples or
+     * in seconds). If trigger delay is set to zero it will read full buf.
+     * Size starting from trigger.
+     */
     pub fn read_all(&mut self, source: u8) -> String {
         self.socket.send(format!("ACQ:SOUR{}:DATA?", source));
 
         self.socket.receive()
     }
 
+    /**
+     * Read m samples after trigger delay, starting from oldest sample in buffer
+     * (this is first sample after trigger delay).
+     *
+     * Trigger delay by default is set to zero (in samples or in seconds). If
+     * trigger delay is set to zero it will read m samples starting from trigger.
+     */
     pub fn read_oldest(&mut self, source: u8, len: u32) -> String {
         self.socket.send(format!("ACQ:SOUR{}:DATA:OLD:N? {}", source, len));
 
         self.socket.receive()
     }
 
+    /**
+     * Read ``m`` samples before trigger delay.
+     *
+     * Trigger delay by default is set to zero (in samples or in seconds). If
+     * trigger delay is set to zero it will read m samples before trigger.
+     */
     pub fn read_latest(&mut self, source: u8, len: u32) -> String {
         self.socket.send(format!("ACQ:SOUR{}:DATA:LAT:N? {}", source, len));
 
         self.socket.receive()
     }
 
+    /**
+     * Returns buffer size.
+     */
     pub fn buffer_size(&mut self) -> u32 {
         self.socket.send("ACQ:BUF:SIZE?");
 

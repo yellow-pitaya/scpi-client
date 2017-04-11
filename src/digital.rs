@@ -139,14 +139,23 @@ impl Digital {
         }
     }
 
+    /**
+     * Set direction of digital pins to output or input.
+     */
     pub fn set_direction<P>(&mut self, pin: P, direction: Direction) where P: Pin {
         self.socket.send(format!("DIG:PIN:DIR {},{}", direction, pin));
     }
 
+    /**
+     * Set state of digital outputs to 1 (HIGH) or 0 (LOW).
+     */
     pub fn set_state<P>(&mut self, pin: P, state: State) where P: Pin {
         self.socket.send(format!("DIG:PIN {},{}", pin, state));
     }
 
+    /**
+     * Get state of digital inputs and outputs.
+     */
     pub fn get_state<P>(&mut self, pin: P) -> State where P: Pin {
         self.socket.send(format!("DIG:PIN? {}", pin));
 

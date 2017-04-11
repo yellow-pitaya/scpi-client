@@ -43,22 +43,41 @@ impl Burst {
         }
     }
 
+    /**
+     * Enable burst (pulse) mode.
+     *
+     * Red Pitaya will generate R number of N periods of signal and then stop. Time between bursts
+     * is P.
+     */
     pub fn enable(&mut self, source: Source) {
         self.socket.send(format!("{}:BURS:STAT {}", source, State::ON));
     }
 
+    /**
+     * Disable burst mode.
+     */
     pub fn disable(&mut self, source: Source) {
         self.socket.send(format!("{}:BURS:STAT {}", source, State::OFF));
     }
 
+    /**
+     * Set N number of periods in one burst.
+     */
     pub fn set_count(&mut self, source: Source, count: u32) {
         self.socket.send(format!("{}:BURS:NCYC {}", source, count));
     }
 
+    /**
+     * Set R number of repeated bursts.
+     */
     pub fn set_repetitions(&mut self, source: Source, repetitions: u32) {
         self.socket.send(format!("{}:BURS:NOR {}", source, repetitions));
     }
 
+    /**
+     * Set P total time of one burst in in micro seconds.
+     * This includes the signal and delay.
+     */
     pub fn set_period(&mut self, source: Source, period: u32) {
         self.socket.send(format!("{}:BURS:INT:PER {}", source, period));
     }

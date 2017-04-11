@@ -60,14 +60,25 @@ impl Trigger {
         }
     }
 
+    /**
+     * Trigger immediately or set trigger source & edge.
+     */
     pub fn enable(&mut self, source: Source) {
         self.socket.send(format!("ACQ:TRIG {}", source));
     }
 
+    /**
+     * Disable triggering.
+     */
     pub fn disable(&mut self) {
         self.enable(Source::DISABLED);
     }
 
+    /**
+     *  Get trigger status.
+     *
+     *  If DISABLED -> TD else WAIT.
+     */
     pub fn get_state(&mut self) -> State {
         self.socket.send("ACQ:TRIG:STAT?");
 
@@ -75,10 +86,16 @@ impl Trigger {
             .into()
     }
 
+    /**
+     * Set trigger delay in samples.
+     */
     pub fn set_delay(&mut self, delay: u8) {
         self.socket.send(format!("ACQ:TRIG:DLY {}", delay));
     }
 
+    /**
+     * Get trigger delay in samples.
+     */
     pub fn get_delay(&mut self) -> u16 {
         self.socket.send("ACQ:TRIG:DLY?");
 
@@ -87,20 +104,32 @@ impl Trigger {
             .unwrap()
     }
 
+    /**
+     * Set trigger delay in ns.
+     */
     pub fn set_delay_in_ns(&mut self, delay: u8) {
         self.socket.send(format!("ACQ:TRIG:DLY:NS {}", delay));
     }
 
+    /**
+     * Get trigger delay in ns.
+     */
     pub fn get_delay_in_ns(&mut self) -> String {
         self.socket.send("ACQ:TRIG:DLY:NS?");
 
         self.socket.receive()
     }
 
+    /**
+     * Set trigger level in mV.
+     */
     pub fn set_level(&mut self, level: u8) {
         self.socket.send(format!("ACQ:TRIG:LEV {}", level));
     }
 
+    /**
+     * Get trigger level in mV.
+     */
     pub fn get_level(&mut self) -> String {
         self.socket.send("ACQ:TRIG:LEV?");
 

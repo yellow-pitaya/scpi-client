@@ -60,10 +60,20 @@ impl Analog {
         }
     }
 
+    /**
+     * Set analog voltage on slow analog outputs.
+     *
+     * Voltage range of slow analog outputs is: 0 - 1.8 V
+     */
     pub fn set_value(&mut self, pin: OutputPin, value: f32) {
         self.socket.send(format!("ANALOG:PIN {},{}", pin, value));
     }
 
+    /**
+     * Read analog voltage from slow analog inputs.
+     *
+     * Voltage range of slow analog inputs is: 0 3.3 V
+     */
     pub fn get_value<P>(&mut self, pin: P) -> f32 where P: Pin {
         self.socket.send(format!("ANALOG:PIN? {}", pin));
 

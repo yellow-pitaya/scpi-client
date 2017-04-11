@@ -84,11 +84,17 @@ impl Acquire {
         }
     }
 
+    /**
+     * Starts acquisition.
+     */
     pub fn start(&mut self) {
         self.socket.send("ACQ:START");
         self.started = true;
     }
 
+    /**
+     * Stops acquisition.
+     */
     pub fn stop(&mut self) {
         self.socket.send("ACQ:STOP");
         self.started = false;
@@ -98,14 +104,23 @@ impl Acquire {
         self.started
     }
 
+    /**
+     * Stops acquisition and sets all parameters to default values.
+     */
     pub fn reset(&mut self) {
         self.socket.send("ACQ:RST");
     }
 
+    /**
+     * Set decimation factor.
+     */
     pub fn set_decimation(&mut self, decimation: Decimation) {
         self.socket.send(format!("ACQ:DEC {}", decimation));
     }
 
+    /**
+     * Get decimation factor.
+     */
     pub fn get_decimation(&mut self) -> Decimation {
         self.socket.send("ACQ:DEC?");
 
@@ -113,14 +128,23 @@ impl Acquire {
             .into()
     }
 
+    /**
+     * Enable averaging.
+     */
     pub fn enable_average(&mut self) {
         self.socket.send("ACQ:AVG ON");
     }
 
+    /**
+     * Disable averaging.
+     */
     pub fn disable_average(&mut self) {
         self.socket.send("ACQ:AVG OFF");
     }
 
+    /**
+     * Get averaging status.
+     */
     pub fn is_average_enabled(&mut self) -> bool {
         self.socket.send("ACQ:AVG?");
 
@@ -132,6 +156,11 @@ impl Acquire {
         }
     }
 
+    /**
+     * Set gain settings to HIGH or LOW.
+     *
+     * This gain is referring to jumper settings on Red Pitaya fast analog inputs.
+     */
     pub fn set_gain(&mut self, source: Source, gain: Gain) {
         self.socket.send(format!("ACQ:{}:GAIN {}", source, gain));
     }

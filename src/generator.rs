@@ -109,11 +109,17 @@ impl Generator {
         }
     }
 
+    /**
+     * Enable fast analog outputs.
+     */
     pub fn start(&mut self, source: Source) {
         self.set_state(&source, "ON");
         self.states[source as usize].started = true;
     }
 
+    /**
+     * Disable fast analog outputs.
+     */
     pub fn stop(&mut self, source: Source) {
         self.set_state(&source, "OFF");
         self.states[source as usize].started = false;
@@ -132,6 +138,21 @@ impl Generator {
         self.states[source as usize].started
     }
 
+    /**
+     * Set frequency of fast analog outputs.
+     */
+    pub fn set_frequency(&mut self, source: Source, frequency: u32) {
+        self.socket.send(format!("{}:FREQ:FIX {}", source, frequency));
+        self.states[source as usize].frequency = frequency;
+    }
+
+    pub fn get_frequency(&self, source: Source) -> u32 {
+        self.states[source as usize].frequency
+    }
+
+    /**
+     * Set waveform of fast analog outputs.
+     */
     pub fn set_form(&mut self, source: Source, form: Form) {
         self.socket.send(format!("{}:FUNC {}", source, form));
         self.states[source as usize].form = form;
@@ -141,6 +162,11 @@ impl Generator {
         self.states[source as usize].form.clone()
     }
 
+    /**
+     * Set amplitude voltage of fast analog outputs.
+     *
+     * Amplitude + offset value must be less than maximum output range ± 1V
+     */
     pub fn set_amplitude(&mut self, source: Source, amplitude: f32) {
         self.socket.send(format!("{}:VOLT {}", source, amplitude));
         self.states[source as usize].amplitude = amplitude;
@@ -150,14 +176,25 @@ impl Generator {
         self.states[source as usize].amplitude
     }
 
+    /**
+     * Set offset voltage of fast analog outputs.
+     *
+     * Amplitude + offset value must be less than maximum output range ± 1V
+     */
     pub fn set_offset(&mut self, source: Source, offset: f32) {
         self.socket.send(format!("{}:VOLT:OFFS {}", source, offset));
     }
 
+    /**
+     * Set phase of fast analog outputs.
+     */
     pub fn set_phase(&mut self, source: Source, phase: i32) {
         self.socket.send(format!("{}:PHAS {}", source, phase));
     }
 
+    /**
+     * Set duty cycle of PWM waveform.
+     */
     pub fn set_dcyc(&mut self, source: Source, dcyc: u32) {
         self.socket.send(format!("{}:DCYC {}", source, dcyc));
         self.states[source as usize].dcyc = dcyc;
@@ -167,6 +204,9 @@ impl Generator {
         self.states[source as usize].dcyc
     }
 
+    /**
+     * Import data for arbitrary waveform generation.
+     */
     pub fn arbitrary_waveform(&mut self, source: Source, data: Vec<f32>) {
         let mut data = data.iter()
             .fold(String::new(), |acc, e| {
@@ -177,27 +217,30 @@ impl Generator {
         self.socket.send(format!("{}:TRAC:DATA:DATA {}", source, data));
     }
 
-    pub fn set_frequency(&mut self, source: Source, frequency: u32) {
-        self.socket.send(format!("{}:FREQ:FIX {}", source, frequency));
-        self.states[source as usize].frequency = frequency;
-    }
-
-    pub fn get_frequency(&self, source: Source) -> u32 {
-        self.states[source as usize].frequency
-    }
-
+    /**
+     * Set trigger source for selected signal.
+     */
     pub fn set_trigger_source(&mut self, source: Source, trigger: TriggerSource) {
         self.socket.send(format!("{}:TRIG:SOUR {}", source, trigger));
     }
 
+    /**
+     * Triggers selected source immediately.
+     */
     pub fn trigger(&mut self, source: Source) {
         self.socket.send(format!("{}:TRIG:IMM", source));
     }
 
+    /**
+     * Triggers both sources immediately.
+     */
     pub fn trigger_all(&mut self) {
         self.socket.send("TRIG:IMM");
     }
 
+    /**
+     * Reset generator to default settings.
+     */
     pub fn reset(&mut self) {
         self.socket.send("GEN:RST");
     }
@@ -239,6 +282,21 @@ mod test {
         assert_eq!(generator.is_started(::generator::Source::OUT1), true);
         generator.stop(::generator::Source::OUT1);
         assert_eq!(generator.is_started(::generator::Source::OUT1), false);
+    }
+
+    #[test]
+    fn test_set_frequency() {
+        let (rx, mut generator) = create_generator();
+
+        generator.set_frequency(::generator::Source::OUT1, 500);
+        assert_eq!("SOUR1:FREQ:FIX 500\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_frequency() {
+        let (_, generator) = create_generator();
+
+        assert_eq!(generator.get_frequency(::generator::Source::OUT1), 1000);
     }
 
     #[test]
@@ -287,21 +345,6 @@ mod test {
 
         generator.arbitrary_waveform(::generator::Source::OUT1, vec![1.0, 0.5, 0.2]);
         assert_eq!("SOUR1:TRAC:DATA:DATA 1,0.5,0.2\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_set_frequency() {
-        let (rx, mut generator) = create_generator();
-
-        generator.set_frequency(::generator::Source::OUT1, 500);
-        assert_eq!("SOUR1:FREQ:FIX 500\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_frequency() {
-        let (_, generator) = create_generator();
-
-        assert_eq!(generator.get_frequency(::generator::Source::OUT1), 1000);
     }
 
     #[test]
