@@ -35,32 +35,32 @@ impl Data {
         self.socket.send(format!("ACQ:DATA:FORMAT {}", format));
     }
 
-    pub fn read_slice(&mut self, start: u32, end: u32) -> String {
-        self.socket.send(format!("ACQ:SOUR1:DATA:STA:END? {},{}", start, end));
+    pub fn read_slice(&mut self, source: u8, start: u32, end: u32) -> String {
+        self.socket.send(format!("ACQ:SOUR{}:DATA:STA:END? {},{}", source, start, end));
 
         self.socket.receive()
     }
 
-    pub fn read(&mut self, start: u32, len: u32) -> String {
-        self.socket.send(format!("ACQ:SOUR1:DATA:STA:N? {},{}", start, len));
+    pub fn read(&mut self, source: u8, start: u32, len: u32) -> String {
+        self.socket.send(format!("ACQ:SOUR{}:DATA:STA:N? {},{}", source, start, len));
 
         self.socket.receive()
     }
 
-    pub fn read_all(&mut self) -> String {
-        self.socket.send("ACQ:SOUR1:DATA?");
+    pub fn read_all(&mut self, source: u8) -> String {
+        self.socket.send(format!("ACQ:SOUR{}:DATA?", source));
 
         self.socket.receive()
     }
 
-    pub fn read_oldest(&mut self, len: u32) -> String {
-        self.socket.send(format!("ACQ:SOUR1:DATA:OLD:N? {}", len));
+    pub fn read_oldest(&mut self, source: u8, len: u32) -> String {
+        self.socket.send(format!("ACQ:SOUR{}:DATA:OLD:N? {}", source, len));
 
         self.socket.receive()
     }
 
-    pub fn read_latest(&mut self, len: u32) -> String {
-        self.socket.send(format!("ACQ:SOUR1:DATA:LAT:N? {}", len));
+    pub fn read_latest(&mut self, source: u8, len: u32) -> String {
+        self.socket.send(format!("ACQ:SOUR{}:DATA:LAT:N? {}", source, len));
 
         self.socket.receive()
     }
@@ -110,35 +110,35 @@ mod test {
     fn test_read_slice() {
         let (_, mut data) = create_data();
 
-        assert_eq!(data.read_slice(10, 13), "{123,231,-231}");
+        assert_eq!(data.read_slice(1, 10, 13), "{123,231,-231}");
     }
 
     #[test]
     fn test_read() {
         let (_, mut data) = create_data();
 
-        assert_eq!(data.read(10, 3), "{1.2,3.2,-1.2}");
+        assert_eq!(data.read(1, 10, 3), "{1.2,3.2,-1.2}");
     }
 
     #[test]
     fn test_read_all() {
         let (_, mut data) = create_data();
 
-        assert_eq!(data.read_all(), "{1.2,3.2,-1.2}");
+        assert_eq!(data.read_all(1), "{1.2,3.2,-1.2}");
     }
 
     #[test]
     fn test_read_oldest() {
         let (_, mut data) = create_data();
 
-        assert_eq!(data.read_oldest(2), "{3.2,-1.2}");
+        assert_eq!(data.read_oldest(1, 2), "{3.2,-1.2}");
     }
 
     #[test]
     fn test_read_latest() {
         let (_, mut data) = create_data();
 
-        assert_eq!(data.read_latest(2), "{1.2,3.2}");
+        assert_eq!(data.read_latest(1, 2), "{1.2,3.2}");
     }
 
     #[test]

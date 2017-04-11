@@ -11,53 +11,50 @@ impl Burst {
         }
     }
 
-    pub fn enable(&mut self) {
-        self.socket.send("SOUR1:BURS:STAT ON");
+    pub fn enable(&mut self, source: u8) {
+        self.socket.send(format!("SOUR{}:BURS:STAT ON", source));
     }
 
-    pub fn disable(&mut self) {
-        self.socket.send("SOUR1:BURS:STAT OFF");
+    pub fn disable(&mut self, source: u8) {
+        self.socket.send(format!("SOUR{}:BURS:STAT OFF", source));
     }
 
-    pub fn set_count(&mut self, count: u32) {
-        self.socket.send(format!("SOUR1:BURS:NCYC {}", count));
+    pub fn set_count(&mut self, source: u8, count: u32) {
+        self.socket.send(format!("SOUR{}:BURS:NCYC {}", source, count));
     }
 
-    pub fn set_repetitions(&mut self, repetitions: u32) {
-        self.socket.send(format!("SOUR1:BURS:NOR {}", repetitions));
+    pub fn set_repetitions(&mut self, source: u8, repetitions: u32) {
+        self.socket.send(format!("SOUR{}:BURS:NOR {}", source, repetitions));
     }
 
-    pub fn set_period(&mut self, period: u32) {
-        self.socket.send(format!("SOUR1:BURS:INT:PER {}", period));
+    pub fn set_period(&mut self, source: u8, period: u32) {
+        self.socket.send(format!("SOUR{}:BURS:INT:PER {}", source, period));
     }
 }
 
 #[cfg(test)]
 mod test {
-    macro_rules! burst_assert {
-        ($f:ident, $e:expr) => {
-            let (rx, mut burst) = create_burst();
-
-            burst.$f();
-            assert_eq!($e, rx.recv().unwrap());
-        }
-    }
-
     #[test]
     fn test_enable() {
-        burst_assert!(enable, "SOUR1:BURS:STAT ON\r\n");
+        let (rx, mut burst) = create_burst();
+
+        burst.enable(1);
+        assert_eq!("SOUR1:BURS:STAT ON\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_disable() {
-        burst_assert!(disable, "SOUR1:BURS:STAT OFF\r\n");
+        let (rx, mut burst) = create_burst();
+
+        burst.disable(1);
+        assert_eq!("SOUR1:BURS:STAT OFF\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_set_count() {
         let (rx, mut burst) = create_burst();
 
-        burst.set_count(3);
+        burst.set_count(1, 3);
         assert_eq!("SOUR1:BURS:NCYC 3\r\n", rx.recv().unwrap());
     }
 
@@ -65,7 +62,7 @@ mod test {
     fn test_set_repetitions() {
         let (rx, mut burst) = create_burst();
 
-        burst.set_repetitions(5);
+        burst.set_repetitions(1, 5);
         assert_eq!("SOUR1:BURS:NOR 5\r\n", rx.recv().unwrap());
     }
 
@@ -73,7 +70,7 @@ mod test {
     fn test_set_period() {
         let (rx, mut burst) = create_burst();
 
-        burst.set_period(1_000_000);
+        burst.set_period(1, 1_000_000);
         assert_eq!("SOUR1:BURS:INT:PER 1000000\r\n", rx.recv().unwrap());
     }
 

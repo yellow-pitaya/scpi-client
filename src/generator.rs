@@ -1,7 +1,6 @@
 use socket::Socket;
 
-pub struct Generator {
-    socket: Socket,
+struct State {
     started: bool,
     form: String,
     amplitude: f32,
@@ -9,10 +8,9 @@ pub struct Generator {
     dcyc: u32,
 }
 
-impl Generator {
-    pub fn new(socket: Socket) -> Self {
-        Generator {
-            socket: socket,
+impl State {
+    pub fn new() -> Self {
+        State {
             started: false,
             form: "SYN".into(),
             amplitude: 1.0,
@@ -20,81 +18,98 @@ impl Generator {
             dcyc: 50,
         }
     }
+}
 
-    pub fn start(&mut self) {
-        self.socket.send("OUTPUT1:STATE ON");
-        self.started = true;
+pub struct Generator {
+    socket: Socket,
+    states: [State; 2],
+}
+
+impl Generator {
+    pub fn new(socket: Socket) -> Self {
+        Generator {
+            socket: socket,
+            states: [
+                State::new(),
+                State::new(),
+            ],
+        }
     }
 
-    pub fn stop(&mut self) {
-        self.socket.send("OUTPUT1:STATE OFF");
-        self.started = false;
+    pub fn start(&mut self, source: usize) {
+        self.socket.send(format!("OUTPUT{}:STATE ON", source));
+        self.states[source].started = true;
     }
 
-    pub fn is_started(&self) -> bool {
-        self.started
+    pub fn stop(&mut self, source: usize) {
+        self.socket.send(format!("OUTPUT{}:STATE OFF", source));
+        self.states[source].started = false;
     }
 
-    pub fn set_form<S>(&mut self, form: S) where S: Into<String> {
-        self.form = form.into();
-        self.socket.send(format!("SOUR1:FUNC {}", self.form))
+    pub fn is_started(&self, source: usize) -> bool {
+        self.states[source].started
     }
 
-    pub fn get_form(&self) -> String {
-        self.form.clone()
+    pub fn set_form<S>(&mut self, source: usize, form: S) where S: Into<String> {
+        self.states[source].form = form.into();
+        self.socket.send(format!("SOUR{}:FUNC {}", source, self.states[source].form))
     }
 
-    pub fn set_amplitude(&mut self, amplitude: f32) {
-        self.socket.send(format!("SOUR1:VOLT {}", amplitude));
-        self.amplitude = amplitude;
+    pub fn get_form(&self, source: usize) -> String {
+        self.states[source].form.clone()
     }
 
-    pub fn get_amplitude(&self) -> f32 {
-        self.amplitude
+    pub fn set_amplitude(&mut self, source: usize, amplitude: f32) {
+        self.socket.send(format!("SOUR{}:VOLT {}", source, amplitude));
+        self.states[source].amplitude = amplitude;
     }
 
-    pub fn set_offset(&mut self, offset: f32) {
-        self.socket.send(format!("SOUR1:VOLT:OFFS {}", offset));
+    pub fn get_amplitude(&self, source: usize) -> f32 {
+        self.states[source].amplitude
     }
 
-    pub fn set_phase(&mut self, phase: i32) {
-        self.socket.send(format!("SOUR1:PHAS {}", phase));
+    pub fn set_offset(&mut self, source: usize, offset: f32) {
+        self.socket.send(format!("SOUR{}:VOLT:OFFS {}", source, offset));
     }
 
-    pub fn set_dcyc(&mut self, dcyc: u32) {
-        self.socket.send(format!("SOUR1:DCYC {}", dcyc));
-        self.dcyc = dcyc;
+    pub fn set_phase(&mut self, source: usize, phase: i32) {
+        self.socket.send(format!("SOUR{}:PHAS {}", source, phase));
     }
 
-    pub fn get_dcyc(&self) -> u32 {
-        self.dcyc
+    pub fn set_dcyc(&mut self, source: usize, dcyc: u32) {
+        self.socket.send(format!("SOUR{}:DCYC {}", source, dcyc));
+        self.states[source].dcyc = dcyc;
     }
 
-    pub fn arbitrary_waveform(&mut self, data: Vec<f32>) {
+    pub fn get_dcyc(&self, source: usize) -> u32 {
+        self.states[source].dcyc
+    }
+
+    pub fn arbitrary_waveform(&mut self, source: usize, data: Vec<f32>) {
         let mut data = data.iter()
             .fold(String::new(), |acc, e| {
                 format!("{}{},", acc, e)
             });
         data.pop();
 
-        self.socket.send(format!("SOUR1:TRAC:DATA:DATA {}", data));
+        self.socket.send(format!("SOUR{}:TRAC:DATA:DATA {}", source, data));
     }
 
-    pub fn set_frequency(&mut self, frequency: u32) {
-        self.socket.send(format!("SOUR1:FREQ:FIX {}", frequency));
-        self.frequency = frequency;
+    pub fn set_frequency(&mut self, source: usize, frequency: u32) {
+        self.socket.send(format!("SOUR{}:FREQ:FIX {}", source, frequency));
+        self.states[source].frequency = frequency;
     }
 
-    pub fn get_frequency(&self) -> u32 {
-        self.frequency
+    pub fn get_frequency(&self, source: usize) -> u32 {
+        self.states[source].frequency
     }
 
-    pub fn set_trigger_source(&mut self, source: &str) {
-        self.socket.send(format!("SOUR1:TRIG:SOUR {}", source));
+    pub fn set_trigger_source(&mut self, source: usize, trigger: &str) {
+        self.socket.send(format!("SOUR{}:TRIG:SOUR {}", source, trigger));
     }
 
-    pub fn trigger(&mut self) {
-        self.socket.send("SOUR1:TRIG:IMM");
+    pub fn trigger(&mut self, source: usize) {
+        self.socket.send(format!("SOUR{}:TRIG:IMM", source));
     }
 
     pub fn trigger_all(&mut self) {
@@ -119,30 +134,36 @@ mod test {
 
     #[test]
     fn test_start() {
-        generator_assert!(start, "OUTPUT1:STATE ON\r\n");
+        let (rx, mut generator) = create_generator();
+
+        generator.start(1);
+        assert_eq!("OUTPUT1:STATE ON\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_stop() {
-        generator_assert!(stop, "OUTPUT1:STATE OFF\r\n");
+        let (rx, mut generator) = create_generator();
+
+        generator.stop(1);
+        assert_eq!("OUTPUT1:STATE OFF\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_is_started() {
         let (_, mut generator) = create_generator();
 
-        assert_eq!(generator.is_started(), false);
-        generator.start();
-        assert_eq!(generator.is_started(), true);
-        generator.stop();
-        assert_eq!(generator.is_started(), false);
+        assert_eq!(generator.is_started(1), false);
+        generator.start(1);
+        assert_eq!(generator.is_started(1), true);
+        generator.stop(1);
+        assert_eq!(generator.is_started(1), false);
     }
 
     #[test]
     fn test_form() {
         let (rx, mut generator) = create_generator();
 
-        generator.set_form("SINE");
+        generator.set_form(1, "SINE");
         assert_eq!("SOUR1:FUNC SINE\r\n", rx.recv().unwrap());
     }
 
@@ -150,7 +171,7 @@ mod test {
     fn test_amplitude() {
         let (rx, mut generator) = create_generator();
 
-        generator.set_amplitude(-0.9);
+        generator.set_amplitude(1, -0.9);
         assert_eq!("SOUR1:VOLT -0.9\r\n", rx.recv().unwrap());
     }
 
@@ -158,7 +179,7 @@ mod test {
     fn test_set_offset() {
         let (rx, mut generator) = create_generator();
 
-        generator.set_offset(-1.0);
+        generator.set_offset(1, -1.0);
         assert_eq!("SOUR1:VOLT:OFFS -1\r\n", rx.recv().unwrap());
     }
 
@@ -166,7 +187,7 @@ mod test {
     fn test_set_phase() {
         let (rx, mut generator) = create_generator();
 
-        generator.set_phase(-360);
+        generator.set_phase(1, -360);
         assert_eq!("SOUR1:PHAS -360\r\n", rx.recv().unwrap());
     }
 
@@ -174,7 +195,7 @@ mod test {
     fn test_dcyc() {
         let (rx, mut generator) = create_generator();
 
-        generator.set_dcyc(100);
+        generator.set_dcyc(1, 100);
         assert_eq!("SOUR1:DCYC 100\r\n", rx.recv().unwrap());
     }
 
@@ -182,7 +203,7 @@ mod test {
     fn test_arbitrary_waveform() {
         let (rx, mut generator) = create_generator();
 
-        generator.arbitrary_waveform(vec![1.0, 0.5, 0.2]);
+        generator.arbitrary_waveform(1, vec![1.0, 0.5, 0.2]);
         assert_eq!("SOUR1:TRAC:DATA:DATA 1,0.5,0.2\r\n", rx.recv().unwrap());
     }
 
@@ -190,7 +211,7 @@ mod test {
     fn test_set_frequency() {
         let (rx, mut generator) = create_generator();
 
-        generator.set_frequency(500);
+        generator.set_frequency(1, 500);
         assert_eq!("SOUR1:FREQ:FIX 500\r\n", rx.recv().unwrap());
     }
 
@@ -198,20 +219,23 @@ mod test {
     fn test_get_frequency() {
         let (_, generator) = create_generator();
 
-        assert_eq!(generator.get_frequency(), 1000);
+        assert_eq!(generator.get_frequency(1), 1000);
     }
 
     #[test]
     fn test_set_trigger_source() {
         let (rx, mut generator) = create_generator();
 
-        generator.set_trigger_source("EXT");
+        generator.set_trigger_source(1, "EXT");
         assert_eq!("SOUR1:TRIG:SOUR EXT\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_trigger() {
-        generator_assert!(trigger, "SOUR1:TRIG:IMM\r\n");
+        let (rx, mut generator) = create_generator();
+
+        generator.trigger(1);
+        assert_eq!("SOUR1:TRIG:IMM\r\n", rx.recv().unwrap());
     }
 
     #[test]
