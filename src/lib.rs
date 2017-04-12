@@ -21,7 +21,9 @@ pub struct Redpitaya {
 }
 
 impl Redpitaya {
-    pub fn new<S>(addr: S) -> Redpitaya where S: ::std::net::ToSocketAddrs {
+    pub fn new<S>(addr: S) -> Redpitaya
+        where S: ::std::net::ToSocketAddrs
+    {
         let socket = socket::Socket::new(addr);
 
         Redpitaya {
@@ -41,7 +43,7 @@ mod test {
     use ::std::io::Read;
     use ::std::io::Write;
 
-    pub fn launch_server() -> (::std::net:: SocketAddr, ::std::sync::mpsc::Receiver<String>) {
+    pub fn launch_server() -> (::std::net::SocketAddr, ::std::sync::mpsc::Receiver<String>) {
         let addr = next_test_ip4();
         let listener = ::std::net::TcpListener::bind(format!("{}", addr))
             .unwrap();
@@ -154,13 +156,26 @@ mod test {
     // all want to use ports. This function figures out which workspace
     // it is running in and assigns a port range based on it.
     fn base_port() -> u16 {
-        let cwd = ::std::env::current_dir().unwrap();
-        let dirs = ["32-opt", "32-nopt",
-        "musl-64-opt", "cross-opt",
-        "64-opt", "64-nopt", "64-opt-vg", "64-debug-opt",
-        "all-opt", "snap3", "dist"];
-        dirs.iter().enumerate().find(|&(_, dir)| {
-            cwd.to_str().unwrap().contains(dir)
-        }).map(|p| p.0).unwrap_or(0) as u16 * 1000 + 19600
+        let cwd = ::std::env::current_dir()
+            .unwrap();
+        let dirs = [
+            "32-opt",
+            "32-nopt",
+            "musl-64-opt",
+            "cross-opt",
+            "64-opt",
+            "64-nopt",
+            "64-opt-vg",
+            "64-debug-opt",
+            "all-opt",
+            "snap3",
+            "dist",
+        ];
+
+        dirs.iter()
+            .enumerate()
+            .find(|&(_, dir)| cwd.to_str().unwrap().contains(dir))
+            .map(|p| p.0)
+            .unwrap_or(0) as u16 * 1000 + 19600
     }
 }

@@ -76,7 +76,9 @@ impl Analog {
      *
      * Voltage range of slow analog inputs is: 0 3.3 V
      */
-    pub fn get_value<P>(&mut self, pin: P) -> f32 where P: Pin {
+    pub fn get_value<P>(&mut self, pin: P) -> f32
+        where P: Pin
+    {
         self.socket.send(format!("ANALOG:PIN? {}", pin));
 
         self.socket.receive()

@@ -5,7 +5,9 @@ pub struct Socket {
 }
 
 impl Socket {
-    pub fn new<S>(addr: S) -> Self where S: ::std::net::ToSocketAddrs {
+    pub fn new<S>(addr: S) -> Self
+        where S: ::std::net::ToSocketAddrs
+    {
         let socket = match ::std::net::TcpStream::connect(addr) {
             Ok(socket) => socket,
             Err(_) => panic!("Unable to connect"),
@@ -16,7 +18,9 @@ impl Socket {
         }
     }
 
-    pub fn send<D>(&mut self, command: D) where D: ::std::fmt::Display {
+    pub fn send<D>(&mut self, command: D)
+        where D: ::std::fmt::Display
+    {
         info!("> {}", command);
 
         self.socket.write(format!("{}\r\n", command).as_bytes())
