@@ -10,6 +10,7 @@ pub mod generator;
 pub mod socket;
 pub mod trigger;
 
+#[derive(Clone)]
 pub struct Redpitaya {
     pub acquire: acquire::Acquire,
     pub analog: analog::Analog,

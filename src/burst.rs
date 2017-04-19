@@ -33,6 +33,7 @@ impl ::std::fmt::Display for State {
     }
 }
 
+#[derive(Clone)]
 pub struct Burst {
     socket: Socket,
 }

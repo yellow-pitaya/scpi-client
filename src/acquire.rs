@@ -73,6 +73,7 @@ impl ::std::convert::From<String> for Decimation {
     }
 }
 
+#[derive(Clone)]
 pub struct Acquire {
     socket: Socket,
     started: bool,

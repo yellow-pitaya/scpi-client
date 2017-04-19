@@ -75,6 +75,7 @@ impl ::std::convert::Into<usize> for Source {
     }
 }
 
+#[derive(Clone, Copy)]
 struct State {
     started: bool,
     form: Form,
@@ -95,6 +96,7 @@ impl State {
     }
 }
 
+#[derive(Clone)]
 pub struct Generator {
     socket: Socket,
     states: [State; 2],

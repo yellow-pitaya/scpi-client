@@ -34,6 +34,7 @@ impl ::std::fmt::Display for Format {
     }
 }
 
+#[derive(Clone)]
 pub struct Data {
     socket: Socket,
 }

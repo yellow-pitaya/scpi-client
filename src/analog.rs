@@ -51,6 +51,7 @@ impl ::std::fmt::Display for InputPin {
     }
 }
 
+#[derive(Clone)]
 pub struct Analog {
     socket: Socket,
 }

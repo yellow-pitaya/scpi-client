@@ -50,6 +50,7 @@ impl ::std::convert::From<String> for State {
     }
 }
 
+#[derive(Clone)]
 pub struct Trigger {
     socket: Socket,
 }

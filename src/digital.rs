@@ -131,6 +131,7 @@ impl ::std::fmt::Display for Direction {
     }
 }
 
+#[derive(Clone)]
 pub struct Digital {
     socket: Socket,
 }
