@@ -75,14 +75,14 @@ impl ::std::convert::From<String> for Decimation {
 
 #[derive(Clone)]
 pub struct Acquire {
-    socket: Socket,
+    socket: ::std::cell::RefCell<Socket>,
     started: bool,
 }
 
 impl Acquire {
     pub fn new(socket: Socket) -> Self {
         Acquire {
-            socket: socket,
+            socket: ::std::cell::RefCell::new(socket),
             started: false,
         }
     }
@@ -91,7 +91,7 @@ impl Acquire {
      * Starts acquisition.
      */
     pub fn start(&mut self) {
-        self.socket.send("ACQ:START");
+        self.send("ACQ:START");
         self.started = true;
     }
 
@@ -99,7 +99,7 @@ impl Acquire {
      * Stops acquisition.
      */
     pub fn stop(&mut self) {
-        self.socket.send("ACQ:STOP");
+        self.send("ACQ:STOP");
         self.started = false;
     }
 
@@ -110,48 +110,48 @@ impl Acquire {
     /**
      * Stops acquisition and sets all parameters to default values.
      */
-    pub fn reset(&mut self) {
-        self.socket.send("ACQ:RST");
+    pub fn reset(&self) {
+        self.send("ACQ:RST");
     }
 
     /**
      * Set decimation factor.
      */
-    pub fn set_decimation(&mut self, decimation: Decimation) {
-        self.socket.send(format!("ACQ:DEC {}", decimation));
+    pub fn set_decimation(&self, decimation: Decimation) {
+        self.send(format!("ACQ:DEC {}", decimation));
     }
 
     /**
      * Get decimation factor.
      */
-    pub fn get_decimation(&mut self) -> Decimation {
-        self.socket.send("ACQ:DEC?");
+    pub fn get_decimation(&self) -> Decimation {
+        self.send("ACQ:DEC?");
 
-        self.socket.receive()
+        self.receive()
             .into()
     }
 
     /**
      * Enable averaging.
      */
-    pub fn enable_average(&mut self) {
-        self.socket.send("ACQ:AVG ON");
+    pub fn enable_average(&self) {
+        self.send("ACQ:AVG ON");
     }
 
     /**
      * Disable averaging.
      */
-    pub fn disable_average(&mut self) {
-        self.socket.send("ACQ:AVG OFF");
+    pub fn disable_average(&self) {
+        self.send("ACQ:AVG OFF");
     }
 
     /**
      * Get averaging status.
      */
-    pub fn is_average_enabled(&mut self) -> bool {
-        self.socket.send("ACQ:AVG?");
+    pub fn is_average_enabled(&self) -> bool {
+        self.send("ACQ:AVG?");
 
-        let message = self.socket.receive();
+        let message = self.receive();
 
         match message.as_str() {
             "ON" => true,
@@ -164,8 +164,22 @@ impl Acquire {
      *
      * This gain is referring to jumper settings on Red Pitaya fast analog inputs.
      */
-    pub fn set_gain(&mut self, source: Source, gain: Gain) {
-        self.socket.send(format!("ACQ:{}:GAIN {}", source, gain));
+    pub fn set_gain(&self, source: Source, gain: Gain) {
+        self.send(format!("ACQ:{}:GAIN {}", source, gain));
+    }
+
+    fn send<D>(&self, message: D)
+        where D: ::std::fmt::Display
+    {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.send(message);
+    }
+
+    fn receive(&self) -> String {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.receive()
     }
 }
 
@@ -173,7 +187,7 @@ impl Acquire {
 mod test {
     macro_rules! acquire_assert {
         ($f:ident, $e:expr) => {
-            let (rx, mut acquire) = create_acquire();
+            let (rx, acquire) = create_acquire();
 
             acquire.$f();
             assert_eq!($e, rx.recv().unwrap());
@@ -182,12 +196,18 @@ mod test {
 
     #[test]
     fn test_start() {
-        acquire_assert!(start, "ACQ:START\r\n");
+        let (rx, mut acquire) = create_acquire();
+
+        acquire.start();
+        assert_eq!("ACQ:START\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_stop() {
-        acquire_assert!(stop, "ACQ:STOP\r\n");
+        let (rx, mut acquire) = create_acquire();
+
+        acquire.stop();
+        assert_eq!("ACQ:STOP\r\n", rx.recv().unwrap());
     }
 
     #[test]
@@ -208,7 +228,7 @@ mod test {
 
     #[test]
     fn test_set_decimation() {
-        let (rx, mut acquire) = create_acquire();
+        let (rx, acquire) = create_acquire();
 
         acquire.set_decimation(::acquire::Decimation::DEC_8);
         assert_eq!("ACQ:DEC 8\r\n", rx.recv().unwrap());
@@ -216,7 +236,7 @@ mod test {
 
     #[test]
     fn test_get_decimation() {
-        let (_, mut acquire) = create_acquire();
+        let (_, acquire) = create_acquire();
 
         assert_eq!(acquire.get_decimation(), ::acquire::Decimation::DEC_1);
     }
@@ -233,14 +253,14 @@ mod test {
 
     #[test]
     fn test_is_average_enabled() {
-        let (_, mut acquire) = create_acquire();
+        let (_, acquire) = create_acquire();
 
         assert_eq!(acquire.is_average_enabled(), true);
     }
 
     #[test]
     fn test_set_gain() {
-        let (rx, mut trigger) = create_acquire();
+        let (rx, trigger) = create_acquire();
 
         trigger.set_gain(::acquire::Source::IN1, ::acquire::Gain::LV);
         assert_eq!("ACQ:SOUR1:GAIN LV\r\n", rx.recv().unwrap());

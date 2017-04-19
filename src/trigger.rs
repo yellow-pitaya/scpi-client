@@ -52,27 +52,27 @@ impl ::std::convert::From<String> for State {
 
 #[derive(Clone)]
 pub struct Trigger {
-    socket: Socket,
+    socket: ::std::cell::RefCell<Socket>,
 }
 
 impl Trigger {
     pub fn new(socket: Socket) -> Self {
         Trigger {
-            socket: socket,
+            socket: ::std::cell::RefCell::new(socket),
         }
     }
 
     /**
      * Trigger immediately or set trigger source & edge.
      */
-    pub fn enable(&mut self, source: Source) {
-        self.socket.send(format!("ACQ:TRIG {}", source));
+    pub fn enable(&self, source: Source) {
+        self.send(format!("ACQ:TRIG {}", source));
     }
 
     /**
      * Disable triggering.
      */
-    pub fn disable(&mut self) {
+    pub fn disable(&self) {
         self.enable(Source::DISABLED);
     }
 
@@ -81,27 +81,27 @@ impl Trigger {
      *
      *  If DISABLED -> TD else WAIT.
      */
-    pub fn get_state(&mut self) -> State {
-        self.socket.send("ACQ:TRIG:STAT?");
+    pub fn get_state(&self) -> State {
+        self.send("ACQ:TRIG:STAT?");
 
-        self.socket.receive()
+        self.receive()
             .into()
     }
 
     /**
      * Set trigger delay in samples.
      */
-    pub fn set_delay(&mut self, delay: u8) {
-        self.socket.send(format!("ACQ:TRIG:DLY {}", delay));
+    pub fn set_delay(&self, delay: u8) {
+        self.send(format!("ACQ:TRIG:DLY {}", delay));
     }
 
     /**
      * Get trigger delay in samples.
      */
-    pub fn get_delay(&mut self) -> u16 {
-        self.socket.send("ACQ:TRIG:DLY?");
+    pub fn get_delay(&self) -> u16 {
+        self.send("ACQ:TRIG:DLY?");
 
-        self.socket.receive()
+        self.receive()
             .parse()
             .unwrap()
     }
@@ -109,33 +109,47 @@ impl Trigger {
     /**
      * Set trigger delay in ns.
      */
-    pub fn set_delay_in_ns(&mut self, delay: u8) {
-        self.socket.send(format!("ACQ:TRIG:DLY:NS {}", delay));
+    pub fn set_delay_in_ns(&self, delay: u8) {
+        self.send(format!("ACQ:TRIG:DLY:NS {}", delay));
     }
 
     /**
      * Get trigger delay in ns.
      */
-    pub fn get_delay_in_ns(&mut self) -> String {
-        self.socket.send("ACQ:TRIG:DLY:NS?");
+    pub fn get_delay_in_ns(&self) -> String {
+        self.send("ACQ:TRIG:DLY:NS?");
 
-        self.socket.receive()
+        self.receive()
     }
 
     /**
      * Set trigger level in mV.
      */
-    pub fn set_level(&mut self, level: u8) {
-        self.socket.send(format!("ACQ:TRIG:LEV {}", level));
+    pub fn set_level(&self, level: u8) {
+        self.send(format!("ACQ:TRIG:LEV {}", level));
     }
 
     /**
      * Get trigger level in mV.
      */
-    pub fn get_level(&mut self) -> String {
-        self.socket.send("ACQ:TRIG:LEV?");
+    pub fn get_level(&self) -> String {
+        self.send("ACQ:TRIG:LEV?");
 
-        self.socket.receive()
+        self.receive()
+    }
+
+    fn send<D>(&self, message: D)
+        where D: ::std::fmt::Display
+    {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.send(message);
+    }
+
+    fn receive(&self) -> String {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.receive()
     }
 }
 
@@ -143,7 +157,7 @@ impl Trigger {
 mod test {
     macro_rules! trigger_assert {
         ($f:ident, $e:expr) => {
-            let (rx, mut trigger) = create_trigger();
+            let (rx, trigger) = create_trigger();
 
             trigger.$f();
             assert_eq!($e, rx.recv().unwrap());
@@ -152,7 +166,7 @@ mod test {
 
     #[test]
     fn test_enable() {
-        let (rx, mut trigger) = create_trigger();
+        let (rx, trigger) = create_trigger();
 
         trigger.enable(::trigger::Source::NOW);
         assert_eq!("ACQ:TRIG NOW\r\n", rx.recv().unwrap());
@@ -165,14 +179,14 @@ mod test {
 
     #[test]
     fn test_get_state() {
-        let (_, mut trigger) = create_trigger();
+        let (_, trigger) = create_trigger();
 
         assert_eq!(trigger.get_state(), ::trigger::State::WAIT);
     }
 
     #[test]
     fn test_set_delay() {
-        let (rx, mut trigger) = create_trigger();
+        let (rx, trigger) = create_trigger();
 
         trigger.set_delay(0);
         assert_eq!("ACQ:TRIG:DLY 0\r\n", rx.recv().unwrap());
@@ -180,14 +194,14 @@ mod test {
 
     #[test]
     fn test_get_delay() {
-        let (_, mut trigger) = create_trigger();
+        let (_, trigger) = create_trigger();
 
         assert_eq!(trigger.get_delay(), 2314);
     }
 
     #[test]
     fn test_set_delay_in_ns() {
-        let (rx, mut trigger) = create_trigger();
+        let (rx, trigger) = create_trigger();
 
         trigger.set_delay_in_ns(0);
         assert_eq!("ACQ:TRIG:DLY:NS 0\r\n", rx.recv().unwrap());
@@ -195,14 +209,14 @@ mod test {
 
     #[test]
     fn test_get_delay_in_ns() {
-        let (_, mut trigger) = create_trigger();
+        let (_, trigger) = create_trigger();
 
         assert_eq!(trigger.get_delay_in_ns().as_str(), "128ns");
     }
 
     #[test]
     fn test_set_level() {
-        let (rx, mut trigger) = create_trigger();
+        let (rx, trigger) = create_trigger();
 
         trigger.set_level(0);
         assert_eq!("ACQ:TRIG:LEV 0\r\n", rx.recv().unwrap());
@@ -210,7 +224,7 @@ mod test {
 
     #[test]
     fn test_get_level() {
-        let (_, mut trigger) = create_trigger();
+        let (_, trigger) = create_trigger();
 
         assert_eq!(trigger.get_level().as_str(), "123mV");
     }

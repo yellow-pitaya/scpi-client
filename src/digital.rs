@@ -133,45 +133,59 @@ impl ::std::fmt::Display for Direction {
 
 #[derive(Clone)]
 pub struct Digital {
-    socket: Socket,
+    socket: ::std::cell::RefCell<Socket>,
 }
 
 impl Digital {
     pub fn new(socket: Socket) -> Self {
         Digital {
-            socket: socket,
+            socket: ::std::cell::RefCell::new(socket),
         }
     }
 
     /**
      * Set direction of digital pins to output or input.
      */
-    pub fn set_direction<P>(&mut self, pin: P, direction: Direction)
+    pub fn set_direction<P>(&self, pin: P, direction: Direction)
         where P: Pin
     {
-        self.socket.send(format!("DIG:PIN:DIR {},{}", direction, pin));
+        self.send(format!("DIG:PIN:DIR {},{}", direction, pin));
     }
 
     /**
      * Set state of digital outputs to 1 (HIGH) or 0 (LOW).
      */
-    pub fn set_state<P>(&mut self, pin: P, state: State)
+    pub fn set_state<P>(&self, pin: P, state: State)
         where P: Pin
     {
-        self.socket.send(format!("DIG:PIN {},{}", pin, state));
+        self.send(format!("DIG:PIN {},{}", pin, state));
     }
 
     /**
      * Get state of digital inputs and outputs.
      */
-    pub fn get_state<P>(&mut self, pin: P) -> State
+    pub fn get_state<P>(&self, pin: P) -> State
         where P: Pin
     {
-        self.socket.send(format!("DIG:PIN? {}", pin));
+        self.send(format!("DIG:PIN? {}", pin));
 
-        self.socket.receive()
+        self.receive()
             .parse()
             .unwrap()
+    }
+
+    fn send<D>(&self, message: D)
+        where D: ::std::fmt::Display
+    {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.send(message);
+    }
+
+    fn receive(&self) -> String {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.receive()
     }
 }
 
@@ -179,7 +193,7 @@ impl Digital {
 mod test {
     #[test]
     fn test_set_direction_in() {
-        let (rx, mut digital) = create_digital();
+        let (rx, digital) = create_digital();
 
         digital.set_direction(::digital::Gpio::DIO0_N, ::digital::Direction::IN);
         assert_eq!("DIG:PIN:DIR IN,DIO0_N\r\n", rx.recv().unwrap());
@@ -187,7 +201,7 @@ mod test {
 
     #[test]
     fn test_set_direction_out() {
-        let (rx, mut digital) = create_digital();
+        let (rx, digital) = create_digital();
 
         digital.set_direction(::digital::Led::LED0, ::digital::Direction::OUT);
         assert_eq!("DIG:PIN:DIR OUT,LED0\r\n", rx.recv().unwrap());
@@ -195,7 +209,7 @@ mod test {
 
     #[test]
     fn test_set_state() {
-        let (rx, mut digital) = create_digital();
+        let (rx, digital) = create_digital();
 
         digital.set_state(::digital::Gpio::DIO0_N, ::digital::State::LOW);
         assert_eq!("DIG:PIN DIO0_N,0\r\n", rx.recv().unwrap());
@@ -203,7 +217,7 @@ mod test {
 
     #[test]
     fn test_get_state() {
-        let (_, mut digital) = create_digital();
+        let (_, digital) = create_digital();
 
         assert_eq!(digital.get_state(::digital::Gpio::DIO0_N), ::digital::State::HIGH);
     }

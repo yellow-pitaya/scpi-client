@@ -36,23 +36,23 @@ impl ::std::fmt::Display for Format {
 
 #[derive(Clone)]
 pub struct Data {
-    socket: Socket,
+    socket: ::std::cell::RefCell<Socket>,
 }
 
 impl Data {
     pub fn new(socket: Socket) -> Self {
         Data {
-            socket: socket,
+            socket: ::std::cell::RefCell::new(socket),
         }
     }
 
     /**
      * Returns current position of write pointer.
      */
-    pub fn get_write_pointer(&mut self) -> u32 {
-        self.socket.send("ACQ:WPOS?");
+    pub fn get_write_pointer(&self) -> u32 {
+        self.send("ACQ:WPOS?");
 
-        self.socket.receive()
+        self.receive()
             .parse()
             .unwrap()
     }
@@ -60,10 +60,10 @@ impl Data {
     /**
      * Returns position where trigger event appeared.
      */
-    pub fn get_trigger_position(&mut self) -> u32 {
-        self.socket.send("ACQ:TPOS?");
+    pub fn get_trigger_position(&self) -> u32 {
+        self.send("ACQ:TPOS?");
 
-        self.socket.receive()
+        self.receive()
             .parse()
             .unwrap()
     }
@@ -71,15 +71,15 @@ impl Data {
     /**
      * Selects units in which acquired data will be returned.
      */
-    pub fn set_units(&mut self, unit: Unit) {
-        self.socket.send(format!("ACQ:DATA:UNITS {}", unit));
+    pub fn set_units(&self, unit: Unit) {
+        self.send(format!("ACQ:DATA:UNITS {}", unit));
     }
 
     /**
      * Selects format acquired data will be returned.
      */
-    pub fn set_format(&mut self, format: Format) {
-        self.socket.send(format!("ACQ:DATA:FORMAT {}", format));
+    pub fn set_format(&self, format: Format) {
+        self.send(format!("ACQ:DATA:FORMAT {}", format));
     }
 
     /**
@@ -88,19 +88,19 @@ impl Data {
      * start = {0,1,...,16384}
      * stop_pos = {0,1,...116384}
      */
-    pub fn read_slice(&mut self, source: ::acquire::Source, start: u16, end: u16) -> String {
-        self.socket.send(format!("ACQ:{}:DATA:STA:END? {},{}", source, start, end));
+    pub fn read_slice(&self, source: ::acquire::Source, start: u16, end: u16) -> String {
+        self.send(format!("ACQ:{}:DATA:STA:END? {},{}", source, start, end));
 
-        self.socket.receive()
+        self.receive()
     }
 
     /**
      * Read `m` samples from start position on.
      */
-    pub fn read(&mut self, source: ::acquire::Source, start: u16, len: u32) -> String {
-        self.socket.send(format!("ACQ:{}:DATA:STA:N? {},{}", source, start, len));
+    pub fn read(&self, source: ::acquire::Source, start: u16, len: u32) -> String {
+        self.send(format!("ACQ:{}:DATA:STA:N? {},{}", source, start, len));
 
-        self.socket.receive()
+        self.receive()
     }
 
     /**
@@ -111,10 +111,10 @@ impl Data {
      * in seconds). If trigger delay is set to zero it will read full buf.
      * Size starting from trigger.
      */
-    pub fn read_all(&mut self, source: ::acquire::Source) -> String {
-        self.socket.send(format!("ACQ:{}:DATA?", source));
+    pub fn read_all(&self, source: ::acquire::Source) -> String {
+        self.send(format!("ACQ:{}:DATA?", source));
 
-        self.socket.receive()
+        self.receive()
     }
 
     /**
@@ -124,10 +124,10 @@ impl Data {
      * Trigger delay by default is set to zero (in samples or in seconds). If
      * trigger delay is set to zero it will read m samples starting from trigger.
      */
-    pub fn read_oldest(&mut self, source: ::acquire::Source, len: u32) -> String {
-        self.socket.send(format!("ACQ:{}:DATA:OLD:N? {}", source, len));
+    pub fn read_oldest(&self, source: ::acquire::Source, len: u32) -> String {
+        self.send(format!("ACQ:{}:DATA:OLD:N? {}", source, len));
 
-        self.socket.receive()
+        self.receive()
     }
 
     /**
@@ -136,21 +136,35 @@ impl Data {
      * Trigger delay by default is set to zero (in samples or in seconds). If
      * trigger delay is set to zero it will read m samples before trigger.
      */
-    pub fn read_latest(&mut self, source: ::acquire::Source, len: u32) -> String {
-        self.socket.send(format!("ACQ:{}:DATA:LAT:N? {}", source, len));
+    pub fn read_latest(&self, source: ::acquire::Source, len: u32) -> String {
+        self.send(format!("ACQ:{}:DATA:LAT:N? {}", source, len));
 
-        self.socket.receive()
+        self.receive()
     }
 
     /**
      * Returns buffer size.
      */
-    pub fn buffer_size(&mut self) -> u32 {
-        self.socket.send("ACQ:BUF:SIZE?");
+    pub fn buffer_size(&self) -> u32 {
+        self.send("ACQ:BUF:SIZE?");
 
-        self.socket.receive()
+        self.receive()
             .parse()
             .unwrap()
+    }
+
+    fn send<D>(&self, message: D)
+        where D: ::std::fmt::Display
+    {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.send(message);
+    }
+
+    fn receive(&self) -> String {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.receive()
     }
 }
 
@@ -158,21 +172,21 @@ impl Data {
 mod test {
     #[test]
     fn test_get_write_pointer() {
-        let (_, mut data) = create_data();
+        let (_, data) = create_data();
 
         assert_eq!(data.get_write_pointer(), 1024);
     }
 
     #[test]
     fn test_get_write_pointer_at_trigger() {
-        let (_, mut data) = create_data();
+        let (_, data) = create_data();
 
         assert_eq!(data.get_trigger_position(), 512);
     }
 
     #[test]
     fn test_set_units() {
-        let (rx, mut data) = create_data();
+        let (rx, data) = create_data();
 
         data.set_units(::data::Unit::VOLTS);
         assert_eq!("ACQ:DATA:UNITS VOLTS\r\n", rx.recv().unwrap());
@@ -180,7 +194,7 @@ mod test {
 
     #[test]
     fn test_set_format() {
-        let (rx, mut data) = create_data();
+        let (rx, data) = create_data();
 
         data.set_format(::data::Format::FLOAT);
         assert_eq!("ACQ:DATA:FORMAT FLOAT\r\n", rx.recv().unwrap());
@@ -188,42 +202,42 @@ mod test {
 
     #[test]
     fn test_read_slice() {
-        let (_, mut data) = create_data();
+        let (_, data) = create_data();
 
         assert_eq!(data.read_slice(::acquire::Source::IN1, 10, 13), "{123,231,-231}");
     }
 
     #[test]
     fn test_read() {
-        let (_, mut data) = create_data();
+        let (_, data) = create_data();
 
         assert_eq!(data.read(::acquire::Source::IN1, 10, 3), "{1.2,3.2,-1.2}");
     }
 
     #[test]
     fn test_read_all() {
-        let (_, mut data) = create_data();
+        let (_, data) = create_data();
 
         assert_eq!(data.read_all(::acquire::Source::IN1), "{1.2,3.2,-1.2}");
     }
 
     #[test]
     fn test_read_oldest() {
-        let (_, mut data) = create_data();
+        let (_, data) = create_data();
 
         assert_eq!(data.read_oldest(::acquire::Source::IN1, 2), "{3.2,-1.2}");
     }
 
     #[test]
     fn test_read_latest() {
-        let (_, mut data) = create_data();
+        let (_, data) = create_data();
 
         assert_eq!(data.read_latest(::acquire::Source::IN1, 2), "{1.2,3.2}");
     }
 
     #[test]
     fn test_buffer_size() {
-        let (_, mut data) = create_data();
+        let (_, data) = create_data();
 
         assert_eq!(data.buffer_size(), 16384);
     }

@@ -98,14 +98,14 @@ impl State {
 
 #[derive(Clone)]
 pub struct Generator {
-    socket: Socket,
+    socket: ::std::cell::RefCell<Socket>,
     states: [State; 2],
 }
 
 impl Generator {
     pub fn new(socket: Socket) -> Self {
         Generator {
-            socket: socket,
+            socket: ::std::cell::RefCell::new(socket),
             states: [
                 State::new(),
                 State::new(),
@@ -129,13 +129,13 @@ impl Generator {
         self.states[source as usize].started = false;
     }
 
-    fn set_state(&mut self, source: &Source, state: &str) {
+    fn set_state(&self, source: &Source, state: &str) {
         let output = match *source {
             Source::OUT1 => "OUTPUT1",
             Source::OUT2 => "OUTPUT2",
         };
 
-        self.socket.send(format!("{}:STATE {}", output, state));
+        self.send(format!("{}:STATE {}", output, state));
     }
 
     pub fn is_started(&self, source: Source) -> bool {
@@ -146,7 +146,7 @@ impl Generator {
      * Set frequency of fast analog outputs.
      */
     pub fn set_frequency(&mut self, source: Source, frequency: u32) {
-        self.socket.send(format!("{}:FREQ:FIX {}", source, frequency));
+        self.send(format!("{}:FREQ:FIX {}", source, frequency));
         self.states[source as usize].frequency = frequency;
     }
 
@@ -158,7 +158,7 @@ impl Generator {
      * Set waveform of fast analog outputs.
      */
     pub fn set_form(&mut self, source: Source, form: Form) {
-        self.socket.send(format!("{}:FUNC {}", source, form));
+        self.send(format!("{}:FUNC {}", source, form));
         self.states[source as usize].form = form;
     }
 
@@ -172,7 +172,7 @@ impl Generator {
      * Amplitude + offset value must be less than maximum output range ± 1V
      */
     pub fn set_amplitude(&mut self, source: Source, amplitude: f32) {
-        self.socket.send(format!("{}:VOLT {}", source, amplitude));
+        self.send(format!("{}:VOLT {}", source, amplitude));
         self.states[source as usize].amplitude = amplitude;
     }
 
@@ -185,22 +185,22 @@ impl Generator {
      *
      * Amplitude + offset value must be less than maximum output range ± 1V
      */
-    pub fn set_offset(&mut self, source: Source, offset: f32) {
-        self.socket.send(format!("{}:VOLT:OFFS {}", source, offset));
+    pub fn set_offset(&self, source: Source, offset: f32) {
+        self.send(format!("{}:VOLT:OFFS {}", source, offset));
     }
 
     /**
      * Set phase of fast analog outputs.
      */
-    pub fn set_phase(&mut self, source: Source, phase: i32) {
-        self.socket.send(format!("{}:PHAS {}", source, phase));
+    pub fn set_phase(&self, source: Source, phase: i32) {
+        self.send(format!("{}:PHAS {}", source, phase));
     }
 
     /**
      * Set duty cycle of PWM waveform.
      */
     pub fn set_duty_cycle(&mut self, source: Source, dcyc: u32) {
-        self.socket.send(format!("{}:DCYC {}", source, dcyc));
+        self.send(format!("{}:DCYC {}", source, dcyc));
         self.states[source as usize].dcyc = dcyc;
     }
 
@@ -211,42 +211,50 @@ impl Generator {
     /**
      * Import data for arbitrary waveform generation.
      */
-    pub fn arbitrary_waveform(&mut self, source: Source, data: Vec<f32>) {
+    pub fn arbitrary_waveform(&self, source: Source, data: Vec<f32>) {
         let mut data = data.iter()
             .fold(String::new(), |acc, e| {
                 format!("{}{},", acc, e)
             });
         data.pop();
 
-        self.socket.send(format!("{}:TRAC:DATA:DATA {}", source, data));
+        self.send(format!("{}:TRAC:DATA:DATA {}", source, data));
     }
 
     /**
      * Set trigger source for selected signal.
      */
-    pub fn set_trigger_source(&mut self, source: Source, trigger: TriggerSource) {
-        self.socket.send(format!("{}:TRIG:SOUR {}", source, trigger));
+    pub fn set_trigger_source(&self, source: Source, trigger: TriggerSource) {
+        self.send(format!("{}:TRIG:SOUR {}", source, trigger));
     }
 
     /**
      * Triggers selected source immediately.
      */
-    pub fn trigger(&mut self, source: Source) {
-        self.socket.send(format!("{}:TRIG:IMM", source));
+    pub fn trigger(&self, source: Source) {
+        self.send(format!("{}:TRIG:IMM", source));
     }
 
     /**
      * Triggers both sources immediately.
      */
-    pub fn trigger_all(&mut self) {
-        self.socket.send("TRIG:IMM");
+    pub fn trigger_all(&self) {
+        self.send("TRIG:IMM");
     }
 
     /**
      * Reset generator to default settings.
      */
-    pub fn reset(&mut self) {
-        self.socket.send("GEN:RST");
+    pub fn reset(&self) {
+        self.send("GEN:RST");
+    }
+
+    fn send<D>(&self, message: D)
+        where D: ::std::fmt::Display
+    {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.send(message);
     }
 }
 
@@ -254,7 +262,7 @@ impl Generator {
 mod test {
     macro_rules! generator_assert {
         ($f:ident, $e:expr) => {
-            let (rx, mut generator) = create_generator();
+            let (rx, generator) = create_generator();
 
             generator.$f();
             assert_eq!($e, rx.recv().unwrap());
@@ -321,7 +329,7 @@ mod test {
 
     #[test]
     fn test_set_offset() {
-        let (rx, mut generator) = create_generator();
+        let (rx, generator) = create_generator();
 
         generator.set_offset(::generator::Source::OUT1, -1.0);
         assert_eq!("SOUR1:VOLT:OFFS -1\r\n", rx.recv().unwrap());
@@ -329,7 +337,7 @@ mod test {
 
     #[test]
     fn test_set_phase() {
-        let (rx, mut generator) = create_generator();
+        let (rx, generator) = create_generator();
 
         generator.set_phase(::generator::Source::OUT1, -360);
         assert_eq!("SOUR1:PHAS -360\r\n", rx.recv().unwrap());
@@ -345,7 +353,7 @@ mod test {
 
     #[test]
     fn test_arbitrary_waveform() {
-        let (rx, mut generator) = create_generator();
+        let (rx, generator) = create_generator();
 
         generator.arbitrary_waveform(::generator::Source::OUT1, vec![1.0, 0.5, 0.2]);
         assert_eq!("SOUR1:TRAC:DATA:DATA 1,0.5,0.2\r\n", rx.recv().unwrap());
@@ -353,7 +361,7 @@ mod test {
 
     #[test]
     fn test_set_trigger_source() {
-        let (rx, mut generator) = create_generator();
+        let (rx, generator) = create_generator();
 
         generator.set_trigger_source(::generator::Source::OUT1, ::generator::TriggerSource::EXT_PE);
         assert_eq!("SOUR1:TRIG:SOUR EXT_PE\r\n", rx.recv().unwrap());
@@ -361,7 +369,7 @@ mod test {
 
     #[test]
     fn test_trigger() {
-        let (rx, mut generator) = create_generator();
+        let (rx, generator) = create_generator();
 
         generator.trigger(::generator::Source::OUT1);
         assert_eq!("SOUR1:TRIG:IMM\r\n", rx.recv().unwrap());

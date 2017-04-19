@@ -53,13 +53,13 @@ impl ::std::fmt::Display for InputPin {
 
 #[derive(Clone)]
 pub struct Analog {
-    socket: Socket,
+    socket: ::std::cell::RefCell<Socket>,
 }
 
 impl Analog {
     pub fn new(socket: Socket) -> Self {
         Analog {
-            socket: socket,
+            socket: ::std::cell::RefCell::new(socket),
         }
     }
 
@@ -68,8 +68,8 @@ impl Analog {
      *
      * Voltage range of slow analog outputs is: 0 - 1.8 V
      */
-    pub fn set_value(&mut self, pin: OutputPin, value: f32) {
-        self.socket.send(format!("ANALOG:PIN {},{}", pin, value));
+    pub fn set_value(&self, pin: OutputPin, value: f32) {
+        self.send(format!("ANALOG:PIN {},{}", pin, value));
     }
 
     /**
@@ -77,14 +77,28 @@ impl Analog {
      *
      * Voltage range of slow analog inputs is: 0 3.3 V
      */
-    pub fn get_value<P>(&mut self, pin: P) -> f32
+    pub fn get_value<P>(&self, pin: P) -> f32
         where P: Pin
     {
-        self.socket.send(format!("ANALOG:PIN? {}", pin));
+        self.send(format!("ANALOG:PIN? {}", pin));
 
-        self.socket.receive()
+        self.receive()
             .parse()
             .unwrap()
+    }
+
+    fn send<D>(&self, message: D)
+        where D: ::std::fmt::Display
+    {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.send(message);
+    }
+
+    fn receive(&self) -> String {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.receive()
     }
 }
 
@@ -92,7 +106,7 @@ impl Analog {
 mod test {
     #[test]
     fn test_set_value() {
-        let (rx, mut analog) = create_analog();
+        let (rx, analog) = create_analog();
 
         analog.set_value(::analog::OutputPin::AOUT2, 1.34);
         assert_eq!("ANALOG:PIN AOUT2,1.34\r\n", rx.recv().unwrap());
@@ -100,7 +114,7 @@ mod test {
 
     #[test]
     fn test_get_value() {
-        let (_, mut analog) = create_analog();
+        let (_, analog) = create_analog();
 
         assert_eq!(analog.get_value(::analog::InputPin::AIN1), 1.34);
     }
