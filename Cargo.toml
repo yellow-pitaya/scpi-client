@@ -2,7 +2,7 @@
 name = "redpitaya-scpi"
 description = "Controlling your redpitaya via SCPI commands"
 license = "MIT"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Sanpi <sanpi@homecomputing.fr>"]
 repository = "https://github.com/sanpii/redpitaya-scpi.git"
 documentation = "https://docs.rs/redpitaya-scpi/"
