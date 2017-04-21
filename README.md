@@ -11,7 +11,7 @@ In your Cargo.toml:
 
 ```toml
 [dependencies]
-redpitaya-scpi = "0.7"
+redpitaya-scpi = "0.8"
 ```
 
 # Usage
