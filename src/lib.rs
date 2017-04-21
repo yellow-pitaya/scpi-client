@@ -136,6 +136,30 @@ mod test {
                                 stream.write("1\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "SOUR1:DCYC?\r\n" => {
+                                stream.write("100\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "SOUR1:FREQ:FIX?\r\n" => {
+                                stream.write("1000\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "SOUR1:FUNC?\r\n" => {
+                                stream.write("SINE\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "SOUR1:STATE?\r\n" => {
+                                stream.write("1\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "SOUR1:VOLT?\r\n" => {
+                                stream.write("-1.1\r\n".as_bytes())
+                                    .unwrap();
+                            },
+                            "SOUR1:VOLT:OFFS?\r\n" => {
+                                stream.write("1.2\r\n".as_bytes())
+                                    .unwrap();
+                            },
                             _ => tx.send(message).unwrap(),
                         };
                     });

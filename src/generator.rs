@@ -30,6 +30,7 @@ pub enum Form {
     SAWD,
     PWM,
     ARBITRARY,
+    UNKNOW,
 }
 
 impl ::std::fmt::Display for Form {
@@ -42,9 +43,28 @@ impl ::std::fmt::Display for Form {
             &Form::SAWD => "SAWD",
             &Form::PWM => "PWM",
             &Form::ARBITRARY => "ARBITRARY",
+            &Form::UNKNOW => "UNKNOW",
         };
 
         write!(f, "{}", display)
+    }
+}
+
+impl ::std::convert::From<String> for Form {
+    fn from(s: String) -> Self {
+        match s.as_str() {
+            "SINE" => Form::SINE,
+            "SQUARE" => Form::SQUARE,
+            "TRIANGLE" => Form::TRIANGLE,
+            "SAWU" => Form::SAWU,
+            "SAWD" => Form::SAWD,
+            "PWM" => Form::PWM,
+            "ARBITRARY" => Form::ARBITRARY,
+            form => {
+                warn!("Unknow signal form {}", form);
+                Form::UNKNOW
+            },
+        }
     }
 }
 
@@ -75,58 +95,30 @@ impl ::std::convert::Into<usize> for Source {
     }
 }
 
-#[derive(Clone, Copy)]
-struct State {
-    started: bool,
-    form: Form,
-    amplitude: f32,
-    frequency: u32,
-    dcyc: u32,
-}
-
-impl State {
-    pub fn new() -> Self {
-        State {
-            started: false,
-            form: Form::SINE,
-            amplitude: 1.0,
-            frequency: 1000,
-            dcyc: 50,
-        }
-    }
-}
-
 #[derive(Clone)]
 pub struct Generator {
     socket: ::std::cell::RefCell<Socket>,
-    states: [State; 2],
 }
 
 impl Generator {
     pub fn new(socket: Socket) -> Self {
         Generator {
             socket: ::std::cell::RefCell::new(socket),
-            states: [
-                State::new(),
-                State::new(),
-            ],
         }
     }
 
     /**
      * Enable fast analog outputs.
      */
-    pub fn start(&mut self, source: Source) {
+    pub fn start(&self, source: Source) {
         self.set_state(&source, "ON");
-        self.states[source as usize].started = true;
     }
 
     /**
      * Disable fast analog outputs.
      */
-    pub fn stop(&mut self, source: Source) {
+    pub fn stop(&self, source: Source) {
         self.set_state(&source, "OFF");
-        self.states[source as usize].started = false;
     }
 
     fn set_state(&self, source: &Source, state: &str) {
@@ -139,31 +131,43 @@ impl Generator {
     }
 
     pub fn is_started(&self, source: Source) -> bool {
-        self.states[source as usize].started
+        self.send(format!("{}:STATE?", source));
+
+        self.receive()
+            .parse::<u8>()
+            .unwrap() == 1
     }
 
     /**
      * Set frequency of fast analog outputs.
      */
-    pub fn set_frequency(&mut self, source: Source, frequency: u32) {
+    pub fn set_frequency(&self, source: Source, frequency: u32) {
         self.send(format!("{}:FREQ:FIX {}", source, frequency));
-        self.states[source as usize].frequency = frequency;
     }
 
+    /**
+     * Get frequency of fast analog outputs.
+     */
     pub fn get_frequency(&self, source: Source) -> u32 {
-        self.states[source as usize].frequency
+        self.send(format!("{}:FREQ:FIX?", source));
+
+        self.receive()
+            .parse()
+            .unwrap()
     }
 
     /**
      * Set waveform of fast analog outputs.
      */
-    pub fn set_form(&mut self, source: Source, form: Form) {
+    pub fn set_form(&self, source: Source, form: Form) {
         self.send(format!("{}:FUNC {}", source, form));
-        self.states[source as usize].form = form;
     }
 
     pub fn get_form(&self, source: Source) -> Form {
-        self.states[source as usize].form.clone()
+        self.send(format!("{}:FUNC?", source));
+
+        self.receive()
+            .into()
     }
 
     /**
@@ -171,13 +175,19 @@ impl Generator {
      *
      * Amplitude + offset value must be less than maximum output range ± 1V
      */
-    pub fn set_amplitude(&mut self, source: Source, amplitude: f32) {
+    pub fn set_amplitude(&self, source: Source, amplitude: f32) {
         self.send(format!("{}:VOLT {}", source, amplitude));
-        self.states[source as usize].amplitude = amplitude;
     }
 
+    /**
+     * Get amplitude voltage of fast analog outputs.
+     */
     pub fn get_amplitude(&self, source: Source) -> f32 {
-        self.states[source as usize].amplitude
+        self.send(format!("{}:VOLT?", source));
+
+        self.receive()
+            .parse()
+            .unwrap()
     }
 
     /**
@@ -190,6 +200,17 @@ impl Generator {
     }
 
     /**
+     * Get offset voltage of fast analog outputs.
+     */
+    pub fn get_offset(&self, source: Source) -> f32 {
+        self.send(format!("{}:VOLT:OFFS?", source));
+
+        self.receive()
+            .parse()
+            .unwrap()
+    }
+
+    /**
      * Set phase of fast analog outputs.
      */
     pub fn set_phase(&self, source: Source, phase: i32) {
@@ -199,13 +220,19 @@ impl Generator {
     /**
      * Set duty cycle of PWM waveform.
      */
-    pub fn set_duty_cycle(&mut self, source: Source, dcyc: u32) {
+    pub fn set_duty_cycle(&self, source: Source, dcyc: u32) {
         self.send(format!("{}:DCYC {}", source, dcyc));
-        self.states[source as usize].dcyc = dcyc;
     }
 
+    /**
+     * Get duty cycle of PWM waveform.
+     */
     pub fn get_duty_cycle(&self, source: Source) -> u32 {
-        self.states[source as usize].dcyc
+        self.send(format!("{}:DCYC?", source));
+
+        self.receive()
+            .parse()
+            .unwrap()
     }
 
     /**
@@ -256,6 +283,12 @@ impl Generator {
 
         socket.send(message);
     }
+
+    fn receive(&self) -> String {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.receive()
+    }
 }
 
 #[cfg(test)]
@@ -271,7 +304,7 @@ mod test {
 
     #[test]
     fn test_start() {
-        let (rx, mut generator) = create_generator();
+        let (rx, generator) = create_generator();
 
         generator.start(::generator::Source::OUT2);
         assert_eq!("OUTPUT2:STATE ON\r\n", rx.recv().unwrap());
@@ -279,7 +312,7 @@ mod test {
 
     #[test]
     fn test_stop() {
-        let (rx, mut generator) = create_generator();
+        let (rx, generator) = create_generator();
 
         generator.stop(::generator::Source::OUT2);
         assert_eq!("OUTPUT2:STATE OFF\r\n", rx.recv().unwrap());
@@ -287,18 +320,14 @@ mod test {
 
     #[test]
     fn test_is_started() {
-        let (_, mut generator) = create_generator();
+        let (_, generator) = create_generator();
 
-        assert_eq!(generator.is_started(::generator::Source::OUT1), false);
-        generator.start(::generator::Source::OUT1);
         assert_eq!(generator.is_started(::generator::Source::OUT1), true);
-        generator.stop(::generator::Source::OUT1);
-        assert_eq!(generator.is_started(::generator::Source::OUT1), false);
     }
 
     #[test]
     fn test_set_frequency() {
-        let (rx, mut generator) = create_generator();
+        let (rx, generator) = create_generator();
 
         generator.set_frequency(::generator::Source::OUT1, 500);
         assert_eq!("SOUR1:FREQ:FIX 500\r\n", rx.recv().unwrap());
@@ -313,18 +342,32 @@ mod test {
 
     #[test]
     fn test_set_form() {
-        let (rx, mut generator) = create_generator();
+        let (rx, generator) = create_generator();
 
         generator.set_form(::generator::Source::OUT1, ::generator::Form::SINE);
         assert_eq!("SOUR1:FUNC SINE\r\n", rx.recv().unwrap());
     }
 
     #[test]
-    fn test_amplitude() {
-        let (rx, mut generator) = create_generator();
+    fn test_get_form() {
+        let (_, generator) = create_generator();
+
+        assert_eq!(generator.get_form(::generator::Source::OUT1), ::generator::Form::SINE);
+    }
+
+    #[test]
+    fn test_set_amplitude() {
+        let (rx, generator) = create_generator();
 
         generator.set_amplitude(::generator::Source::OUT1, -0.9);
         assert_eq!("SOUR1:VOLT -0.9\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_amplitude() {
+        let (_, generator) = create_generator();
+
+        assert_eq!(generator.get_amplitude(::generator::Source::OUT1), -1.1);
     }
 
     #[test]
@@ -333,6 +376,13 @@ mod test {
 
         generator.set_offset(::generator::Source::OUT1, -1.0);
         assert_eq!("SOUR1:VOLT:OFFS -1\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_offset() {
+        let (_, generator) = create_generator();
+
+        assert_eq!(generator.get_offset(::generator::Source::OUT1), 1.2);
     }
 
     #[test]
@@ -345,10 +395,17 @@ mod test {
 
     #[test]
     fn test_set_duty_cycle() {
-        let (rx, mut generator) = create_generator();
+        let (rx, generator) = create_generator();
 
         generator.set_duty_cycle(::generator::Source::OUT1, 100);
         assert_eq!("SOUR1:DCYC 100\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_duty_cycle() {
+        let (_, generator) = create_generator();
+
+        assert_eq!(generator.get_duty_cycle(::generator::Source::OUT1), 100);
     }
 
     #[test]
