@@ -128,14 +128,14 @@ impl Trigger {
     /**
      * Set trigger level in mV.
      */
-    pub fn set_level(&self, level: u8) {
+    pub fn set_level(&self, level: f32) {
         self.send(format!("ACQ:TRIG:LEV {}", level));
     }
 
     /**
      * Get trigger level in mV.
      */
-    pub fn get_level(&self) -> u8 {
+    pub fn get_level(&self) -> f32 {
         self.send("ACQ:TRIG:LEV?");
 
         self.receive()
@@ -224,7 +224,7 @@ mod test {
     fn test_set_level() {
         let (rx, trigger) = create_trigger();
 
-        trigger.set_level(0);
+        trigger.set_level(0.0);
         assert_eq!("ACQ:TRIG:LEV 0\r\n", rx.recv().unwrap());
     }
 
@@ -232,7 +232,7 @@ mod test {
     fn test_get_level() {
         let (_, trigger) = create_trigger();
 
-        assert_eq!(trigger.get_level(), 123);
+        assert_eq!(trigger.get_level(), 123.0);
     }
 
     fn create_trigger() -> (::std::sync::mpsc::Receiver<String>, ::trigger::Trigger) {
