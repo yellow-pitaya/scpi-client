@@ -116,10 +116,13 @@ impl Trigger {
     /**
      * Get trigger delay in ns.
      */
-    pub fn get_delay_in_ns(&self) -> String {
+    pub fn get_delay_in_ns(&self) -> u8 {
         self.send("ACQ:TRIG:DLY:NS?");
 
         self.receive()
+            .replace("ns", "")
+            .parse()
+            .unwrap()
     }
 
     /**
@@ -211,7 +214,7 @@ mod test {
     fn test_get_delay_in_ns() {
         let (_, trigger) = create_trigger();
 
-        assert_eq!(trigger.get_delay_in_ns().as_str(), "128ns");
+        assert_eq!(trigger.get_delay_in_ns(), 128);
     }
 
     #[test]
