@@ -137,7 +137,7 @@ mod test {
                                     .unwrap();
                             },
                             "SOUR1:DCYC?\r\n" => {
-                                stream.write("100\r\n".as_bytes())
+                                stream.write("1.0\r\n".as_bytes())
                                     .unwrap();
                             },
                             "SOUR1:FREQ:FIX?\r\n" => {
