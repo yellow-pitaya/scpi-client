@@ -135,10 +135,13 @@ impl Trigger {
     /**
      * Get trigger level in mV.
      */
-    pub fn get_level(&self) -> String {
+    pub fn get_level(&self) -> u8 {
         self.send("ACQ:TRIG:LEV?");
 
         self.receive()
+            .replace("mV", "")
+            .parse()
+            .unwrap()
     }
 
     fn send<D>(&self, message: D)
@@ -229,7 +232,7 @@ mod test {
     fn test_get_level() {
         let (_, trigger) = create_trigger();
 
-        assert_eq!(trigger.get_level().as_str(), "123mV");
+        assert_eq!(trigger.get_level(), 123);
     }
 
     fn create_trigger() -> (::std::sync::mpsc::Receiver<String>, ::trigger::Trigger) {
