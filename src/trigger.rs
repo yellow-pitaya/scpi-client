@@ -91,7 +91,7 @@ impl Trigger {
     /**
      * Set trigger delay in samples.
      */
-    pub fn set_delay(&self, delay: u8) {
+    pub fn set_delay(&self, delay: u16) {
         self.send(format!("ACQ:TRIG:DLY {}", delay));
     }
 
