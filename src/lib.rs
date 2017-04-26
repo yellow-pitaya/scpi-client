@@ -144,6 +144,10 @@ mod test {
                                 stream.write("1000\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "SOUR2:FREQ:FIX?\r\n" => {
+                                stream.write("8.82604e+06\r\n".as_bytes())
+                                    .unwrap();
+                            },
                             "SOUR1:FUNC?\r\n" => {
                                 stream.write("SINE\r\n".as_bytes())
                                     .unwrap();

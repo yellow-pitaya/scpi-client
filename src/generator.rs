@@ -151,9 +151,11 @@ impl Generator {
     pub fn get_frequency(&self, source: Source) -> u32 {
         self.send(format!("{}:FREQ:FIX?", source));
 
-        self.receive()
+        let value: f32 =self.receive()
             .parse()
-            .unwrap()
+            .unwrap();
+
+        value as u32
     }
 
     /**
@@ -338,6 +340,13 @@ mod test {
         let (_, generator) = create_generator();
 
         assert_eq!(generator.get_frequency(::generator::Source::OUT1), 1000);
+    }
+
+    #[test]
+    fn test_get_high_frequency() {
+        let (_, generator) = create_generator();
+
+        assert_eq!(generator.get_frequency(::generator::Source::OUT2), 8_826_040);
     }
 
     #[test]
