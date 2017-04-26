@@ -86,7 +86,7 @@ impl Data {
      * Read samples from start to stop position.
      *
      * start = {0,1,...,16384}
-     * stop_pos = {0,1,...116384}
+     * stop_pos = {0,1,...16384}
      */
     pub fn read_slice(&self, source: ::acquire::Source, start: u16, end: u16) -> String {
         self.send(format!("ACQ:{}:DATA:STA:END? {},{}", source, start, end));
