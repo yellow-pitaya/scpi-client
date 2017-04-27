@@ -44,6 +44,21 @@ pub enum Decimation {
     DEC_65536,
 }
 
+impl Decimation {
+    pub fn get_buffer_duration(&self) -> ::std::time::Duration {
+        let (s, ns) = match self {
+            &Decimation::DEC_1 => (0, 131_072),
+            &Decimation::DEC_8 => (0, 1_049_000),
+            &Decimation::DEC_64 => (0, 8_389_000),
+            &Decimation::DEC_1024 => (0, 134_218_000),
+            &Decimation::DEC_8192 => (1, 740_000_000),
+            &Decimation::DEC_65536 => (8, 590_000_000),
+        };
+
+        ::std::time::Duration::new(s, ns)
+    }
+}
+
 impl ::std::fmt::Display for Decimation {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         let display = match self {
@@ -185,6 +200,13 @@ impl Acquire {
 
 #[cfg(test)]
 mod test {
+    #[test]
+    fn test_decimation_get_buffer_duration() {
+        let duration = ::std::time::Duration::new(8, 590_000_000);
+
+        assert_eq!(duration, ::acquire::Decimation::DEC_65536.get_buffer_duration());
+    }
+
     macro_rules! acquire_assert {
         ($f:ident, $e:expr) => {
             let (rx, acquire) = create_acquire();
