@@ -57,6 +57,17 @@ impl Decimation {
 
         ::std::time::Duration::new(s, ns)
     }
+
+    pub fn get_sampling_rate(&self) -> &'static str {
+        match self {
+            &Decimation::DEC_1 => "125 MS/s",
+            &Decimation::DEC_8 => "15.6 MS/s",
+            &Decimation::DEC_64 => "1.9 MS/s",
+            &Decimation::DEC_1024 => "122.0 MS/s",
+            &Decimation::DEC_8192 => "15.2 kS/s",
+            &Decimation::DEC_65536 => "7.6 kS/s",
+        }
+    }
 }
 
 impl ::std::fmt::Display for Decimation {
