@@ -39,6 +39,12 @@ impl Redpitaya {
     }
 }
 
+impl ::std::default::Default for Redpitaya {
+    fn default() -> Self {
+        Redpitaya::new("127.0.0.1:5000")
+    }
+}
+
 #[cfg(test)]
 mod test {
     use ::std::io::Read;
