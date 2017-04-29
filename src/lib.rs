@@ -170,6 +170,10 @@ mod test {
                                 stream.write("1\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "SOUR1:TRAC:DATA:DATA?\r\n" => {
+                                stream.write("1,0.5,0.2\r\n".as_bytes())
+                                    .unwrap();
+                            },
                             "SOUR1:VOLT?\r\n" => {
                                 stream.write("-1.1\r\n".as_bytes())
                                     .unwrap();

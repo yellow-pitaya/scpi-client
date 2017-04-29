@@ -251,7 +251,7 @@ impl Generator {
     /**
      * Import data for arbitrary waveform generation.
      */
-    pub fn arbitrary_waveform(&self, source: Source, data: Vec<f32>) {
+    pub fn set_arbitrary_waveform(&self, source: Source, data: Vec<f32>) {
         let mut data = data.iter()
             .fold(String::new(), |acc, e| {
                 format!("{}{},", acc, e)
@@ -259,6 +259,18 @@ impl Generator {
         data.pop();
 
         self.send(format!("{}:TRAC:DATA:DATA {}", source, data));
+    }
+
+    /**
+     * Get data for arbitrary waveform generation.
+     */
+    pub fn get_arbitrary_waveform(&self, source: Source) -> Vec<f32> {
+        self.send(format!("{}:TRAC:DATA:DATA?", source));
+
+        let data = self.receive();
+        data.split(",")
+            .map(|x| x.parse().unwrap())
+            .collect()
     }
 
     /**
@@ -436,11 +448,18 @@ mod test {
     }
 
     #[test]
-    fn test_arbitrary_waveform() {
+    fn test_set_arbitrary_waveform() {
         let (rx, generator) = create_generator();
 
-        generator.arbitrary_waveform(::generator::Source::OUT1, vec![1.0, 0.5, 0.2]);
+        generator.set_arbitrary_waveform(::generator::Source::OUT1, vec![1.0, 0.5, 0.2]);
         assert_eq!("SOUR1:TRAC:DATA:DATA 1,0.5,0.2\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_arbitrary_waveform() {
+        let (_, generator) = create_generator();
+
+        assert_eq!(generator.get_arbitrary_waveform(::generator::Source::OUT1), vec![1.0, 0.5, 0.2]);
     }
 
     #[test]
