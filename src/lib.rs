@@ -162,6 +162,10 @@ mod test {
                                 stream.write("SINE\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "SOUR1:PHAS?\r\n" => {
+                                stream.write("-180\r\n".as_bytes())
+                                    .unwrap();
+                            },
                             "SOUR1:STATE?\r\n" => {
                                 stream.write("1\r\n".as_bytes())
                                     .unwrap();

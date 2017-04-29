@@ -220,6 +220,17 @@ impl Generator {
     }
 
     /**
+     * Get phase of fast analog outputs.
+     */
+    pub fn get_phase(&self, source: Source) -> i32 {
+        self.send(format!("{}:PHAS?", source));
+
+        self.receive()
+            .parse()
+            .unwrap()
+    }
+
+    /**
      * Set duty cycle of PWM waveform.
      */
     pub fn set_duty_cycle(&self, source: Source, dcyc: f32) {
@@ -400,6 +411,13 @@ mod test {
 
         generator.set_phase(::generator::Source::OUT1, -360);
         assert_eq!("SOUR1:PHAS -360\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_phase() {
+        let (_, generator) = create_generator();
+
+        assert_eq!(generator.get_phase(::generator::Source::OUT1), -180);
     }
 
     #[test]
