@@ -17,7 +17,8 @@ impl ::std::fmt::Display for Source {
     }
 }
 
-enum State {
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum State {
     ON,
     OFF,
 }
@@ -30,6 +31,16 @@ impl ::std::fmt::Display for State {
         };
 
         write!(f, "{}", display)
+    }
+}
+
+impl ::std::convert::From<String> for State {
+    fn from(s: String) -> Self {
+        match s.as_str() {
+            "ON" => State::ON,
+            "OFF" => State::OFF,
+            _ => State::OFF,
+        }
     }
 }
 
@@ -63,10 +74,31 @@ impl Burst {
     }
 
     /**
+     * Disable burst mode.
+     */
+    pub fn get_status(&self, source: Source) -> State {
+        self.send(format!("{}:BURS:STAT?", source));
+
+        self.receive()
+            .into()
+    }
+
+    /**
      * Set N number of periods in one burst.
      */
     pub fn set_count(&self, source: Source, count: u32) {
         self.send(format!("{}:BURS:NCYC {}", source, count));
+    }
+
+    /**
+     * Get number of periods in one burst.
+     */
+    pub fn get_count(&self, source: Source) -> u32 {
+        self.send(format!("{}:BURS:NCYC?", source));
+
+        self.receive()
+            .parse()
+            .unwrap()
     }
 
     /**
@@ -77,11 +109,36 @@ impl Burst {
     }
 
     /**
+     * Get number of repeated bursts.
+     */
+    pub fn get_repetitions(&self, source: Source) -> u32 {
+        self.send(format!("{}:BURS:NOR?", source));
+
+        self.receive()
+            .parse()
+            .unwrap()
+    }
+
+    /**
      * Set P total time of one burst in in micro seconds.
+     *
      * This includes the signal and delay.
      */
     pub fn set_period(&self, source: Source, period: u32) {
         self.send(format!("{}:BURS:INT:PER {}", source, period));
+    }
+
+    /**
+     * Get total time of one burst in in micro seconds.
+     *
+     * This includes the signal and delay.
+     */
+    pub fn get_period(&self, source: Source) -> u32 {
+        self.send(format!("{}:BURS:INT:PER?", source));
+
+        self.receive()
+            .parse()
+            .unwrap()
     }
 
     fn send<D>(&self, message: D)
@@ -90,6 +147,12 @@ impl Burst {
         let mut socket = self.socket.borrow_mut();
 
         socket.send(message);
+    }
+
+    fn receive(&self) -> String {
+        let mut socket = self.socket.borrow_mut();
+
+        socket.receive()
     }
 }
 
@@ -112,11 +175,25 @@ mod test {
     }
 
     #[test]
+    fn test_get_status() {
+        let (_, burst) = create_burst();
+
+        assert_eq!(burst.get_status(::burst::Source::OUT2), ::burst::State::OFF);
+    }
+
+    #[test]
     fn test_set_count() {
         let (rx, burst) = create_burst();
 
         burst.set_count(::burst::Source::OUT1, 3);
         assert_eq!("SOUR1:BURS:NCYC 3\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_count() {
+        let (_, burst) = create_burst();
+
+        assert_eq!(burst.get_count(::burst::Source::OUT2), 3);
     }
 
     #[test]
@@ -128,11 +205,25 @@ mod test {
     }
 
     #[test]
+    fn test_get_repetitions() {
+        let (_, burst) = create_burst();
+
+        assert_eq!(burst.get_repetitions(::burst::Source::OUT1), 5);
+    }
+
+    #[test]
     fn test_set_period() {
         let (rx, burst) = create_burst();
 
         burst.set_period(::burst::Source::OUT2, 1_000_000);
         assert_eq!("SOUR2:BURS:INT:PER 1000000\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_period() {
+        let (_, burst) = create_burst();
+
+        assert_eq!(burst.get_period(::burst::Source::OUT2), 1_000_000);
     }
 
     fn create_burst() -> (::std::sync::mpsc::Receiver<String>, ::burst::Burst) {

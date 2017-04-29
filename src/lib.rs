@@ -190,6 +190,18 @@ mod test {
                                 stream.write("1.2\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "SOUR2:BURS:NCYC?\r\n" => {
+                                stream.write("3\r\n".as_bytes())
+                                    .unwrap();
+                            }
+                            "SOUR1:BURS:NOR?\r\n" => {
+                                stream.write("5\r\n".as_bytes())
+                                    .unwrap();
+                            }
+                            "SOUR2:BURS:INT:PER?\r\n" => {
+                                stream.write("1000000\r\n".as_bytes())
+                                    .unwrap();
+                            }
                             _ => tx.send(message).unwrap(),
                         };
                     });
