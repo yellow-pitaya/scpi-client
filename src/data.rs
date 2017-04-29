@@ -17,6 +17,16 @@ impl ::std::fmt::Display for Unit {
     }
 }
 
+impl ::std::convert::From<String> for Unit  {
+    fn from(s: String) -> Self {
+        match s.as_str() {
+            "RAW" => Unit::RAW,
+            "VOLTS" => Unit::VOLTS,
+            _ => Unit::VOLTS,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Format {
     FLOAT,
@@ -73,6 +83,16 @@ impl Data {
      */
     pub fn set_units(&self, unit: Unit) {
         self.send(format!("ACQ:DATA:UNITS {}", unit));
+    }
+
+    /**
+     * Get units in which acquired data will be returned.
+     */
+    pub fn get_units(&self) -> Unit {
+        self.send("ACQ:DATA:UNITS?");
+
+        self.receive()
+            .into()
     }
 
     /**
@@ -190,6 +210,13 @@ mod test {
 
         data.set_units(::data::Unit::VOLTS);
         assert_eq!("ACQ:DATA:UNITS VOLTS\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_units() {
+        let (_, data) = create_data();
+
+        assert_eq!(data.get_units(), ::data::Unit::RAW);
     }
 
     #[test]

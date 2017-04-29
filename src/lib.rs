@@ -86,6 +86,10 @@ mod test {
                                 stream.write("ON\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "ACQ:DATA:UNITS?\r\n" => {
+                                stream.write("RAW\r\n".as_bytes())
+                                    .unwrap();
+                            },
                             "ACQ:WPOS?\r\n" => {
                                 stream.write("1024\r\n".as_bytes())
                                     .unwrap();
