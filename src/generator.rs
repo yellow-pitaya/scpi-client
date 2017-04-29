@@ -21,6 +21,18 @@ impl ::std::fmt::Display for TriggerSource {
     }
 }
 
+impl ::std::convert::From<String> for TriggerSource {
+    fn from(s: String) -> Self {
+        match s.as_str() {
+            "EXT_PE" => TriggerSource::EXT_PE,
+            "EXT_NE" => TriggerSource::EXT_NE,
+            "INT" => TriggerSource::INT,
+            "GATED" => TriggerSource::GATED,
+            _ => TriggerSource::INT,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Form {
     SINE,
@@ -281,6 +293,16 @@ impl Generator {
     }
 
     /**
+     * Get trigger source for selected signal.
+     */
+    pub fn get_trigger_source(&self, source: Source) -> TriggerSource {
+        self.send(format!("{}:TRIG:SOUR?", source));
+
+        self.receive()
+            .into()
+    }
+
+    /**
      * Triggers selected source immediately.
      */
     pub fn trigger(&self, source: Source) {
@@ -468,6 +490,13 @@ mod test {
 
         generator.set_trigger_source(::generator::Source::OUT1, ::generator::TriggerSource::EXT_PE);
         assert_eq!("SOUR1:TRIG:SOUR EXT_PE\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_trigger_source() {
+        let (_, generator) = create_generator();
+
+        assert_eq!(generator.get_trigger_source(::generator::Source::OUT1), ::generator::TriggerSource::EXT_NE);
     }
 
     #[test]
