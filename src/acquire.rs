@@ -109,6 +109,45 @@ impl ::std::convert::From<String> for Decimation {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum SamplingRate {
+    RATE_125MHz,
+    RATE_15_6MHz,
+    RATE_1_9MHz,
+    RATE_103_8kHz,
+    RATE_15_2kHz,
+    RATE_1_9kHz,
+}
+
+impl ::std::fmt::Display for SamplingRate {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &SamplingRate::RATE_125MHz => "125MHz",
+            &SamplingRate::RATE_15_6MHz => "15_6MHz",
+            &SamplingRate::RATE_1_9MHz => "1_9MHz",
+            &SamplingRate::RATE_103_8kHz => "103_8kHz",
+            &SamplingRate::RATE_15_2kHz => "15_2kHz",
+            &SamplingRate::RATE_1_9kHz => "1_9kHz",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
+impl ::std::convert::From<String> for SamplingRate {
+    fn from(s: String) -> Self {
+        match s.as_str() {
+            "125MHz" => SamplingRate::RATE_125MHz,
+            "15_6MHz" => SamplingRate::RATE_15_6MHz,
+            "1_9MHz" => SamplingRate::RATE_1_9MHz,
+            "103_8kHz" => SamplingRate::RATE_103_8kHz,
+            "15_2kHz" => SamplingRate::RATE_15_2kHz,
+            "1_9kHz" => SamplingRate::RATE_1_9kHz,
+            _ => SamplingRate::RATE_125MHz,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Acquire {
     socket: ::std::cell::RefCell<Socket>,
@@ -165,6 +204,35 @@ impl Acquire {
 
         self.receive()
             .into()
+    }
+
+    /**
+     * Set sampling rate.
+     */
+    pub fn set_sampling_rate(&self, rate: SamplingRate) {
+        self.send(format!("ACQ:SRAT {}", rate));
+    }
+
+    /**
+     * Get sampling rate.
+     */
+    pub fn get_sampling_rate(&self) -> SamplingRate {
+        self.send("ACQ:SRAT?");
+
+        self.receive()
+            .into()
+    }
+
+    /**
+     * Get sampling rate in Hertz.
+     */
+    pub fn get_sampling_rate_in_hertz(&self) -> u64 {
+        self.send("ACQ:SRA:HZ?");
+
+        self.receive()
+            .replace(" Hz", "")
+            .parse()
+            .unwrap()
     }
 
     /**
@@ -292,6 +360,28 @@ mod test {
         let (_, acquire) = create_acquire();
 
         assert_eq!(acquire.get_decimation(), ::acquire::Decimation::DEC_1);
+    }
+
+    #[test]
+    fn test_set_sampling_rate() {
+        let (rx, acquire) = create_acquire();
+
+        acquire.set_sampling_rate(::acquire::SamplingRate::RATE_125MHz);
+        assert_eq!("ACQ:SRAT 125MHz\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_sampling_rate() {
+        let (_, acquire) = create_acquire();
+
+        assert_eq!(acquire.get_sampling_rate(), ::acquire::SamplingRate::RATE_1_9kHz);
+    }
+
+    #[test]
+    fn test_get_sampling_rate_in_hertz() {
+        let (_, acquire) = create_acquire();
+
+        assert_eq!(acquire.get_sampling_rate_in_hertz(), 125_000_000);
     }
 
     #[test]
