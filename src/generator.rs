@@ -1,3 +1,4 @@
+use Module;
 use socket::Socket;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -110,6 +111,12 @@ impl ::std::convert::Into<usize> for Source {
 #[derive(Clone)]
 pub struct Generator {
     socket: ::std::cell::RefCell<Socket>,
+}
+
+impl ::Module for Generator {
+    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
+        self.socket.borrow_mut()
+    }
 }
 
 impl Generator {
@@ -321,20 +328,6 @@ impl Generator {
      */
     pub fn reset(&self) {
         self.send("GEN:RST");
-    }
-
-    fn send<D>(&self, message: D)
-        where D: ::std::fmt::Display
-    {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.send(message);
-    }
-
-    fn receive(&self) -> String {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.receive()
     }
 }
 

@@ -1,3 +1,4 @@
+use Module;
 use socket::Socket;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -154,6 +155,12 @@ pub struct Acquire {
     started: bool,
 }
 
+impl ::Module for Acquire {
+    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
+        self.socket.borrow_mut()
+    }
+}
+
 impl Acquire {
     pub fn new(socket: Socket) -> Self {
         Acquire {
@@ -280,20 +287,6 @@ impl Acquire {
 
         self.receive()
             .into()
-    }
-
-    fn send<D>(&self, message: D)
-        where D: ::std::fmt::Display
-    {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.send(message);
-    }
-
-    fn receive(&self) -> String {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.receive()
     }
 }
 

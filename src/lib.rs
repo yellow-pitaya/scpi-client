@@ -11,6 +11,24 @@ pub mod generator;
 pub mod socket;
 pub mod trigger;
 
+trait Module {
+    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket>;
+
+    fn send<D>(&self, message: D)
+        where D: ::std::fmt::Display
+    {
+        let mut socket = self.get_socket();
+
+        socket.send(message);
+    }
+
+    fn receive(&self) -> String {
+        let mut socket = self.get_socket();
+
+        socket.receive()
+    }
+}
+
 #[derive(Clone)]
 pub struct Redpitaya {
     pub acquire: acquire::Acquire,

@@ -1,3 +1,4 @@
+use Module;
 use socket::Socket;
 
 pub trait Pin: ::std::fmt::Display {
@@ -134,6 +135,12 @@ impl ::std::fmt::Display for Direction {
 #[derive(Clone)]
 pub struct Digital {
     socket: ::std::cell::RefCell<Socket>,
+}
+
+impl ::Module for Digital {
+    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
+        self.socket.borrow_mut()
+    }
 }
 
 impl Digital {

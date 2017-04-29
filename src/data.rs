@@ -1,3 +1,4 @@
+use Module;
 use socket::Socket;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -47,6 +48,12 @@ impl ::std::fmt::Display for Format {
 #[derive(Clone)]
 pub struct Data {
     socket: ::std::cell::RefCell<Socket>,
+}
+
+impl ::Module for Data {
+    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
+        self.socket.borrow_mut()
+    }
 }
 
 impl Data {
@@ -171,20 +178,6 @@ impl Data {
         self.receive()
             .parse()
             .unwrap()
-    }
-
-    fn send<D>(&self, message: D)
-        where D: ::std::fmt::Display
-    {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.send(message);
-    }
-
-    fn receive(&self) -> String {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.receive()
     }
 }
 

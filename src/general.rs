@@ -1,8 +1,15 @@
+use Module;
 use socket::Socket;
 
 #[derive(Clone)]
 pub struct General {
     socket: ::std::cell::RefCell<Socket>,
+}
+
+impl ::Module for General {
+    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
+        self.socket.borrow_mut()
+    }
 }
 
 impl General {
@@ -49,14 +56,6 @@ impl General {
      */
     pub fn enable_digital_loop(&self) {
         self.send("RP:DIG:LOop");
-    }
-
-    fn send<D>(&self, message: D)
-        where D: ::std::fmt::Display
-    {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.send(message);
     }
 }
 

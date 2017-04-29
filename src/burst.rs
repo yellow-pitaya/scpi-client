@@ -1,3 +1,4 @@
+use Module;
 use socket::Socket;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -47,6 +48,12 @@ impl ::std::convert::From<String> for State {
 #[derive(Clone)]
 pub struct Burst {
     socket: ::std::cell::RefCell<Socket>,
+}
+
+impl ::Module for Burst {
+    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
+        self.socket.borrow_mut()
+    }
 }
 
 impl Burst {
@@ -139,20 +146,6 @@ impl Burst {
         self.receive()
             .parse()
             .unwrap()
-    }
-
-    fn send<D>(&self, message: D)
-        where D: ::std::fmt::Display
-    {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.send(message);
-    }
-
-    fn receive(&self) -> String {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.receive()
     }
 }
 

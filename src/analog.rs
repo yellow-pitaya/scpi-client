@@ -1,3 +1,4 @@
+use Module;
 use socket::Socket;
 
 pub trait Pin: ::std::fmt::Display {
@@ -56,6 +57,12 @@ pub struct Analog {
     socket: ::std::cell::RefCell<Socket>,
 }
 
+impl ::Module for Analog {
+    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
+        self.socket.borrow_mut()
+    }
+}
+
 impl Analog {
     pub fn new(socket: Socket) -> Self {
         Analog {
@@ -92,20 +99,6 @@ impl Analog {
         self.receive()
             .parse()
             .unwrap()
-    }
-
-    fn send<D>(&self, message: D)
-        where D: ::std::fmt::Display
-    {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.send(message);
-    }
-
-    fn receive(&self) -> String {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.receive()
     }
 }
 
