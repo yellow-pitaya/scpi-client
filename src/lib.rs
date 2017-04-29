@@ -6,6 +6,7 @@ pub mod analog;
 pub mod burst;
 pub mod data;
 pub mod digital;
+pub mod general;
 pub mod generator;
 pub mod socket;
 pub mod trigger;
@@ -16,6 +17,7 @@ pub struct Redpitaya {
     pub analog: analog::Analog,
     pub burst: burst::Burst,
     pub digital: digital::Digital,
+    pub general: general::General,
     pub generator: generator::Generator,
     pub trigger: trigger::Trigger,
     pub data: data::Data,
@@ -32,6 +34,7 @@ impl Redpitaya {
             analog: analog::Analog::new(socket.clone()),
             burst: burst::Burst::new(socket.clone()),
             digital: digital::Digital::new(socket.clone()),
+            general: general::General::new(socket.clone()),
             generator: generator::Generator::new(socket.clone()),
             trigger: trigger::Trigger::new(socket.clone()),
             data: data::Data::new(socket.clone()),
