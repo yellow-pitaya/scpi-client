@@ -64,6 +64,13 @@ impl Analog {
     }
 
     /**
+     * Sets analog outputs to default values (0V).
+     */
+    pub fn reset(&self) {
+        self.send("ANALOG:RST");
+    }
+
+    /**
      * Set analog voltage on slow analog outputs.
      *
      * Voltage range of slow analog outputs is: 0 - 1.8 V
@@ -104,6 +111,14 @@ impl Analog {
 
 #[cfg(test)]
 mod test {
+    #[test]
+    fn test_reset() {
+        let (rx, analog) = create_analog();
+
+        analog.reset();
+        assert_eq!("ANALOG:RST\r\n", rx.recv().unwrap());
+    }
+
     #[test]
     fn test_set_value() {
         let (rx, analog) = create_analog();
