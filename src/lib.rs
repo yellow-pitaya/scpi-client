@@ -90,6 +90,10 @@ mod test {
                                 stream.write("RAW\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "ACQ:SOUR1:GAIN?\r\n" => {
+                                stream.write("HV\r\n".as_bytes())
+                                    .unwrap();
+                            },
                             "ACQ:WPOS?\r\n" => {
                                 stream.write("1024\r\n".as_bytes())
                                     .unwrap();

@@ -17,6 +17,16 @@ impl ::std::fmt::Display for Gain {
     }
 }
 
+impl ::std::convert::From<String> for Gain {
+    fn from(s: String) -> Self {
+        match s.as_str() {
+            "LV" => Gain::LV,
+            "HV" => Gain::HV,
+            _ => Gain::LV,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Source {
     IN1,
@@ -194,6 +204,16 @@ impl Acquire {
         self.send(format!("ACQ:{}:GAIN {}", source, gain));
     }
 
+    /**
+     * Get gain settings to HIGH or LOW.
+     */
+    pub fn get_gain(&self, source: Source) -> Gain {
+        self.send(format!("ACQ:{}:GAIN?", source));
+
+        self.receive()
+            .into()
+    }
+
     fn send<D>(&self, message: D)
         where D: ::std::fmt::Display
     {
@@ -293,10 +313,17 @@ mod test {
 
     #[test]
     fn test_set_gain() {
-        let (rx, trigger) = create_acquire();
+        let (rx, acquire) = create_acquire();
 
-        trigger.set_gain(::acquire::Source::IN1, ::acquire::Gain::LV);
+        acquire.set_gain(::acquire::Source::IN1, ::acquire::Gain::LV);
         assert_eq!("ACQ:SOUR1:GAIN LV\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_gain() {
+        let (_, acquire) = create_acquire();
+
+        assert_eq!(acquire.get_gain(::acquire::Source::IN1), ::acquire::Gain::HV);
     }
 
     fn create_acquire() -> (::std::sync::mpsc::Receiver<String>, ::acquire::Acquire) {
