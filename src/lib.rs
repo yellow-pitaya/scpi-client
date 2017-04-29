@@ -130,6 +130,10 @@ mod test {
                                 stream.write("128ns\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "ACQ:TRIG:HYST?\r\n" => {
+                                stream.write("0.75\r\n".as_bytes())
+                                    .unwrap();
+                            },
                             "ACQ:TRIG:LEV?\r\n" => {
                                 stream.write("123mV\r\n".as_bytes())
                                     .unwrap();

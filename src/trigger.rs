@@ -126,6 +126,26 @@ impl Trigger {
     }
 
     /**
+     * Sets the trigger threshold hysteresis value in volts.
+     *
+     * Value must be outside to enable the trigger again.
+     */
+    pub fn set_hysteresis(&self, hysteresis: f32) {
+        self.send(format!("ACQ:TRIG:HYST {}", hysteresis));
+    }
+
+    /**
+     * Gets currently set trigger threshold hysteresis value in volts.
+     */
+    pub fn get_hysteresis(&self) -> f32 {
+        self.send("ACQ:TRIG:HYST?");
+
+        self.receive()
+            .parse()
+            .unwrap()
+    }
+
+    /**
      * Set trigger level in mV.
      */
     pub fn set_level(&self, level: f32) {
@@ -218,6 +238,21 @@ mod test {
         let (_, trigger) = create_trigger();
 
         assert_eq!(trigger.get_delay_in_ns(), 128);
+    }
+
+    #[test]
+    fn test_set_hysteresis() {
+        let (rx, trigger) = create_trigger();
+
+        trigger.set_hysteresis(0.1);
+        assert_eq!("ACQ:TRIG:HYST 0.1\r\n", rx.recv().unwrap());
+    }
+
+    #[test]
+    fn test_get_hysteresis() {
+        let (_, trigger) = create_trigger();
+
+        assert_eq!(trigger.get_hysteresis(), 0.75);
     }
 
     #[test]
