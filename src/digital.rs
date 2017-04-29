@@ -144,6 +144,16 @@ impl Digital {
     }
 
     /**
+     * Sets digital pins to default values.
+     *
+     * Pins DIO1_P - DIO7_P, RP_DIO0_N - RP_DIO7_N are set al OUTPUT and to LOW.
+     * LEDs are set to LOW/OFF
+     */
+    pub fn reset(&self) {
+        self.send("DIG:RST");
+    }
+
+    /**
      * Set direction of digital pins to output or input.
      */
     pub fn set_direction<P>(&self, pin: P, direction: Direction)
@@ -191,6 +201,14 @@ impl Digital {
 
 #[cfg(test)]
 mod test {
+    #[test]
+    fn test_reset() {
+        let (rx, digital) = create_digital();
+
+        digital.reset();
+        assert_eq!("DIG:RST\r\n", rx.recv().unwrap());
+    }
+
     #[test]
     fn test_set_direction_in() {
         let (rx, digital) = create_digital();
