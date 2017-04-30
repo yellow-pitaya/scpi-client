@@ -91,14 +91,13 @@ impl Analog {
      *
      * Voltage range of slow analog inputs is: 0 3.3 V
      */
-    pub fn get_value<P>(&self, pin: P) -> f32
+    pub fn get_value<P>(&self, pin: P) -> Result<f32, <f32 as ::std::str::FromStr>::Err>
         where P: Pin
     {
         self.send(format!("ANALOG:PIN? {}", Into::<String>::into(pin)));
 
         self.receive()
             .parse()
-            .unwrap()
     }
 }
 
@@ -124,7 +123,7 @@ mod test {
     fn test_get_value() {
         let (_, analog) = create_analog();
 
-        assert_eq!(analog.get_value(::analog::InputPin::AIN1), 1.34);
+        assert_eq!(analog.get_value(::analog::InputPin::AIN1), Ok(1.34));
     }
 
     fn create_analog() -> (::std::sync::mpsc::Receiver<String>, ::analog::Analog) {

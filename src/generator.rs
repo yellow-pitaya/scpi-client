@@ -149,12 +149,13 @@ impl Generator {
         self.send(format!("{}:STATE {}", output, state));
     }
 
-    pub fn is_started(&self, source: Source) -> bool {
+    pub fn is_started(&self, source: Source) -> Result<bool, <i8 as ::std::str::FromStr>::Err> {
         self.send(format!("{}:STATE?", Into::<String>::into(source)));
 
-        self.receive()
-            .parse::<u8>()
-            .unwrap() == 1
+        match self.receive().parse::<u8>() {
+            Ok(state) => Ok(state == 1),
+            Err(err) => Err(err),
+        }
     }
 
     /**
@@ -167,14 +168,13 @@ impl Generator {
     /**
      * Get frequency of fast analog outputs.
      */
-    pub fn get_frequency(&self, source: Source) -> u32 {
+    pub fn get_frequency(&self, source: Source) -> Result<u32, <f32 as ::std::str::FromStr>::Err> {
         self.send(format!("{}:FREQ:FIX?", Into::<String>::into(source)));
 
         let value: f32 =self.receive()
-            .parse()
-            .unwrap();
+            .parse()?;
 
-        value as u32
+        Ok(value as u32)
     }
 
     /**
@@ -203,12 +203,11 @@ impl Generator {
     /**
      * Get amplitude voltage of fast analog outputs.
      */
-    pub fn get_amplitude(&self, source: Source) -> f32 {
+    pub fn get_amplitude(&self, source: Source) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
         self.send(format!("{}:VOLT?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
-            .unwrap()
     }
 
     /**
@@ -223,12 +222,11 @@ impl Generator {
     /**
      * Get offset voltage of fast analog outputs.
      */
-    pub fn get_offset(&self, source: Source) -> f32 {
+    pub fn get_offset(&self, source: Source) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
         self.send(format!("{}:VOLT:OFFS?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
-            .unwrap()
     }
 
     /**
@@ -241,12 +239,11 @@ impl Generator {
     /**
      * Get phase of fast analog outputs.
      */
-    pub fn get_phase(&self, source: Source) -> i32 {
+    pub fn get_phase(&self, source: Source) -> Result<i32, <i32 as ::std::str::FromStr>::Err> {
         self.send(format!("{}:PHAS?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
-            .unwrap()
     }
 
     /**
@@ -259,12 +256,11 @@ impl Generator {
     /**
      * Get duty cycle of PWM waveform.
      */
-    pub fn get_duty_cycle(&self, source: Source) -> f32 {
+    pub fn get_duty_cycle(&self, source: Source) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
         self.send(format!("{}:DCYC?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
-            .unwrap()
     }
 
     /**
@@ -362,7 +358,7 @@ mod test {
     fn test_is_started() {
         let (_, generator) = create_generator();
 
-        assert_eq!(generator.is_started(::generator::Source::OUT1), true);
+        assert_eq!(generator.is_started(::generator::Source::OUT1), Ok(true));
     }
 
     #[test]
@@ -377,14 +373,14 @@ mod test {
     fn test_get_frequency() {
         let (_, generator) = create_generator();
 
-        assert_eq!(generator.get_frequency(::generator::Source::OUT1), 1000);
+        assert_eq!(generator.get_frequency(::generator::Source::OUT1), Ok(1000));
     }
 
     #[test]
     fn test_get_high_frequency() {
         let (_, generator) = create_generator();
 
-        assert_eq!(generator.get_frequency(::generator::Source::OUT2), 8_826_040);
+        assert_eq!(generator.get_frequency(::generator::Source::OUT2), Ok(8_826_040));
     }
 
     #[test]
@@ -414,7 +410,7 @@ mod test {
     fn test_get_amplitude() {
         let (_, generator) = create_generator();
 
-        assert_eq!(generator.get_amplitude(::generator::Source::OUT1), -1.1);
+        assert_eq!(generator.get_amplitude(::generator::Source::OUT1), Ok(-1.1));
     }
 
     #[test]
@@ -429,7 +425,7 @@ mod test {
     fn test_get_offset() {
         let (_, generator) = create_generator();
 
-        assert_eq!(generator.get_offset(::generator::Source::OUT1), 1.2);
+        assert_eq!(generator.get_offset(::generator::Source::OUT1), Ok(1.2));
     }
 
     #[test]
@@ -444,7 +440,7 @@ mod test {
     fn test_get_phase() {
         let (_, generator) = create_generator();
 
-        assert_eq!(generator.get_phase(::generator::Source::OUT1), -180);
+        assert_eq!(generator.get_phase(::generator::Source::OUT1), Ok(-180));
     }
 
     #[test]
@@ -459,7 +455,7 @@ mod test {
     fn test_get_duty_cycle() {
         let (_, generator) = create_generator();
 
-        assert_eq!(generator.get_duty_cycle(::generator::Source::OUT1), 1.0);
+        assert_eq!(generator.get_duty_cycle(::generator::Source::OUT1), Ok(1.0));
     }
 
     #[test]

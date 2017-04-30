@@ -237,13 +237,12 @@ impl Acquire {
     /**
      * Get sampling rate in Hertz.
      */
-    pub fn get_sampling_rate_in_hertz(&self) -> u64 {
+    pub fn get_sampling_rate_in_hertz(&self) -> Result<u64, <u64 as ::std::str::FromStr>::Err> {
         self.send("ACQ:SRA:HZ?");
 
         self.receive()
             .replace(" Hz", "")
             .parse()
-            .unwrap()
     }
 
     /**
@@ -378,7 +377,7 @@ mod test {
     fn test_get_sampling_rate_in_hertz() {
         let (_, acquire) = create_acquire();
 
-        assert_eq!(acquire.get_sampling_rate_in_hertz(), 125_000_000);
+        assert_eq!(acquire.get_sampling_rate_in_hertz(), Ok(125_000_000));
     }
 
     #[test]

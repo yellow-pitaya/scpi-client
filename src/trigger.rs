@@ -105,12 +105,11 @@ impl Trigger {
     /**
      * Get trigger delay in samples.
      */
-    pub fn get_delay(&self) -> u16 {
+    pub fn get_delay(&self) -> Result<u16, <u16 as ::std::str::FromStr>::Err> {
         self.send("ACQ:TRIG:DLY?");
 
         self.receive()
             .parse()
-            .unwrap()
     }
 
     /**
@@ -123,13 +122,12 @@ impl Trigger {
     /**
      * Get trigger delay in ns.
      */
-    pub fn get_delay_in_ns(&self) -> u8 {
+    pub fn get_delay_in_ns(&self) -> Result<u8, <u8 as ::std::str::FromStr>::Err> {
         self.send("ACQ:TRIG:DLY:NS?");
 
         self.receive()
             .replace("ns", "")
             .parse()
-            .unwrap()
     }
 
     /**
@@ -144,12 +142,11 @@ impl Trigger {
     /**
      * Gets currently set trigger threshold hysteresis value in volts.
      */
-    pub fn get_hysteresis(&self) -> f32 {
+    pub fn get_hysteresis(&self) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
         self.send("ACQ:TRIG:HYST?");
 
         self.receive()
             .parse()
-            .unwrap()
     }
 
     /**
@@ -162,13 +159,12 @@ impl Trigger {
     /**
      * Get trigger level in mV.
      */
-    pub fn get_level(&self) -> f32 {
+    pub fn get_level(&self) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
         self.send("ACQ:TRIG:LEV?");
 
         self.receive()
             .replace("mV", "")
             .parse()
-            .unwrap()
     }
 }
 
@@ -215,7 +211,7 @@ mod test {
     fn test_get_delay() {
         let (_, trigger) = create_trigger();
 
-        assert_eq!(trigger.get_delay(), 2314);
+        assert_eq!(trigger.get_delay(), Ok(2314));
     }
 
     #[test]
@@ -230,7 +226,7 @@ mod test {
     fn test_get_delay_in_ns() {
         let (_, trigger) = create_trigger();
 
-        assert_eq!(trigger.get_delay_in_ns(), 128);
+        assert_eq!(trigger.get_delay_in_ns(), Ok(128));
     }
 
     #[test]
@@ -245,7 +241,7 @@ mod test {
     fn test_get_hysteresis() {
         let (_, trigger) = create_trigger();
 
-        assert_eq!(trigger.get_hysteresis(), 0.75);
+        assert_eq!(trigger.get_hysteresis(), Ok(0.75));
     }
 
     #[test]
@@ -260,7 +256,7 @@ mod test {
     fn test_get_level() {
         let (_, trigger) = create_trigger();
 
-        assert_eq!(trigger.get_level(), 123.0);
+        assert_eq!(trigger.get_level(), Ok(123.0));
     }
 
     fn create_trigger() -> (::std::sync::mpsc::Receiver<String>, ::trigger::Trigger) {

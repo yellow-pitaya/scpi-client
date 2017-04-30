@@ -104,12 +104,11 @@ impl Burst {
     /**
      * Get number of periods in one burst.
      */
-    pub fn get_count(&self, source: Source) -> u32 {
+    pub fn get_count(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
         self.send(format!("{}:BURS:NCYC?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
-            .unwrap()
     }
 
     /**
@@ -122,12 +121,11 @@ impl Burst {
     /**
      * Get number of repeated bursts.
      */
-    pub fn get_repetitions(&self, source: Source) -> u32 {
+    pub fn get_repetitions(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
         self.send(format!("{}:BURS:NOR?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
-            .unwrap()
     }
 
     /**
@@ -144,12 +142,11 @@ impl Burst {
      *
      * This includes the signal and delay.
      */
-    pub fn get_period(&self, source: Source) -> u32 {
+    pub fn get_period(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
         self.send(format!("{}:BURS:INT:PER?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
-            .unwrap()
     }
 }
 
@@ -190,7 +187,7 @@ mod test {
     fn test_get_count() {
         let (_, burst) = create_burst();
 
-        assert_eq!(burst.get_count(::burst::Source::OUT2), 3);
+        assert_eq!(burst.get_count(::burst::Source::OUT2), Ok(3));
     }
 
     #[test]
@@ -205,7 +202,7 @@ mod test {
     fn test_get_repetitions() {
         let (_, burst) = create_burst();
 
-        assert_eq!(burst.get_repetitions(::burst::Source::OUT1), 5);
+        assert_eq!(burst.get_repetitions(::burst::Source::OUT1), Ok(5));
     }
 
     #[test]
@@ -220,7 +217,7 @@ mod test {
     fn test_get_period() {
         let (_, burst) = create_burst();
 
-        assert_eq!(burst.get_period(::burst::Source::OUT2), 1_000_000);
+        assert_eq!(burst.get_period(::burst::Source::OUT2), Ok(1_000_000));
     }
 
     fn create_burst() -> (::std::sync::mpsc::Receiver<String>, ::burst::Burst) {

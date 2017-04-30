@@ -181,14 +181,13 @@ impl Digital {
     /**
      * Get state of digital inputs and outputs.
      */
-    pub fn get_state<P>(&self, pin: P) -> State
+    pub fn get_state<P>(&self, pin: P) -> Result<State, <State as ::std::str::FromStr>::Err>
         where P: Pin
     {
         self.send(format!("DIG:PIN? {}", Into::<String>::into(pin)));
 
         self.receive()
             .parse()
-            .unwrap()
     }
 }
 
@@ -230,7 +229,7 @@ mod test {
     fn test_get_state() {
         let (_, digital) = create_digital();
 
-        assert_eq!(digital.get_state(::digital::Gpio::DIO0_N), ::digital::State::HIGH);
+        assert_eq!(digital.get_state(::digital::Gpio::DIO0_N), Ok(::digital::State::HIGH));
     }
 
     fn create_digital() -> (::std::sync::mpsc::Receiver<String>, ::digital::Digital) {

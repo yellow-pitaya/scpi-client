@@ -66,23 +66,21 @@ impl Data {
     /**
      * Returns current position of write pointer.
      */
-    pub fn get_write_pointer(&self) -> u32 {
+    pub fn get_write_pointer(&self) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
         self.send("ACQ:WPOS?");
 
         self.receive()
             .parse()
-            .unwrap()
     }
 
     /**
      * Returns position where trigger event appeared.
      */
-    pub fn get_trigger_position(&self) -> u32 {
+    pub fn get_trigger_position(&self) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
         self.send("ACQ:TPOS?");
 
         self.receive()
             .parse()
-            .unwrap()
     }
 
     /**
@@ -172,12 +170,11 @@ impl Data {
     /**
      * Returns buffer size.
      */
-    pub fn buffer_size(&self) -> u32 {
+    pub fn buffer_size(&self) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
         self.send("ACQ:BUF:SIZE?");
 
         self.receive()
             .parse()
-            .unwrap()
     }
 }
 
@@ -187,14 +184,14 @@ mod test {
     fn test_get_write_pointer() {
         let (_, data) = create_data();
 
-        assert_eq!(data.get_write_pointer(), 1024);
+        assert_eq!(data.get_write_pointer(), Ok(1024));
     }
 
     #[test]
     fn test_get_write_pointer_at_trigger() {
         let (_, data) = create_data();
 
-        assert_eq!(data.get_trigger_position(), 512);
+        assert_eq!(data.get_trigger_position(), Ok(512));
     }
 
     #[test]
@@ -259,7 +256,7 @@ mod test {
     fn test_buffer_size() {
         let (_, data) = create_data();
 
-        assert_eq!(data.buffer_size(), 16384);
+        assert_eq!(data.buffer_size(), Ok(16384));
     }
 
     fn create_data() -> (::std::sync::mpsc::Receiver<String>, ::data::Data) {
