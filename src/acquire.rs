@@ -141,6 +141,19 @@ impl ::std::fmt::Display for SamplingRate {
     }
 }
 
+impl ::std::convert::Into<Decimation> for SamplingRate {
+    fn into(self) -> Decimation {
+        match self {
+            SamplingRate::RATE_125MHz => Decimation::DEC_1,
+            SamplingRate::RATE_15_6MHz => Decimation::DEC_8,
+            SamplingRate::RATE_1_9MHz => Decimation::DEC_64,
+            SamplingRate::RATE_103_8kHz => Decimation::DEC_1024,
+            SamplingRate::RATE_15_2kHz => Decimation::DEC_8192,
+            SamplingRate::RATE_1_9kHz => Decimation::DEC_65536,
+        }
+    }
+}
+
 impl ::std::convert::Into<String> for SamplingRate {
     fn into(self) -> String {
         let s = match self {
@@ -239,7 +252,9 @@ impl Acquire {
     /**
      * Get sampling rate.
      *
-     * @warning Calling this command makes buffer overflow.
+     * # Panics
+     *
+     * Calling this command makes buffer overflow.
      * See https://github.com/RedPitaya/RedPitaya/pull/110
      */
     pub fn get_sampling_rate(&self) -> Result<SamplingRate, String> {
