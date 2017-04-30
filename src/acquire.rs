@@ -18,12 +18,14 @@ impl ::std::convert::Into<String> for Gain {
     }
 }
 
-impl ::std::convert::From<String> for Gain {
-    fn from(s: String) -> Self {
-        match s.as_str() {
-            "LV" => Gain::LV,
-            "HV" => Gain::HV,
-            _ => Gain::LV,
+impl ::std::str::FromStr for Gain {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "LV" => Ok(Gain::LV),
+            "HV" => Ok(Gain::HV),
+            gain => Err(format!("Unknow gain '{}'", gain)),
         }
     }
 }
@@ -70,16 +72,18 @@ impl ::std::convert::Into<String> for Decimation {
     }
 }
 
-impl ::std::convert::From<String> for Decimation {
-    fn from(s: String) -> Self {
-        match s.as_str() {
-            "1" => Decimation::DEC_1,
-            "8" => Decimation::DEC_8,
-            "64" => Decimation::DEC_64,
-            "1024" => Decimation::DEC_1024,
-            "8192" => Decimation::DEC_8192,
-            "65536" => Decimation::DEC_65536,
-            _ => Decimation::DEC_1,
+impl ::std::str::FromStr for Decimation {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "1" => Ok(Decimation::DEC_1),
+            "8" => Ok(Decimation::DEC_8),
+            "64" => Ok(Decimation::DEC_64),
+            "1024" => Ok(Decimation::DEC_1024),
+            "8192" => Ok(Decimation::DEC_8192),
+            "65536" => Ok(Decimation::DEC_65536),
+            decimation => Err(format!("Unknow decimation '{}'", decimation)),
         }
     }
 }
@@ -139,16 +143,18 @@ impl ::std::convert::Into<String> for SamplingRate {
     }
 }
 
-impl ::std::convert::From<String> for SamplingRate {
-    fn from(s: String) -> Self {
-        match s.as_str() {
-            "125MHz" => SamplingRate::RATE_125MHz,
-            "15_6MHz" => SamplingRate::RATE_15_6MHz,
-            "1_9MHz" => SamplingRate::RATE_1_9MHz,
-            "103_8kHz" => SamplingRate::RATE_103_8kHz,
-            "15_2kHz" => SamplingRate::RATE_15_2kHz,
-            "1_9kHz" => SamplingRate::RATE_1_9kHz,
-            _ => SamplingRate::RATE_125MHz,
+impl ::std::str::FromStr for SamplingRate {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "125MHz" => Ok(SamplingRate::RATE_125MHz),
+            "15_6MHz" => Ok(SamplingRate::RATE_15_6MHz),
+            "1_9MHz" => Ok(SamplingRate::RATE_1_9MHz),
+            "103_8kHz" => Ok(SamplingRate::RATE_103_8kHz),
+            "15_2kHz" => Ok(SamplingRate::RATE_15_2kHz),
+            "1_9kHz" => Ok(SamplingRate::RATE_1_9kHz),
+            rate => Err(format!("Unknow sampling rate {}", rate)),
         }
     }
 }
@@ -210,11 +216,11 @@ impl Acquire {
     /**
      * Get decimation factor.
      */
-    pub fn get_decimation(&self) -> Decimation {
+    pub fn get_decimation(&self) -> Result<Decimation, String> {
         self.send("ACQ:DEC?");
 
         self.receive()
-            .into()
+            .parse()
     }
 
     /**
@@ -227,11 +233,11 @@ impl Acquire {
     /**
      * Get sampling rate.
      */
-    pub fn get_sampling_rate(&self) -> SamplingRate {
+    pub fn get_sampling_rate(&self) -> Result<SamplingRate, String> {
         self.send("ACQ:SRAT?");
 
         self.receive()
-            .into()
+            .parse()
     }
 
     /**
@@ -285,11 +291,11 @@ impl Acquire {
     /**
      * Get gain settings to HIGH or LOW.
      */
-    pub fn get_gain(&self, source: Source) -> Gain {
+    pub fn get_gain(&self, source: Source) -> Result<Gain, String> {
         self.send(format!("ACQ:{}:GAIN?", Into::<String>::into(source)));
 
         self.receive()
-            .into()
+            .parse()
     }
 }
 
@@ -355,7 +361,7 @@ mod test {
     fn test_get_decimation() {
         let (_, acquire) = create_acquire();
 
-        assert_eq!(acquire.get_decimation(), ::acquire::Decimation::DEC_1);
+        assert_eq!(acquire.get_decimation(), Ok(::acquire::Decimation::DEC_1));
     }
 
     #[test]
@@ -370,7 +376,7 @@ mod test {
     fn test_get_sampling_rate() {
         let (_, acquire) = create_acquire();
 
-        assert_eq!(acquire.get_sampling_rate(), ::acquire::SamplingRate::RATE_1_9kHz);
+        assert_eq!(acquire.get_sampling_rate(), Ok(::acquire::SamplingRate::RATE_1_9kHz));
     }
 
     #[test]
@@ -409,7 +415,7 @@ mod test {
     fn test_get_gain() {
         let (_, acquire) = create_acquire();
 
-        assert_eq!(acquire.get_gain(::acquire::Source::IN1), ::acquire::Gain::HV);
+        assert_eq!(acquire.get_gain(::acquire::Source::IN1), Ok(::acquire::Gain::HV));
     }
 
     fn create_acquire() -> (::std::sync::mpsc::Receiver<String>, ::acquire::Acquire) {

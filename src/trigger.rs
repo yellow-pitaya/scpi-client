@@ -38,15 +38,16 @@ impl ::std::convert::Into<String> for Source {
 pub enum State {
     WAIT,
     TD,
-    UNKNOW,
 }
 
-impl ::std::convert::From<String> for State {
-    fn from(s: String) -> Self {
-        match s.as_str() {
-            "WAIT" => State::WAIT,
-            "TD" => State::TD,
-            _ => State::UNKNOW,
+impl ::std::str::FromStr for State {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "WAIT" => Ok(State::WAIT),
+            "TD" => Ok(State::TD),
+            state => Err(format!("Unknow state '{}'", state)),
         }
     }
 }
@@ -88,11 +89,11 @@ impl Trigger {
      *
      *  If DISABLED -> TD else WAIT.
      */
-    pub fn get_state(&self) -> State {
+    pub fn get_state(&self) -> Result<State, String> {
         self.send("ACQ:TRIG:STAT?");
 
         self.receive()
-            .into()
+            .parse()
     }
 
     /**
@@ -196,7 +197,7 @@ mod test {
     fn test_get_state() {
         let (_, trigger) = create_trigger();
 
-        assert_eq!(trigger.get_state(), ::trigger::State::WAIT);
+        assert_eq!(trigger.get_state(), Ok(::trigger::State::WAIT));
     }
 
     #[test]

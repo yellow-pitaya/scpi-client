@@ -22,14 +22,16 @@ impl ::std::convert::Into<String> for TriggerSource {
     }
 }
 
-impl ::std::convert::From<String> for TriggerSource {
-    fn from(s: String) -> Self {
-        match s.as_str() {
-            "EXT_PE" => TriggerSource::EXT_PE,
-            "EXT_NE" => TriggerSource::EXT_NE,
-            "INT" => TriggerSource::INT,
-            "GATED" => TriggerSource::GATED,
-            _ => TriggerSource::INT,
+impl ::std::str::FromStr for TriggerSource {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "EXT_PE" => Ok(TriggerSource::EXT_PE),
+            "EXT_NE" => Ok(TriggerSource::EXT_NE),
+            "INT" => Ok(TriggerSource::INT),
+            "GATED" => Ok(TriggerSource::GATED),
+            source => Err(format!("Unknow source '{}'", source)),
         }
     }
 }
@@ -43,7 +45,6 @@ pub enum Form {
     SAWD,
     PWM,
     ARBITRARY,
-    UNKNOW,
 }
 
 impl ::std::convert::Into<String> for Form {
@@ -56,27 +57,25 @@ impl ::std::convert::Into<String> for Form {
             Form::SAWD => "SAWD",
             Form::PWM => "PWM",
             Form::ARBITRARY => "ARBITRARY",
-            Form::UNKNOW => "UNKNOW",
         };
 
         String::from(s)
     }
 }
 
-impl ::std::convert::From<String> for Form {
-    fn from(s: String) -> Self {
-        match s.as_str() {
-            "SINE" => Form::SINE,
-            "SQUARE" => Form::SQUARE,
-            "TRIANGLE" => Form::TRIANGLE,
-            "SAWU" => Form::SAWU,
-            "SAWD" => Form::SAWD,
-            "PWM" => Form::PWM,
-            "ARBITRARY" => Form::ARBITRARY,
-            form => {
-                warn!("Unknow signal form {}", form);
-                Form::UNKNOW
-            },
+impl ::std::str::FromStr for Form {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "SINE" => Ok(Form::SINE),
+            "SQUARE" => Ok(Form::SQUARE),
+            "TRIANGLE" => Ok(Form::TRIANGLE),
+            "SAWU" => Ok(Form::SAWU),
+            "SAWD" => Ok(Form::SAWD),
+            "PWM" => Ok(Form::PWM),
+            "ARBITRARY" => Ok(Form::ARBITRARY),
+            form => Err(format!("Unknow signal form '{}'", form)),
         }
     }
 }
@@ -184,11 +183,11 @@ impl Generator {
         self.send(format!("{}:FUNC {}", Into::<String>::into(source), Into::<String>::into(form)));
     }
 
-    pub fn get_form(&self, source: Source) -> Form {
+    pub fn get_form(&self, source: Source) -> Result<Form, String> {
         self.send(format!("{}:FUNC?", Into::<String>::into(source)));
 
         self.receive()
-            .into()
+            .parse()
     }
 
     /**
@@ -298,11 +297,11 @@ impl Generator {
     /**
      * Get trigger source for selected signal.
      */
-    pub fn get_trigger_source(&self, source: Source) -> TriggerSource {
+    pub fn get_trigger_source(&self, source: Source) -> Result<TriggerSource, String> {
         self.send(format!("{}:TRIG:SOUR?", Into::<String>::into(source)));
 
         self.receive()
-            .into()
+            .parse()
     }
 
     /**
@@ -395,7 +394,7 @@ mod test {
     fn test_get_form() {
         let (_, generator) = create_generator();
 
-        assert_eq!(generator.get_form(::generator::Source::OUT1), ::generator::Form::SINE);
+        assert_eq!(generator.get_form(::generator::Source::OUT1), Ok(::generator::Form::SINE));
     }
 
     #[test]
@@ -485,7 +484,7 @@ mod test {
     fn test_get_trigger_source() {
         let (_, generator) = create_generator();
 
-        assert_eq!(generator.get_trigger_source(::generator::Source::OUT1), ::generator::TriggerSource::EXT_NE);
+        assert_eq!(generator.get_trigger_source(::generator::Source::OUT1), Ok(::generator::TriggerSource::EXT_NE));
     }
 
     #[test]

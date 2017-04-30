@@ -18,12 +18,14 @@ impl ::std::convert::Into<String> for Unit {
     }
 }
 
-impl ::std::convert::From<String> for Unit  {
-    fn from(s: String) -> Self {
-        match s.as_str() {
-            "RAW" => Unit::RAW,
-            "VOLTS" => Unit::VOLTS,
-            _ => Unit::VOLTS,
+impl ::std::str::FromStr for Unit  {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "RAW" => Ok(Unit::RAW),
+            "VOLTS" => Ok(Unit::VOLTS),
+            unit => Err(format!("Unknow unit '{}'", unit)),
         }
     }
 }
@@ -93,11 +95,11 @@ impl Data {
     /**
      * Get units in which acquired data will be returned.
      */
-    pub fn get_units(&self) -> Unit {
+    pub fn get_units(&self) -> Result<Unit, String> {
         self.send("ACQ:DATA:UNITS?");
 
         self.receive()
-            .into()
+            .parse()
     }
 
     /**
@@ -206,7 +208,7 @@ mod test {
     fn test_get_units() {
         let (_, data) = create_data();
 
-        assert_eq!(data.get_units(), ::data::Unit::RAW);
+        assert_eq!(data.get_units(), Ok(::data::Unit::RAW));
     }
 
     #[test]

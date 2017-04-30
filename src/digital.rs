@@ -104,13 +104,13 @@ impl ::std::convert::Into<String> for State {
 }
 
 impl ::std::str::FromStr for State {
-    type Err = ();
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "0" => Ok(State::LOW),
             "1" => Ok(State::HIGH),
-            _ => Err(()),
+            state => Err(format!("Unknow state '{}'", state)),
         }
     }
 }

@@ -35,12 +35,14 @@ impl ::std::convert::Into<String> for State {
     }
 }
 
-impl ::std::convert::From<String> for State {
-    fn from(s: String) -> Self {
-        match s.as_str() {
-            "ON" => State::ON,
-            "OFF" => State::OFF,
-            _ => State::OFF,
+impl ::std::str::FromStr for State {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "ON" => Ok(State::ON),
+            "OFF" => Ok(State::OFF),
+            state => Err(format!("Unknow state '{}'", state)),
         }
     }
 }
@@ -87,11 +89,11 @@ impl Burst {
     /**
      * Disable burst mode.
      */
-    pub fn get_status(&self, source: Source) -> State {
+    pub fn get_status(&self, source: Source) -> Result<State, String> {
         self.send(format!("{}:BURS:STAT?", Into::<String>::into(source)));
 
         self.receive()
-            .into()
+            .parse()
     }
 
     /**
@@ -172,7 +174,7 @@ mod test {
     fn test_get_status() {
         let (_, burst) = create_burst();
 
-        assert_eq!(burst.get_status(::burst::Source::OUT2), ::burst::State::OFF);
+        assert_eq!(burst.get_status(::burst::Source::OUT2), Ok(::burst::State::OFF));
     }
 
     #[test]

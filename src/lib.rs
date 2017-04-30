@@ -223,6 +223,10 @@ mod test {
                                 stream.write("1.2\r\n".as_bytes())
                                     .unwrap();
                             },
+                            "SOUR2:BURS:STAT?\r\n" => {
+                                stream.write("OFF\r\n".as_bytes())
+                                    .unwrap();
+                            }
                             "SOUR2:BURS:NCYC?\r\n" => {
                                 stream.write("3\r\n".as_bytes())
                                     .unwrap();
