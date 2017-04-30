@@ -88,6 +88,19 @@ impl ::std::str::FromStr for Decimation {
     }
 }
 
+impl ::std::convert::Into<SamplingRate> for Decimation {
+    fn into(self) -> SamplingRate {
+        match self {
+            Decimation::DEC_1 => SamplingRate::RATE_125MHz,
+            Decimation::DEC_8 => SamplingRate::RATE_15_6MHz,
+            Decimation::DEC_64 => SamplingRate::RATE_1_9MHz,
+            Decimation::DEC_1024 => SamplingRate::RATE_103_8kHz,
+            Decimation::DEC_8192 => SamplingRate::RATE_15_2kHz,
+            Decimation::DEC_65536 => SamplingRate::RATE_1_9kHz,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum SamplingRate {
     RATE_125MHz,
