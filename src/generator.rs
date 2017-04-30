@@ -80,6 +80,22 @@ impl ::std::str::FromStr for Form {
     }
 }
 
+impl ::std::fmt::Display for Form {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Form::SINE => "Sine",
+            &Form::SQUARE => "Square",
+            &Form::TRIANGLE => "Triangle",
+            &Form::SAWU => "SAWU",
+            &Form::SAWD => "SAWD",
+            &Form::PWM => "PWM",
+            &Form::ARBITRARY => "Arbitrary",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Source {
     OUT1,
