@@ -238,6 +238,9 @@ impl Acquire {
 
     /**
      * Get sampling rate.
+     *
+     * @warning Calling this command makes buffer overflow.
+     * See https://github.com/RedPitaya/RedPitaya/pull/110
      */
     pub fn get_sampling_rate(&self) -> Result<SamplingRate, String> {
         self.send("ACQ:SRAT?");
