@@ -1,7 +1,7 @@
 use Module;
 use socket::Socket;
 
-pub trait Pin: ::std::fmt::Display {
+pub trait Pin : ::std::convert::Into<String> {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -27,28 +27,28 @@ pub enum Gpio {
 impl Pin for Gpio {
 }
 
-impl ::std::fmt::Display for Gpio {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &Gpio::DIO0_N => "DIO0_N",
-            &Gpio::DIO0_P => "DIO0_P",
-            &Gpio::DIO1_N => "DIO1_N",
-            &Gpio::DIO1_P => "DIO1_P",
-            &Gpio::DIO2_N => "DIO2_N",
-            &Gpio::DIO2_P => "DIO2_P",
-            &Gpio::DIO3_N => "DIO3_N",
-            &Gpio::DIO3_P => "DIO3_P",
-            &Gpio::DIO4_N => "DIO4_N",
-            &Gpio::DIO4_P => "DIO4_P",
-            &Gpio::DIO5_N => "DIO5_N",
-            &Gpio::DIO5_P => "DIO5_P",
-            &Gpio::DIO6_N => "DIO6_N",
-            &Gpio::DIO6_P => "DIO6_P",
-            &Gpio::DIO7_N => "DIO7_N",
-            &Gpio::DIO7_P => "DIO7_P",
+impl ::std::convert::Into<String> for Gpio {
+    fn into(self) -> String {
+        let s = match self {
+            Gpio::DIO0_N => "DIO0_N",
+            Gpio::DIO0_P => "DIO0_P",
+            Gpio::DIO1_N => "DIO1_N",
+            Gpio::DIO1_P => "DIO1_P",
+            Gpio::DIO2_N => "DIO2_N",
+            Gpio::DIO2_P => "DIO2_P",
+            Gpio::DIO3_N => "DIO3_N",
+            Gpio::DIO3_P => "DIO3_P",
+            Gpio::DIO4_N => "DIO4_N",
+            Gpio::DIO4_P => "DIO4_P",
+            Gpio::DIO5_N => "DIO5_N",
+            Gpio::DIO5_P => "DIO5_P",
+            Gpio::DIO6_N => "DIO6_N",
+            Gpio::DIO6_P => "DIO6_P",
+            Gpio::DIO7_N => "DIO7_N",
+            Gpio::DIO7_P => "DIO7_P",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -68,21 +68,21 @@ pub enum Led {
 impl Pin for Led {
 }
 
-impl ::std::fmt::Display for Led {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &Led::LED0 => "LED0",
-            &Led::LED1 => "LED1",
-            &Led::LED2 => "LED2",
-            &Led::LED3 => "LED3",
-            &Led::LED4 => "LED4",
-            &Led::LED5 => "LED5",
-            &Led::LED6 => "LED6",
-            &Led::LED7 => "LED7",
-            &Led::LED8 => "LED8",
+impl ::std::convert::Into<String> for Led {
+    fn into(self) -> String {
+        let s = match self {
+            Led::LED0 => "LED0",
+            Led::LED1 => "LED1",
+            Led::LED2 => "LED2",
+            Led::LED3 => "LED3",
+            Led::LED4 => "LED4",
+            Led::LED5 => "LED5",
+            Led::LED6 => "LED6",
+            Led::LED7 => "LED7",
+            Led::LED8 => "LED8",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -92,14 +92,14 @@ pub enum State {
     HIGH,
 }
 
-impl ::std::fmt::Display for State {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &State::LOW => "0",
-            &State::HIGH => "1",
+impl ::std::convert::Into<String> for State {
+    fn into(self) -> String {
+        let s = match self {
+            State::LOW => "0",
+            State::HIGH => "1",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -121,14 +121,14 @@ pub enum Direction {
     IN,
 }
 
-impl ::std::fmt::Display for Direction {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &Direction::OUT => "OUT",
-            &Direction::IN => "IN",
+impl ::std::convert::Into<String> for Direction {
+    fn into(self) -> String {
+        let s = match self {
+            Direction::OUT => "OUT",
+            Direction::IN => "IN",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -166,7 +166,7 @@ impl Digital {
     pub fn set_direction<P>(&self, pin: P, direction: Direction)
         where P: Pin
     {
-        self.send(format!("DIG:PIN:DIR {},{}", direction, pin));
+        self.send(format!("DIG:PIN:DIR {},{}", Into::<String>::into(direction), Into::<String>::into(pin)));
     }
 
     /**
@@ -175,7 +175,7 @@ impl Digital {
     pub fn set_state<P>(&self, pin: P, state: State)
         where P: Pin
     {
-        self.send(format!("DIG:PIN {},{}", pin, state));
+        self.send(format!("DIG:PIN {},{}", Into::<String>::into(pin), Into::<String>::into(state)));
     }
 
     /**
@@ -184,25 +184,11 @@ impl Digital {
     pub fn get_state<P>(&self, pin: P) -> State
         where P: Pin
     {
-        self.send(format!("DIG:PIN? {}", pin));
+        self.send(format!("DIG:PIN? {}", Into::<String>::into(pin)));
 
         self.receive()
             .parse()
             .unwrap()
-    }
-
-    fn send<D>(&self, message: D)
-        where D: ::std::fmt::Display
-    {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.send(message);
-    }
-
-    fn receive(&self) -> String {
-        let mut socket = self.socket.borrow_mut();
-
-        socket.receive()
     }
 }
 

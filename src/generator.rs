@@ -9,16 +9,16 @@ pub enum TriggerSource {
     GATED,
 }
 
-impl ::std::fmt::Display for TriggerSource {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &TriggerSource::EXT_PE => "EXT_PE",
-            &TriggerSource::EXT_NE => "EXT_NE",
-            &TriggerSource::INT => "INT",
-            &TriggerSource::GATED => "GATED",
+impl ::std::convert::Into<String> for TriggerSource {
+    fn into(self) -> String {
+        let s = match self {
+            TriggerSource::EXT_PE => "EXT_PE",
+            TriggerSource::EXT_NE => "EXT_NE",
+            TriggerSource::INT => "INT",
+            TriggerSource::GATED => "GATED",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -46,20 +46,20 @@ pub enum Form {
     UNKNOW,
 }
 
-impl ::std::fmt::Display for Form {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &Form::SINE => "SINE",
-            &Form::SQUARE => "SQUARE",
-            &Form::TRIANGLE => "TRIANGLE",
-            &Form::SAWU => "SAWU",
-            &Form::SAWD => "SAWD",
-            &Form::PWM => "PWM",
-            &Form::ARBITRARY => "ARBITRARY",
-            &Form::UNKNOW => "UNKNOW",
+impl ::std::convert::Into<String> for Form {
+    fn into(self) -> String {
+        let s = match self {
+            Form::SINE => "SINE",
+            Form::SQUARE => "SQUARE",
+            Form::TRIANGLE => "TRIANGLE",
+            Form::SAWU => "SAWU",
+            Form::SAWD => "SAWD",
+            Form::PWM => "PWM",
+            Form::ARBITRARY => "ARBITRARY",
+            Form::UNKNOW => "UNKNOW",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -87,14 +87,14 @@ pub enum Source {
     OUT2,
 }
 
-impl ::std::fmt::Display for Source {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &Source::OUT1 => "SOUR1",
-            &Source::OUT2 => "SOUR2",
+impl ::std::convert::Into<String> for Source {
+    fn into(self) -> String {
+        let s = match self {
+            Source::OUT1 => "SOUR1",
+            Source::OUT2 => "SOUR2",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -150,7 +150,7 @@ impl Generator {
     }
 
     pub fn is_started(&self, source: Source) -> bool {
-        self.send(format!("{}:STATE?", source));
+        self.send(format!("{}:STATE?", Into::<String>::into(source)));
 
         self.receive()
             .parse::<u8>()
@@ -161,14 +161,14 @@ impl Generator {
      * Set frequency of fast analog outputs.
      */
     pub fn set_frequency(&self, source: Source, frequency: u32) {
-        self.send(format!("{}:FREQ:FIX {}", source, frequency));
+        self.send(format!("{}:FREQ:FIX {}", Into::<String>::into(source), frequency));
     }
 
     /**
      * Get frequency of fast analog outputs.
      */
     pub fn get_frequency(&self, source: Source) -> u32 {
-        self.send(format!("{}:FREQ:FIX?", source));
+        self.send(format!("{}:FREQ:FIX?", Into::<String>::into(source)));
 
         let value: f32 =self.receive()
             .parse()
@@ -181,11 +181,11 @@ impl Generator {
      * Set waveform of fast analog outputs.
      */
     pub fn set_form(&self, source: Source, form: Form) {
-        self.send(format!("{}:FUNC {}", source, form));
+        self.send(format!("{}:FUNC {}", Into::<String>::into(source), Into::<String>::into(form)));
     }
 
     pub fn get_form(&self, source: Source) -> Form {
-        self.send(format!("{}:FUNC?", source));
+        self.send(format!("{}:FUNC?", Into::<String>::into(source)));
 
         self.receive()
             .into()
@@ -197,14 +197,14 @@ impl Generator {
      * Amplitude + offset value must be less than maximum output range ± 1V
      */
     pub fn set_amplitude(&self, source: Source, amplitude: f32) {
-        self.send(format!("{}:VOLT {}", source, amplitude));
+        self.send(format!("{}:VOLT {}", Into::<String>::into(source), amplitude));
     }
 
     /**
      * Get amplitude voltage of fast analog outputs.
      */
     pub fn get_amplitude(&self, source: Source) -> f32 {
-        self.send(format!("{}:VOLT?", source));
+        self.send(format!("{}:VOLT?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
@@ -217,14 +217,14 @@ impl Generator {
      * Amplitude + offset value must be less than maximum output range ± 1V
      */
     pub fn set_offset(&self, source: Source, offset: f32) {
-        self.send(format!("{}:VOLT:OFFS {}", source, offset));
+        self.send(format!("{}:VOLT:OFFS {}", Into::<String>::into(source), offset));
     }
 
     /**
      * Get offset voltage of fast analog outputs.
      */
     pub fn get_offset(&self, source: Source) -> f32 {
-        self.send(format!("{}:VOLT:OFFS?", source));
+        self.send(format!("{}:VOLT:OFFS?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
@@ -235,14 +235,14 @@ impl Generator {
      * Set phase of fast analog outputs.
      */
     pub fn set_phase(&self, source: Source, phase: i32) {
-        self.send(format!("{}:PHAS {}", source, phase));
+        self.send(format!("{}:PHAS {}", Into::<String>::into(source), phase));
     }
 
     /**
      * Get phase of fast analog outputs.
      */
     pub fn get_phase(&self, source: Source) -> i32 {
-        self.send(format!("{}:PHAS?", source));
+        self.send(format!("{}:PHAS?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
@@ -253,14 +253,14 @@ impl Generator {
      * Set duty cycle of PWM waveform.
      */
     pub fn set_duty_cycle(&self, source: Source, dcyc: f32) {
-        self.send(format!("{}:DCYC {}", source, dcyc));
+        self.send(format!("{}:DCYC {}", Into::<String>::into(source), dcyc));
     }
 
     /**
      * Get duty cycle of PWM waveform.
      */
     pub fn get_duty_cycle(&self, source: Source) -> f32 {
-        self.send(format!("{}:DCYC?", source));
+        self.send(format!("{}:DCYC?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
@@ -277,14 +277,14 @@ impl Generator {
             });
         data.pop();
 
-        self.send(format!("{}:TRAC:DATA:DATA {}", source, data));
+        self.send(format!("{}:TRAC:DATA:DATA {}", Into::<String>::into(source), data));
     }
 
     /**
      * Get data for arbitrary waveform generation.
      */
     pub fn get_arbitrary_waveform(&self, source: Source) -> Vec<f32> {
-        self.send(format!("{}:TRAC:DATA:DATA?", source));
+        self.send(format!("{}:TRAC:DATA:DATA?", Into::<String>::into(source)));
 
         let data = self.receive();
         data.split(",")
@@ -296,14 +296,14 @@ impl Generator {
      * Set trigger source for selected signal.
      */
     pub fn set_trigger_source(&self, source: Source, trigger: TriggerSource) {
-        self.send(format!("{}:TRIG:SOUR {}", source, trigger));
+        self.send(format!("{}:TRIG:SOUR {}", Into::<String>::into(source), Into::<String>::into(trigger)));
     }
 
     /**
      * Get trigger source for selected signal.
      */
     pub fn get_trigger_source(&self, source: Source) -> TriggerSource {
-        self.send(format!("{}:TRIG:SOUR?", source));
+        self.send(format!("{}:TRIG:SOUR?", Into::<String>::into(source)));
 
         self.receive()
             .into()
@@ -313,7 +313,7 @@ impl Generator {
      * Triggers selected source immediately.
      */
     pub fn trigger(&self, source: Source) {
-        self.send(format!("{}:TRIG:IMM", source));
+        self.send(format!("{}:TRIG:IMM", Into::<String>::into(source)));
     }
 
     /**

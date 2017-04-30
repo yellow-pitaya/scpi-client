@@ -7,14 +7,14 @@ pub enum Unit {
     VOLTS,
 }
 
-impl ::std::fmt::Display for Unit {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &Unit::RAW => "RAW",
-            &Unit::VOLTS => "VOLTS",
+impl ::std::convert::Into<String> for Unit {
+    fn into(self) -> String {
+        let s = match self {
+            Unit::RAW => "RAW",
+            Unit::VOLTS => "VOLTS",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -34,14 +34,14 @@ pub enum Format {
     ASCII,
 }
 
-impl ::std::fmt::Display for Format {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &Format::FLOAT => "FLOAT",
-            &Format::ASCII => "ASCII",
+impl ::std::convert::Into<String> for Format {
+    fn into(self) -> String {
+        let s = match self {
+            Format::FLOAT => "FLOAT",
+            Format::ASCII => "ASCII",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -89,7 +89,7 @@ impl Data {
      * Selects units in which acquired data will be returned.
      */
     pub fn set_units(&self, unit: Unit) {
-        self.send(format!("ACQ:DATA:UNITS {}", unit));
+        self.send(format!("ACQ:DATA:UNITS {}", Into::<String>::into(unit)));
     }
 
     /**
@@ -106,7 +106,7 @@ impl Data {
      * Selects format acquired data will be returned.
      */
     pub fn set_format(&self, format: Format) {
-        self.send(format!("ACQ:DATA:FORMAT {}", format));
+        self.send(format!("ACQ:DATA:FORMAT {}", Into::<String>::into(format)));
     }
 
     /**
@@ -116,7 +116,7 @@ impl Data {
      * stop_pos = {0,1,...16384}
      */
     pub fn read_slice(&self, source: ::acquire::Source, start: u16, end: u16) -> String {
-        self.send(format!("ACQ:{}:DATA:STA:END? {},{}", source, start, end));
+        self.send(format!("ACQ:{}:DATA:STA:END? {},{}", Into::<String>::into(source), start, end));
 
         self.receive()
     }
@@ -125,7 +125,7 @@ impl Data {
      * Read `m` samples from start position on.
      */
     pub fn read(&self, source: ::acquire::Source, start: u16, len: u32) -> String {
-        self.send(format!("ACQ:{}:DATA:STA:N? {},{}", source, start, len));
+        self.send(format!("ACQ:{}:DATA:STA:N? {},{}", Into::<String>::into(source), start, len));
 
         self.receive()
     }
@@ -139,7 +139,7 @@ impl Data {
      * Size starting from trigger.
      */
     pub fn read_all(&self, source: ::acquire::Source) -> String {
-        self.send(format!("ACQ:{}:DATA?", source));
+        self.send(format!("ACQ:{}:DATA?", Into::<String>::into(source)));
 
         self.receive()
     }
@@ -152,7 +152,7 @@ impl Data {
      * trigger delay is set to zero it will read m samples starting from trigger.
      */
     pub fn read_oldest(&self, source: ::acquire::Source, len: u32) -> String {
-        self.send(format!("ACQ:{}:DATA:OLD:N? {}", source, len));
+        self.send(format!("ACQ:{}:DATA:OLD:N? {}", Into::<String>::into(source), len));
 
         self.receive()
     }
@@ -164,7 +164,7 @@ impl Data {
      * trigger delay is set to zero it will read m samples before trigger.
      */
     pub fn read_latest(&self, source: ::acquire::Source, len: u32) -> String {
-        self.send(format!("ACQ:{}:DATA:LAT:N? {}", source, len));
+        self.send(format!("ACQ:{}:DATA:LAT:N? {}", Into::<String>::into(source), len));
 
         self.receive()
     }

@@ -7,14 +7,14 @@ pub enum Gain {
     HV,
 }
 
-impl ::std::fmt::Display for Gain {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &Gain::LV => "LV",
-            &Gain::HV => "HV",
+impl ::std::convert::Into<String> for Gain {
+    fn into(self) -> String {
+        let s = match self {
+            Gain::LV => "LV",
+            Gain::HV => "HV",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -34,14 +34,14 @@ pub enum Source {
     IN2,
 }
 
-impl ::std::fmt::Display for Source {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &Source::IN1 => "SOUR1",
-            &Source::IN2 => "SOUR2",
+impl ::std::convert::Into<String> for Source {
+    fn into(self) -> String {
+        let s = match self {
+            Source::IN1 => "SOUR1",
+            Source::IN2 => "SOUR2",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -55,44 +55,18 @@ pub enum Decimation {
     DEC_65536,
 }
 
-impl Decimation {
-    pub fn get_buffer_duration(&self) -> ::std::time::Duration {
-        let (s, ns) = match self {
-            &Decimation::DEC_1 => (0, 131_072),
-            &Decimation::DEC_8 => (0, 1_049_000),
-            &Decimation::DEC_64 => (0, 8_389_000),
-            &Decimation::DEC_1024 => (0, 134_218_000),
-            &Decimation::DEC_8192 => (1, 740_000_000),
-            &Decimation::DEC_65536 => (8, 590_000_000),
+impl ::std::convert::Into<String> for Decimation {
+    fn into(self) -> String {
+        let s = match self {
+            Decimation::DEC_1 => "1",
+            Decimation::DEC_8 => "8",
+            Decimation::DEC_64 => "64",
+            Decimation::DEC_1024 => "1024",
+            Decimation::DEC_8192 => "8192",
+            Decimation::DEC_65536 => "65536",
         };
 
-        ::std::time::Duration::new(s, ns)
-    }
-
-    pub fn get_sampling_rate(&self) -> &'static str {
-        match self {
-            &Decimation::DEC_1 => "125 MS/s",
-            &Decimation::DEC_8 => "15.6 MS/s",
-            &Decimation::DEC_64 => "1.9 MS/s",
-            &Decimation::DEC_1024 => "122.0 MS/s",
-            &Decimation::DEC_8192 => "15.2 kS/s",
-            &Decimation::DEC_65536 => "7.6 kS/s",
-        }
-    }
-}
-
-impl ::std::fmt::Display for Decimation {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &Decimation::DEC_1 => "1",
-            &Decimation::DEC_8 => "8",
-            &Decimation::DEC_64 => "64",
-            &Decimation::DEC_1024 => "1024",
-            &Decimation::DEC_8192 => "8192",
-            &Decimation::DEC_65536 => "65536",
-        };
-
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -120,18 +94,48 @@ pub enum SamplingRate {
     RATE_1_9kHz,
 }
 
+impl SamplingRate {
+    pub fn get_buffer_duration(self) -> ::std::time::Duration {
+        let (s, ns) = match self {
+            SamplingRate::RATE_125MHz => (0, 131_072),
+            SamplingRate::RATE_15_6MHz => (0, 1_049_000),
+            SamplingRate::RATE_1_9MHz => (0, 8_389_000),
+            SamplingRate::RATE_103_8kHz => (0, 134_218_000),
+            SamplingRate::RATE_15_2kHz => (1, 740_000_000),
+            SamplingRate::RATE_1_9kHz => (8, 590_000_000),
+        };
+
+        ::std::time::Duration::new(s, ns)
+    }
+}
+
 impl ::std::fmt::Display for SamplingRate {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         let display = match self {
-            &SamplingRate::RATE_125MHz => "125MHz",
-            &SamplingRate::RATE_15_6MHz => "15_6MHz",
-            &SamplingRate::RATE_1_9MHz => "1_9MHz",
-            &SamplingRate::RATE_103_8kHz => "103_8kHz",
-            &SamplingRate::RATE_15_2kHz => "15_2kHz",
-            &SamplingRate::RATE_1_9kHz => "1_9kHz",
+            &SamplingRate::RATE_125MHz => "125 MHz",
+            &SamplingRate::RATE_15_6MHz => "15.6 MHz",
+            &SamplingRate::RATE_1_9MHz => "1.9 MHz",
+            &SamplingRate::RATE_103_8kHz => "103.8 kHz",
+            &SamplingRate::RATE_15_2kHz => "15.2 kHz",
+            &SamplingRate::RATE_1_9kHz => "1.9 kHz",
         };
 
         write!(f, "{}", display)
+    }
+}
+
+impl ::std::convert::Into<String> for SamplingRate {
+    fn into(self) -> String {
+        let s = match self {
+            SamplingRate::RATE_125MHz => "125MHz",
+            SamplingRate::RATE_15_6MHz => "15_6MHz",
+            SamplingRate::RATE_1_9MHz => "1_9MHz",
+            SamplingRate::RATE_103_8kHz => "103_8kHz",
+            SamplingRate::RATE_15_2kHz => "15_2kHz",
+            SamplingRate::RATE_1_9kHz => "1_9kHz",
+        };
+
+        String::from(s)
     }
 }
 
@@ -200,7 +204,7 @@ impl Acquire {
      * Set decimation factor.
      */
     pub fn set_decimation(&self, decimation: Decimation) {
-        self.send(format!("ACQ:DEC {}", decimation));
+        self.send(format!("ACQ:DEC {}", Into::<String>::into(decimation)));
     }
 
     /**
@@ -217,7 +221,7 @@ impl Acquire {
      * Set sampling rate.
      */
     pub fn set_sampling_rate(&self, rate: SamplingRate) {
-        self.send(format!("ACQ:SRAT {}", rate));
+        self.send(format!("ACQ:SRAT {}", Into::<String>::into(rate)));
     }
 
     /**
@@ -276,14 +280,14 @@ impl Acquire {
      * This gain is referring to jumper settings on Red Pitaya fast analog inputs.
      */
     pub fn set_gain(&self, source: Source, gain: Gain) {
-        self.send(format!("ACQ:{}:GAIN {}", source, gain));
+        self.send(format!("ACQ:{}:GAIN {}", Into::<String>::into(source), Into::<String>::into(gain)));
     }
 
     /**
      * Get gain settings to HIGH or LOW.
      */
     pub fn get_gain(&self, source: Source) -> Gain {
-        self.send(format!("ACQ:{}:GAIN?", source));
+        self.send(format!("ACQ:{}:GAIN?", Into::<String>::into(source)));
 
         self.receive()
             .into()
@@ -292,13 +296,6 @@ impl Acquire {
 
 #[cfg(test)]
 mod test {
-    #[test]
-    fn test_decimation_get_buffer_duration() {
-        let duration = ::std::time::Duration::new(8, 590_000_000);
-
-        assert_eq!(duration, ::acquire::Decimation::DEC_65536.get_buffer_duration());
-    }
-
     macro_rules! acquire_assert {
         ($f:ident, $e:expr) => {
             let (rx, acquire) = create_acquire();
@@ -306,6 +303,13 @@ mod test {
             acquire.$f();
             assert_eq!($e, rx.recv().unwrap());
         }
+    }
+
+    #[test]
+    fn test_sampling_rate_get_buffer_duration() {
+        let duration = ::std::time::Duration::new(8, 590_000_000);
+
+        assert_eq!(duration, ::acquire::SamplingRate::RATE_1_9kHz.get_buffer_duration());
     }
 
     #[test]

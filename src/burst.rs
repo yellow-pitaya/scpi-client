@@ -7,14 +7,14 @@ pub enum Source {
     OUT2,
 }
 
-impl ::std::fmt::Display for Source {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &Source::OUT1 => "SOUR1",
-            &Source::OUT2 => "SOUR2",
+impl ::std::convert::Into<String> for Source {
+    fn into(self) -> String {
+        let s = match self {
+            Source::OUT1 => "SOUR1",
+            Source::OUT2 => "SOUR2",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -24,14 +24,14 @@ pub enum State {
     OFF,
 }
 
-impl ::std::fmt::Display for State {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &State::ON => "ON",
-            &State::OFF => "OFF",
+impl ::std::convert::Into<String> for State {
+    fn into(self) -> String {
+        let s = match self {
+            State::ON => "ON",
+            State::OFF => "OFF",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -70,21 +70,25 @@ impl Burst {
      * is P.
      */
     pub fn enable(&self, source: Source) {
-        self.send(format!("{}:BURS:STAT {}", source, State::ON));
+        self.set_status(source, State::ON);
     }
 
     /**
      * Disable burst mode.
      */
     pub fn disable(&self, source: Source) {
-        self.send(format!("{}:BURS:STAT {}", source, State::OFF));
+        self.set_status(source, State::OFF);
+    }
+
+    fn set_status(&self, source: Source, state: State) {
+        self.send(format!("{}:BURS:STAT {}", Into::<String>::into(source), Into::<String>::into(state)));
     }
 
     /**
      * Disable burst mode.
      */
     pub fn get_status(&self, source: Source) -> State {
-        self.send(format!("{}:BURS:STAT?", source));
+        self.send(format!("{}:BURS:STAT?", Into::<String>::into(source)));
 
         self.receive()
             .into()
@@ -94,14 +98,14 @@ impl Burst {
      * Set N number of periods in one burst.
      */
     pub fn set_count(&self, source: Source, count: u32) {
-        self.send(format!("{}:BURS:NCYC {}", source, count));
+        self.send(format!("{}:BURS:NCYC {}", Into::<String>::into(source), count));
     }
 
     /**
      * Get number of periods in one burst.
      */
     pub fn get_count(&self, source: Source) -> u32 {
-        self.send(format!("{}:BURS:NCYC?", source));
+        self.send(format!("{}:BURS:NCYC?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
@@ -112,14 +116,14 @@ impl Burst {
      * Set R number of repeated bursts.
      */
     pub fn set_repetitions(&self, source: Source, repetitions: u32) {
-        self.send(format!("{}:BURS:NOR {}", source, repetitions));
+        self.send(format!("{}:BURS:NOR {}", Into::<String>::into(source), repetitions));
     }
 
     /**
      * Get number of repeated bursts.
      */
     pub fn get_repetitions(&self, source: Source) -> u32 {
-        self.send(format!("{}:BURS:NOR?", source));
+        self.send(format!("{}:BURS:NOR?", Into::<String>::into(source)));
 
         self.receive()
             .parse()
@@ -132,7 +136,7 @@ impl Burst {
      * This includes the signal and delay.
      */
     pub fn set_period(&self, source: Source, period: u32) {
-        self.send(format!("{}:BURS:INT:PER {}", source, period));
+        self.send(format!("{}:BURS:INT:PER {}", Into::<String>::into(source), period));
     }
 
     /**
@@ -141,7 +145,7 @@ impl Burst {
      * This includes the signal and delay.
      */
     pub fn get_period(&self, source: Source) -> u32 {
-        self.send(format!("{}:BURS:INT:PER?", source));
+        self.send(format!("{}:BURS:INT:PER?", Into::<String>::into(source)));
 
         self.receive()
             .parse()

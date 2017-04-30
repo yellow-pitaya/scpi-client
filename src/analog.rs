@@ -1,7 +1,7 @@
 use Module;
 use socket::Socket;
 
-pub trait Pin: ::std::fmt::Display {
+pub trait Pin : ::std::convert::Into<String> {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -15,16 +15,16 @@ pub enum OutputPin {
 impl Pin for OutputPin {
 }
 
-impl ::std::fmt::Display for OutputPin {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &OutputPin::AOUT0 => "AOUT0",
-            &OutputPin::AOUT1 => "AOUT1",
-            &OutputPin::AOUT2 => "AOUT2",
-            &OutputPin::AOUT3 => "AOUT3",
+impl ::std::convert::Into<String> for OutputPin {
+    fn into(self) -> String {
+        let s = match self {
+            OutputPin::AOUT0 => "AOUT0",
+            OutputPin::AOUT1 => "AOUT1",
+            OutputPin::AOUT2 => "AOUT2",
+            OutputPin::AOUT3 => "AOUT3",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -39,16 +39,16 @@ pub enum InputPin {
 impl Pin for InputPin {
 }
 
-impl ::std::fmt::Display for InputPin {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
-        let display = match self {
-            &InputPin::AIN0 => "AIN0",
-            &InputPin::AIN1 => "AIN1",
-            &InputPin::AIN2 => "AIN2",
-            &InputPin::AIN3 => "AIN3",
+impl ::std::convert::Into<String> for InputPin {
+    fn into(self) -> String {
+        let s = match self {
+            InputPin::AIN0 => "AIN0",
+            InputPin::AIN1 => "AIN1",
+            InputPin::AIN2 => "AIN2",
+            InputPin::AIN3 => "AIN3",
         };
 
-        write!(f, "{}", display)
+        String::from(s)
     }
 }
 
@@ -83,7 +83,7 @@ impl Analog {
      * Voltage range of slow analog outputs is: 0 - 1.8 V
      */
     pub fn set_value(&self, pin: OutputPin, value: f32) {
-        self.send(format!("ANALOG:PIN {},{}", pin, value));
+        self.send(format!("ANALOG:PIN {},{}", Into::<String>::into(pin), value));
     }
 
     /**
@@ -94,7 +94,7 @@ impl Analog {
     pub fn get_value<P>(&self, pin: P) -> f32
         where P: Pin
     {
-        self.send(format!("ANALOG:PIN? {}", pin));
+        self.send(format!("ANALOG:PIN? {}", Into::<String>::into(pin)));
 
         self.receive()
             .parse()
