@@ -116,10 +116,6 @@ mod test {
                                     .unwrap();
                             },
                             "ACQ:SRAT?\r\n" => {
-                                stream.write("1_9kHz\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:SRA:HZ?\r\n" => {
                                 stream.write("125000000 Hz\r\n".as_bytes())
                                     .unwrap();
                             },

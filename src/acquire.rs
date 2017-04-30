@@ -148,12 +148,12 @@ impl ::std::str::FromStr for SamplingRate {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "125MHz" => Ok(SamplingRate::RATE_125MHz),
-            "15_6MHz" => Ok(SamplingRate::RATE_15_6MHz),
-            "1_9MHz" => Ok(SamplingRate::RATE_1_9MHz),
-            "103_8kHz" => Ok(SamplingRate::RATE_103_8kHz),
-            "15_2kHz" => Ok(SamplingRate::RATE_15_2kHz),
-            "1_9kHz" => Ok(SamplingRate::RATE_1_9kHz),
+            "125000000 Hz" => Ok(SamplingRate::RATE_125MHz),
+            "15600000 Hz" => Ok(SamplingRate::RATE_15_6MHz),
+            "1900000 Hz" => Ok(SamplingRate::RATE_1_9MHz),
+            "103800 Hz" => Ok(SamplingRate::RATE_103_8kHz),
+            "15200 Hz" => Ok(SamplingRate::RATE_15_2kHz),
+            "1900 Hz" => Ok(SamplingRate::RATE_1_9kHz),
             rate => Err(format!("Unknow sampling rate {}", rate)),
         }
     }
@@ -237,17 +237,6 @@ impl Acquire {
         self.send("ACQ:SRAT?");
 
         self.receive()
-            .parse()
-    }
-
-    /**
-     * Get sampling rate in Hertz.
-     */
-    pub fn get_sampling_rate_in_hertz(&self) -> Result<u64, <u64 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:SRA:HZ?");
-
-        self.receive()
-            .replace(" Hz", "")
             .parse()
     }
 
@@ -376,14 +365,7 @@ mod test {
     fn test_get_sampling_rate() {
         let (_, acquire) = create_acquire();
 
-        assert_eq!(acquire.get_sampling_rate(), Ok(::acquire::SamplingRate::RATE_1_9kHz));
-    }
-
-    #[test]
-    fn test_get_sampling_rate_in_hertz() {
-        let (_, acquire) = create_acquire();
-
-        assert_eq!(acquire.get_sampling_rate_in_hertz(), Ok(125_000_000));
+        assert_eq!(acquire.get_sampling_rate(), Ok(::acquire::SamplingRate::RATE_125MHz));
     }
 
     #[test]
