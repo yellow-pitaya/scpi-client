@@ -224,13 +224,6 @@ impl Acquire {
     }
 
     /**
-     * Set sampling rate.
-     */
-    pub fn set_sampling_rate(&self, rate: SamplingRate) {
-        self.send(format!("ACQ:SRAT {}", Into::<String>::into(rate)));
-    }
-
-    /**
      * Get sampling rate.
      */
     pub fn get_sampling_rate(&self) -> Result<SamplingRate, String> {
@@ -351,14 +344,6 @@ mod test {
         let (_, acquire) = create_acquire();
 
         assert_eq!(acquire.get_decimation(), Ok(::acquire::Decimation::DEC_1));
-    }
-
-    #[test]
-    fn test_set_sampling_rate() {
-        let (rx, acquire) = create_acquire();
-
-        acquire.set_sampling_rate(::acquire::SamplingRate::RATE_125MHz);
-        assert_eq!("ACQ:SRAT 125MHz\r\n", rx.recv().unwrap());
     }
 
     #[test]
