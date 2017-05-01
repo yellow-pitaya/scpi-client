@@ -30,6 +30,17 @@ impl ::std::str::FromStr for Gain {
     }
 }
 
+impl ::std::fmt::Display for Gain {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Gain::LV => "LV",
+            &Gain::HV => "HV",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Source {
     IN1,
