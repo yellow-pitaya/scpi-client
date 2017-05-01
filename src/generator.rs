@@ -123,6 +123,17 @@ impl ::std::convert::Into<usize> for Source {
     }
 }
 
+impl ::std::fmt::Display for Source {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Source::OUT1 => "OUT1",
+            &Source::OUT2 => "OUT2",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 #[derive(Clone)]
 pub struct Generator {
     socket: ::std::cell::RefCell<Socket>,
