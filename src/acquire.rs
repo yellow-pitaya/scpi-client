@@ -199,7 +199,6 @@ impl ::std::str::FromStr for SamplingRate {
 #[derive(Clone)]
 pub struct Acquire {
     socket: ::std::cell::RefCell<Socket>,
-    started: bool,
 }
 
 impl ::Module for Acquire {
@@ -212,7 +211,6 @@ impl Acquire {
     pub fn new(socket: Socket) -> Self {
         Acquire {
             socket: ::std::cell::RefCell::new(socket),
-            started: false,
         }
     }
 
@@ -221,7 +219,6 @@ impl Acquire {
      */
     pub fn start(&mut self) {
         self.send("ACQ:START");
-        self.started = true;
     }
 
     /**
@@ -229,11 +226,6 @@ impl Acquire {
      */
     pub fn stop(&mut self) {
         self.send("ACQ:STOP");
-        self.started = false;
-    }
-
-    pub fn is_started(&self) -> bool {
-        self.started
     }
 
     /**
@@ -355,17 +347,6 @@ mod test {
 
         acquire.stop();
         assert_eq!("ACQ:STOP\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_is_started() {
-        let (_, mut acquire) = create_acquire();
-
-        assert_eq!(acquire.is_started(), false);
-        acquire.start();
-        assert_eq!(acquire.is_started(), true);
-        acquire.stop();
-        assert_eq!(acquire.is_started(), false);
     }
 
     #[test]
