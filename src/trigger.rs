@@ -72,6 +72,8 @@ impl Trigger {
 
     /**
      * Trigger immediately or set trigger source & edge.
+     *
+     * https://forum.redpitaya.com/viewtopic.php?f=14&t=1014
      */
     pub fn enable(&self, source: Source) {
         self.send(format!("ACQ:TRIG {}", Into::<String>::into(source)));

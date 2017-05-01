@@ -194,6 +194,8 @@ impl Generator {
 
     /**
      * Set waveform of fast analog outputs.
+     *
+     * PWM doesn’t work https://github.com/RedPitaya/RedPitaya/issues/81
      */
     pub fn set_form(&self, source: Source, form: Form) {
         self.send(format!("{}:FUNC {}", Into::<String>::into(source), Into::<String>::into(form)));
