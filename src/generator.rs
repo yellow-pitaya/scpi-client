@@ -126,8 +126,8 @@ impl ::std::convert::Into<usize> for Source {
 impl ::std::fmt::Display for Source {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
         let display = match self {
-            &Source::OUT1 => "OUT1",
-            &Source::OUT2 => "OUT2",
+            &Source::OUT1 => "OUT 1",
+            &Source::OUT2 => "OUT 2",
         };
 
         write!(f, "{}", display)

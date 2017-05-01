@@ -58,6 +58,17 @@ impl ::std::convert::Into<String> for Source {
     }
 }
 
+impl ::std::fmt::Display for Source {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        let display = match self {
+            &Source::IN1 => "IN 1",
+            &Source::IN2 => "IN 2",
+        };
+
+        write!(f, "{}", display)
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Decimation {
     DEC_1,
