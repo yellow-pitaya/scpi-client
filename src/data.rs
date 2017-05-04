@@ -115,19 +115,19 @@ impl Data {
      * start = {0,1,...,16384}
      * stop_pos = {0,1,...16384}
      */
-    pub fn read_slice(&self, source: ::acquire::Source, start: u16, end: u16) -> String {
+    pub fn read_slice(&self, source: ::acquire::Source, start: u16, end: u16) -> Vec<f64> {
         self.send(format!("ACQ:{}:DATA:STA:END? {},{}", Into::<String>::into(source), start, end));
 
-        self.receive()
+        self.parse(self.receive())
     }
 
     /**
      * Read `m` samples from start position on.
      */
-    pub fn read(&self, source: ::acquire::Source, start: u16, len: u32) -> String {
+    pub fn read(&self, source: ::acquire::Source, start: u16, len: u32) -> Vec<f64> {
         self.send(format!("ACQ:{}:DATA:STA:N? {},{}", Into::<String>::into(source), start, len));
 
-        self.receive()
+        self.parse(self.receive())
     }
 
     /**
@@ -138,10 +138,24 @@ impl Data {
      * in seconds). If trigger delay is set to zero it will read full buf.
      * Size starting from trigger.
      */
-    pub fn read_all(&self, source: ::acquire::Source) -> String {
+    pub fn read_all(&self, source: ::acquire::Source) -> Vec<f64> {
         self.send(format!("ACQ:{}:DATA?", Into::<String>::into(source)));
 
-        self.receive()
+        self.parse(self.receive())
+    }
+
+    fn parse(&self, data: String) -> Vec<f64> {
+        data.trim_matches(|c: char| c == '{' || c == '}' || c == '!' || c.is_alphabetic())
+            .split(",")
+            .map(|s| {
+                match s.parse::<f64>() {
+                    Ok(f) => f,
+                    Err(_) => {
+                        error!("Invalid data '{}'", s);
+                        0.0
+                    },
+                }
+            }).collect()
     }
 
     /**
@@ -151,10 +165,10 @@ impl Data {
      * Trigger delay by default is set to zero (in samples or in seconds). If
      * trigger delay is set to zero it will read m samples starting from trigger.
      */
-    pub fn read_oldest(&self, source: ::acquire::Source, len: u32) -> String {
+    pub fn read_oldest(&self, source: ::acquire::Source, len: u32) -> Vec<f64> {
         self.send(format!("ACQ:{}:DATA:OLD:N? {}", Into::<String>::into(source), len));
 
-        self.receive()
+        self.parse(self.receive())
     }
 
     /**
@@ -163,10 +177,10 @@ impl Data {
      * Trigger delay by default is set to zero (in samples or in seconds). If
      * trigger delay is set to zero it will read m samples before trigger.
      */
-    pub fn read_latest(&self, source: ::acquire::Source, len: u32) -> String {
+    pub fn read_latest(&self, source: ::acquire::Source, len: u32) -> Vec<f64> {
         self.send(format!("ACQ:{}:DATA:LAT:N? {}", Into::<String>::into(source), len));
 
-        self.receive()
+        self.parse(self.receive())
     }
 
     /**
@@ -223,35 +237,35 @@ mod test {
     fn test_read_slice() {
         let (_, data) = create_data();
 
-        assert_eq!(data.read_slice(::acquire::Source::IN1, 10, 13), "{123,231,-231}");
+        assert_eq!(data.read_slice(::acquire::Source::IN1, 10, 13), vec![123.0, 231.0, -231.0]);
     }
 
     #[test]
     fn test_read() {
         let (_, data) = create_data();
 
-        assert_eq!(data.read(::acquire::Source::IN1, 10, 3), "{1.2,3.2,-1.2}");
+        assert_eq!(data.read(::acquire::Source::IN1, 10, 3), vec![1.2, 3.2, -1.2]);
     }
 
     #[test]
     fn test_read_all() {
         let (_, data) = create_data();
 
-        assert_eq!(data.read_all(::acquire::Source::IN1), "{1.2,3.2,-1.2}");
+        assert_eq!(data.read_all(::acquire::Source::IN1), vec![1.2, 3.2, -1.2]);
     }
 
     #[test]
     fn test_read_oldest() {
         let (_, data) = create_data();
 
-        assert_eq!(data.read_oldest(::acquire::Source::IN1, 2), "{3.2,-1.2}");
+        assert_eq!(data.read_oldest(::acquire::Source::IN1, 2), vec![3.2, -1.2]);
     }
 
     #[test]
     fn test_read_latest() {
         let (_, data) = create_data();
 
-        assert_eq!(data.read_latest(::acquire::Source::IN1, 2), "{1.2,3.2}");
+        assert_eq!(data.read_latest(::acquire::Source::IN1, 2), vec![1.2, 3.2]);
     }
 
     #[test]
