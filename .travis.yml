@@ -4,4 +4,4 @@ cache: cargo
 
 sudo: false
 
-script: cargo test
+script: cargo test --features mock

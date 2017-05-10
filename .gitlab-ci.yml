@@ -6,7 +6,7 @@ variables:
 test:
   script:
     - rustc --version && cargo --version
-    - time cargo test --verbose --jobs 1 --release
+    - time cargo test --verbose --jobs 1 --release --features mock
   cache:
     paths:
       - target/

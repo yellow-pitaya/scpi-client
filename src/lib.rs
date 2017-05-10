@@ -84,159 +84,7 @@ mod test {
                     let tx = tx.clone();
 
                     ::std::thread::spawn(move || {
-                        let mut message = String::new();
-
-                        loop {
-                            let mut buffer = [0; 1];
-
-                            stream.read(&mut buffer[..])
-                                .unwrap();
-                            message.push(buffer[0] as char);
-
-                            if buffer[0] == ('\n' as u8) {
-                                break;
-                            }
-                        }
-
-                        match message.as_str() {
-                            "ACQ:DEC?\r\n" => {
-                                stream.write("1\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:AVG?\r\n" => {
-                                stream.write("ON\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:DATA:UNITS?\r\n" => {
-                                stream.write("RAW\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:SOUR1:GAIN?\r\n" => {
-                                stream.write("HV\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:SRAT?\r\n" => {
-                                stream.write("125000000 Hz\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:WPOS?\r\n" => {
-                                stream.write("1024\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:TPOS?\r\n" => {
-                                stream.write("512\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:SOUR1:DATA:STA:END? 10,13\r\n" => {
-                                stream.write("{123,231,-231}\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:SOUR1:DATA:STA:N? 10,3\r\n" => {
-                                stream.write("{1.2,3.2,-1.2}\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:SOUR1:DATA?\r\n" => {
-                                stream.write("{1.2,3.2,-1.2}\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:SOUR1:DATA:OLD:N? 2\r\n" => {
-                                stream.write("{3.2,-1.2}\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:SOUR1:DATA:LAT:N? 2\r\n" => {
-                                stream.write("{1.2,3.2}\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:BUF:SIZE?\r\n" => {
-                                stream.write("16384\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:TRIG:STAT?\r\n" => {
-                                stream.write("WAIT\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:TRIG:DLY?\r\n" => {
-                                stream.write("2314\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:TRIG:DLY:NS?\r\n" => {
-                                stream.write("128ns\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:TRIG:HYST?\r\n" => {
-                                stream.write("0.75\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ACQ:TRIG:LEV?\r\n" => {
-                                stream.write("123mV\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "ANALOG:PIN? AIN1\r\n" => {
-                                stream.write("1.34\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "DIG:PIN? DIO0_N\r\n" => {
-                                stream.write("1\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "SOUR1:DCYC?\r\n" => {
-                                stream.write("1.0\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "SOUR1:FREQ:FIX?\r\n" => {
-                                stream.write("1000\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "SOUR2:FREQ:FIX?\r\n" => {
-                                stream.write("8.82604e+06\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "SOUR1:FUNC?\r\n" => {
-                                stream.write("SINE\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "SOUR1:PHAS?\r\n" => {
-                                stream.write("-180\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "SOUR1:STATE?\r\n" => {
-                                stream.write("1\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "SOUR1:TRAC:DATA:DATA?\r\n" => {
-                                stream.write("1,0.5,0.2\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "SOUR1:TRIG:SOUR?\r\n" => {
-                                stream.write("EXT_NE\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "SOUR1:VOLT?\r\n" => {
-                                stream.write("-1.1\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "SOUR1:VOLT:OFFS?\r\n" => {
-                                stream.write("1.2\r\n".as_bytes())
-                                    .unwrap();
-                            },
-                            "SOUR2:BURS:STAT?\r\n" => {
-                                stream.write("OFF\r\n".as_bytes())
-                                    .unwrap();
-                            }
-                            "SOUR2:BURS:NCYC?\r\n" => {
-                                stream.write("3\r\n".as_bytes())
-                                    .unwrap();
-                            }
-                            "SOUR1:BURS:NOR?\r\n" => {
-                                stream.write("5\r\n".as_bytes())
-                                    .unwrap();
-                            }
-                            "SOUR2:BURS:INT:PER?\r\n" => {
-                                stream.write("1000000\r\n".as_bytes())
-                                    .unwrap();
-                            }
-                            _ => tx.send(message).unwrap(),
-                        };
+                        handle_client(&mut stream, tx);
                     });
                 }
             }
@@ -277,5 +125,90 @@ mod test {
             .find(|&(_, dir)| cwd.to_str().unwrap().contains(dir))
             .map(|p| p.0)
             .unwrap_or(0) as u16 * 1000 + 19600
+    }
+
+    fn handle_client(stream: &mut ::std::net::TcpStream, tx: ::std::sync::mpsc::Sender<String>) {
+        let mut message = String::new();
+
+        loop {
+            let mut buffer = [0; 1];
+
+            stream.read(&mut buffer[..])
+                .unwrap();
+            message.push(buffer[0] as char);
+
+            if buffer[0] == ('\n' as u8) {
+                match handle_message(message.clone()) {
+                    Some(mut response) => {
+                        response.push_str("\r\n");
+                        stream.write(response.as_bytes()).unwrap();
+                    }
+                    None => {
+                        tx.send(message).unwrap();
+                    }
+                };
+
+                message = String::new();
+            }
+        }
+    }
+
+    #[cfg(not(feature = "mock"))]
+    fn handle_message(message: String) -> Option<String> {
+        let mut socket = ::socket::Socket::new("192.168.1.5:5000");
+
+        socket.send(message.clone());
+
+        if message.contains("?") {
+            Some(socket.receive())
+        }
+        else {
+            None
+        }
+    }
+
+    #[cfg(feature = "mock")]
+    fn handle_message(message: String) -> Option<String> {
+        let mut response = match message.replace("\r\n", "").as_str() {
+            "ACQ:DEC?" => "1",
+            "ACQ:AVG?" => "ON",
+            "ACQ:DATA:UNITS?" => "RAW",
+            "ACQ:SOUR1:GAIN?" => "HV",
+            "ACQ:SRAT?" => "125000000 Hz",
+            "ACQ:WPOS?" => "1024",
+            "ACQ:TPOS?" => "512",
+            "ACQ:SOUR1:DATA:STA:END? 10,13" => "{123,231,-231}",
+            "ACQ:SOUR1:DATA:STA:N? 10,3" => "{1.2,3.2,-1.2}",
+            "ACQ:SOUR1:DATA?" => "{1.2,3.2,-1.2}",
+            "ACQ:SOUR1:DATA:OLD:N? 2" => "{3.2,-1.2}",
+            "ACQ:SOUR1:DATA:LAT:N? 2" => "{1.2,3.2}",
+            "ACQ:BUF:SIZE?" => "16384",
+            "ACQ:TRIG:STAT?" => "WAIT",
+            "ACQ:TRIG:DLY?" => "2314",
+            "ACQ:TRIG:DLY:NS?" => "128ns",
+            "ACQ:TRIG:HYST?" => "0.75",
+            "ACQ:TRIG:LEV?" => "123mV",
+            "ANALOG:PIN? AIN1" => "1.34",
+            "DIG:PIN? DIO0_N" => "1",
+            "SOUR1:DCYC?" => "1.0",
+            "SOUR1:FREQ:FIX?" => "1000",
+            "SOUR2:FREQ:FIX?" => "8.82604e+06",
+            "SOUR1:FUNC?" => "SINE",
+            "SOUR1:PHAS?" => "-180",
+            "SOUR1:STATE?" => "1",
+            "SOUR1:TRAC:DATA:DATA?" => "1,0.5,0.2",
+            "SOUR1:TRIG:SOUR?" => "EXT_NE",
+            "SOUR1:VOLT?" => "-1.1",
+            "SOUR1:VOLT:OFFS?" => "1.2",
+            "SOUR2:BURS:STAT?" => "OFF",
+            "SOUR2:BURS:NCYC?" => "3",
+            "SOUR1:BURS:NOR?" => "5",
+            "SOUR2:BURS:INT:PER?" => "1000000",
+            _ => return None,
+        }.to_owned();
+
+        response.push_str("\r\n");
+
+        Some(response)
     }
 }
