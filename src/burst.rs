@@ -19,29 +19,30 @@ impl ::std::convert::Into<String> for Source {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub enum State {
-    ON,
-    OFF,
+pub enum Mode {
+    CONTINUOUS,
+    BURST,
+    STREAM
 }
 
-impl ::std::convert::Into<String> for State {
+impl ::std::convert::Into<String> for Mode {
     fn into(self) -> String {
-        let s = match self {
-            State::ON => "ON",
-            State::OFF => "OFF",
-        };
-
-        String::from(s)
+        match self {
+            Mode::CONTINUOUS => "CONTINUOUS",
+            Mode::BURST => "BURST",
+            Mode::STREAM => "STREAM",
+        }.to_owned()
     }
 }
 
-impl ::std::str::FromStr for State {
+impl ::std::str::FromStr for Mode {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "ON" => Ok(State::ON),
-            "OFF" => Ok(State::OFF),
+            "CONTINUOUS" => Ok(Mode::CONTINUOUS),
+            "BURST" => Ok(Mode::BURST),
+            "STREAM" => Ok(Mode::STREAM),
             state => Err(format!("Unknow state '{}'", state)),
         }
     }
@@ -66,30 +67,19 @@ impl Burst {
     }
 
     /**
-     * Enable burst (pulse) mode.
+     * Set burst (pulse) mode.
      *
      * Red Pitaya will generate R number of N periods of signal and then stop. Time between bursts
      * is P.
      */
-    pub fn enable(&self, source: Source) {
-        self.set_status(source, State::ON);
+    pub fn set_mode(&self, source: Source, mode: Mode) {
+        self.send(format!("{}:BURS:STAT {}", Into::<String>::into(source), Into::<String>::into(mode)));
     }
 
     /**
-     * Disable burst mode.
+     * Set burst (pulse) mode.
      */
-    pub fn disable(&self, source: Source) {
-        self.set_status(source, State::OFF);
-    }
-
-    fn set_status(&self, source: Source, state: State) {
-        self.send(format!("{}:BURS:STAT {}", Into::<String>::into(source), Into::<String>::into(state)));
-    }
-
-    /**
-     * Disable burst mode.
-     */
-    pub fn get_status(&self, source: Source) -> Result<State, String> {
+    pub fn get_mode(&self, source: Source) -> Result<Mode, String> {
         self.send(format!("{}:BURS:STAT?", Into::<String>::into(source)));
 
         self.receive()
@@ -155,26 +145,18 @@ impl Burst {
 #[cfg(test)]
 mod test {
     #[test]
-    fn test_enable() {
+    fn test_set_mode() {
         let (rx, burst) = create_burst();
 
-        burst.enable(::burst::Source::OUT1);
-        assert_eq!("SOUR1:BURS:STAT ON\r\n", rx.recv().unwrap());
+        burst.set_mode(::burst::Source::OUT1, ::burst::Mode::BURST);
+        assert_eq!("SOUR1:BURS:STAT BURST\r\n", rx.recv().unwrap());
     }
 
     #[test]
-    fn test_disable() {
-        let (rx, burst) = create_burst();
-
-        burst.disable(::burst::Source::OUT1);
-        assert_eq!("SOUR1:BURS:STAT OFF\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_status() {
+    fn test_get_mode() {
         let (_, burst) = create_burst();
 
-        assert_eq!(burst.get_status(::burst::Source::OUT2), Ok(::burst::State::OFF));
+        assert_eq!(burst.get_mode(::burst::Source::OUT2), Ok(::burst::Mode::BURST));
     }
 
     #[test]

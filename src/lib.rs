@@ -200,7 +200,7 @@ mod test {
             "SOUR1:TRIG:SOUR?" => "EXT_NE",
             "SOUR1:VOLT?" => "-1.1",
             "SOUR1:VOLT:OFFS?" => "1.2",
-            "SOUR2:BURS:STAT?" => "OFF",
+            "SOUR2:BURS:STAT?" => "BURST",
             "SOUR2:BURS:NCYC?" => "3",
             "SOUR1:BURS:NOR?" => "5",
             "SOUR2:BURS:INT:PER?" => "1000000",
