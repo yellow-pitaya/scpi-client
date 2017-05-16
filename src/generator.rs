@@ -311,7 +311,8 @@ impl Generator {
         self.send(format!("{}:TRAC:DATA:DATA?", Into::<String>::into(source)));
 
         let data = self.receive();
-        data.split(",")
+        data.trim_matches(|c| c == '{' || c == '}')
+            .split(",")
             .map(|x| x.parse().unwrap())
             .collect()
     }
