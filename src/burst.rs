@@ -145,61 +145,41 @@ impl Burst {
 #[cfg(test)]
 mod test {
     #[test]
-    fn test_set_mode() {
+    fn test_mode() {
         let (rx, burst) = create_burst();
 
-        burst.set_mode(::burst::Source::OUT1, ::burst::Mode::BURST);
-        assert_eq!("SOUR1:BURS:STAT BURST\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_mode() {
-        let (_, burst) = create_burst();
+        burst.set_mode(::burst::Source::OUT2, ::burst::Mode::BURST);
+        assert_eq!("SOUR2:BURS:STAT BURST\r\n", rx.recv().unwrap());
 
         assert_eq!(burst.get_mode(::burst::Source::OUT2), Ok(::burst::Mode::BURST));
     }
 
     #[test]
-    fn test_set_count() {
+    fn test_count() {
         let (rx, burst) = create_burst();
 
-        burst.set_count(::burst::Source::OUT1, 3);
-        assert_eq!("SOUR1:BURS:NCYC 3\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_count() {
-        let (_, burst) = create_burst();
+        burst.set_count(::burst::Source::OUT2, 3);
+        assert_eq!("SOUR2:BURS:NCYC 3\r\n", rx.recv().unwrap());
 
         assert_eq!(burst.get_count(::burst::Source::OUT2), Ok(3));
     }
 
     #[test]
-    fn test_set_repetitions() {
+    fn test_repetitions() {
         let (rx, burst) = create_burst();
 
         burst.set_repetitions(::burst::Source::OUT1, 5);
         assert_eq!("SOUR1:BURS:NOR 5\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_repetitions() {
-        let (_, burst) = create_burst();
 
         assert_eq!(burst.get_repetitions(::burst::Source::OUT1), Ok(5));
     }
 
     #[test]
-    fn test_set_period() {
+    fn test_period() {
         let (rx, burst) = create_burst();
 
         burst.set_period(::burst::Source::OUT2, 1_000_000);
         assert_eq!("SOUR2:BURS:INT:PER 1000000\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_period() {
-        let (_, burst) = create_burst();
 
         assert_eq!(burst.get_period(::burst::Source::OUT2), Ok(1_000_000));
     }

@@ -200,27 +200,30 @@ mod test {
     fn test_get_write_pointer() {
         let (_, data) = create_data();
 
+        #[cfg(features = "mock")]
         assert_eq!(data.get_write_pointer(), Ok(1024));
+
+        #[cfg(not(features = "mock"))]
+        assert!(data.get_write_pointer().is_ok());
     }
 
     #[test]
     fn test_get_write_pointer_at_trigger() {
         let (_, data) = create_data();
 
+        #[cfg(features = "mock")]
         assert_eq!(data.get_trigger_position(), Ok(512));
+
+        #[cfg(not(features = "mock"))]
+        assert!(data.get_trigger_position().is_ok());
     }
 
     #[test]
-    fn test_set_units() {
+    fn test_units() {
         let (rx, data) = create_data();
 
-        data.set_units(::data::Unit::VOLTS);
-        assert_eq!("ACQ:DATA:UNITS VOLTS\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_units() {
-        let (_, data) = create_data();
+        data.set_units(::data::Unit::RAW);
+        assert_eq!("ACQ:DATA:UNITS RAW\r\n", rx.recv().unwrap());
 
         assert_eq!(data.get_units(), Ok(::data::Unit::RAW));
     }
@@ -229,43 +232,77 @@ mod test {
     fn test_set_format() {
         let (rx, data) = create_data();
 
-        data.set_format(::data::Format::FLOAT);
-        assert_eq!("ACQ:DATA:FORMAT FLOAT\r\n", rx.recv().unwrap());
+        data.set_format(::data::Format::BIN);
+        assert_eq!("ACQ:DATA:FORMAT BIN\r\n", rx.recv().unwrap());
+
+        data.set_format(::data::Format::ASCII);
     }
 
     #[test]
     fn test_read_slice() {
+        acquire_start();
+
         let (_, data) = create_data();
 
-        assert_eq!(data.read_slice(::acquire::Source::IN1, 10, 13), vec![123.0, 231.0, -231.0]);
+        let vec = data.read_slice(::acquire::Source::IN1, 10, 13);
+
+        #[cfg(features = "mock")]
+        assert_eq!(vec, vec![123.0, 231.0, -231.0]);
+
+        #[cfg(not(features = "mock"))]
+        assert_eq!(vec.len(), 3);
     }
 
     #[test]
     fn test_read() {
         let (_, data) = create_data();
 
-        assert_eq!(data.read(::acquire::Source::IN1, 10, 3), vec![1.2, 3.2, -1.2]);
+        let vec = data.read(::acquire::Source::IN1, 10, 3);
+
+        #[cfg(features = "mock")]
+        assert_eq!(vec, vec![1.2, 3.2, -1.2]);
+
+        #[cfg(not(features = "mock"))]
+        assert_eq!(vec.len(), 3);
     }
 
     #[test]
     fn test_read_all() {
         let (_, data) = create_data();
 
-        assert_eq!(data.read_all(::acquire::Source::IN1), vec![1.2, 3.2, -1.2]);
+        let vec = data.read_all(::acquire::Source::IN1);
+
+        #[cfg(features = "mock")]
+        assert_eq!(vec, vec![]);
+
+        #[cfg(not(features = "mock"))]
+        assert!(vec.len() > 0);
     }
 
     #[test]
     fn test_read_oldest() {
         let (_, data) = create_data();
 
-        assert_eq!(data.read_oldest(::acquire::Source::IN1, 2), vec![3.2, -1.2]);
+        let vec = data.read_oldest(::acquire::Source::IN1, 2);
+
+        #[cfg(features = "mock")]
+        assert_eq!(vec, vec![3.2, -1.2]);
+
+        #[cfg(not(features = "mock"))]
+        assert!(vec.len() > 0);
     }
 
     #[test]
     fn test_read_latest() {
         let (_, data) = create_data();
 
-        assert_eq!(data.read_latest(::acquire::Source::IN1, 2), vec![1.2, 3.2]);
+        let vec = data.read_latest(::acquire::Source::IN1, 2);
+
+        #[cfg(features = "mock")]
+        assert_eq!(vec, vec![1.2, 3.2]);
+
+        #[cfg(not(features = "mock"))]
+        assert!(vec.len() > 0);
     }
 
     #[test]
@@ -280,5 +317,19 @@ mod test {
         let socket = ::socket::Socket::new(addr);
 
         (rx, ::data::Data::new(socket))
+    }
+
+    #[cfg(features = "mock")]
+    fn acquire_start() {
+    }
+
+    #[cfg(not(features = "mock"))]
+    fn acquire_start() {
+        let (addr, _) = ::test::launch_server();
+        let socket = ::socket::Socket::new(addr);
+
+        let mut acquire = ::acquire::Acquire::new(socket);
+
+        acquire.start();
     }
 }

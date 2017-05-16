@@ -218,16 +218,11 @@ mod test {
     }
 
     #[test]
-    fn test_set_state() {
+    fn test_state() {
         let (rx, digital) = create_digital();
 
-        digital.set_state(::digital::Gpio::DIO0_N, ::digital::State::LOW);
-        assert_eq!("DIG:PIN DIO0_N,0\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_state() {
-        let (_, digital) = create_digital();
+        digital.set_state(::digital::Gpio::DIO0_N, ::digital::State::HIGH);
+        assert_eq!("DIG:PIN DIO0_N,1\r\n", rx.recv().unwrap());
 
         assert_eq!(digital.get_state(::digital::Gpio::DIO0_N), Ok(::digital::State::HIGH));
     }

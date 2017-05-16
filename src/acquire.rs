@@ -328,15 +328,6 @@ impl Acquire {
 
 #[cfg(test)]
 mod test {
-    macro_rules! acquire_assert {
-        ($f:ident, $e:expr) => {
-            let (rx, acquire) = create_acquire();
-
-            acquire.$f();
-            assert_eq!($e, rx.recv().unwrap());
-        }
-    }
-
     #[test]
     fn test_sampling_rate_get_buffer_duration() {
         let duration = ::std::time::Duration::new(8, 590_000_000);
@@ -345,76 +336,48 @@ mod test {
     }
 
     #[test]
-    fn test_start() {
+    fn test_status() {
         let (rx, mut acquire) = create_acquire();
 
         acquire.start();
         assert_eq!("ACQ:START\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_stop() {
-        let (rx, mut acquire) = create_acquire();
 
         acquire.stop();
         assert_eq!("ACQ:STOP\r\n", rx.recv().unwrap());
+
+        acquire.reset();
+        assert_eq!("ACQ:RST\r\n", rx.recv().unwrap());
     }
 
     #[test]
-    fn test_reset() {
-        acquire_assert!(reset, "ACQ:RST\r\n");
-    }
-
-    #[test]
-    fn test_set_decimation() {
+    fn test_decimation() {
         let (rx, acquire) = create_acquire();
 
-        acquire.set_decimation(::acquire::Decimation::DEC_8);
-        assert_eq!("ACQ:DEC 8\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_decimation() {
-        let (_, acquire) = create_acquire();
+        acquire.set_decimation(::acquire::Decimation::DEC_1);
+        assert_eq!("ACQ:DEC 1\r\n", rx.recv().unwrap());
 
         assert_eq!(acquire.get_decimation(), Ok(::acquire::Decimation::DEC_1));
     }
 
     #[test]
-    fn test_get_sampling_rate() {
-        let (_, acquire) = create_acquire();
-
-        assert_eq!(acquire.get_sampling_rate(), Ok(::acquire::SamplingRate::RATE_125MHz));
-    }
-
-    #[test]
-    fn test_enable_average() {
-        acquire_assert!(enable_average, "ACQ:AVG ON\r\n");
-    }
-
-    #[test]
-    fn test_disable_average() {
-        acquire_assert!(disable_average, "ACQ:AVG OFF\r\n");
-    }
-
-    #[test]
-    fn test_is_average_enabled() {
-        let (_, acquire) = create_acquire();
-
-        assert_eq!(acquire.is_average_enabled(), true);
-    }
-
-    #[test]
-    fn test_set_gain() {
+    fn test_average() {
         let (rx, acquire) = create_acquire();
 
-        acquire.set_gain(::acquire::Source::IN1, ::acquire::Gain::LV);
-        assert_eq!("ACQ:SOUR1:GAIN LV\r\n", rx.recv().unwrap());
+        acquire.enable_average();
+        assert_eq!("ACQ:AVG ON\r\n", rx.recv().unwrap());
+
+        assert_eq!(acquire.is_average_enabled(), true);
+
+        acquire.disable_average();
+        assert_eq!("ACQ:AVG OFF\r\n", rx.recv().unwrap());
     }
 
     #[test]
-    fn test_get_gain() {
-        let (_, acquire) = create_acquire();
+    fn test_gain() {
+        let (rx, acquire) = create_acquire();
+
+        acquire.set_gain(::acquire::Source::IN1, ::acquire::Gain::HV);
+        assert_eq!("ACQ:SOUR1:GAIN HV\r\n", rx.recv().unwrap());
 
         assert_eq!(acquire.get_gain(::acquire::Source::IN1), Ok(::acquire::Gain::HV));
     }

@@ -112,18 +112,17 @@ mod test {
     }
 
     #[test]
-    fn test_set_value() {
+    fn test_value() {
         let (rx, analog) = create_analog();
 
-        analog.set_value(::analog::OutputPin::AOUT2, 1.34);
-        assert_eq!("ANALOG:PIN AOUT2,1.34\r\n", rx.recv().unwrap());
-    }
+        analog.set_value(::analog::OutputPin::AOUT1, 1.34);
+        assert_eq!("ANALOG:PIN AOUT1,1.34\r\n", rx.recv().unwrap());
 
-    #[test]
-    fn test_get_value() {
-        let (_, analog) = create_analog();
-
+        #[cfg(features = "mock")]
         assert_eq!(analog.get_value(::analog::InputPin::AIN1), Ok(1.34));
+
+        #[cfg(not(features = "mock"))]
+        assert!(analog.get_value(::analog::InputPin::AIN1).is_ok());
     }
 
     fn create_analog() -> (::std::sync::mpsc::Receiver<String>, ::analog::Analog) {

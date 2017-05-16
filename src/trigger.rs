@@ -173,91 +173,55 @@ impl Trigger {
 
 #[cfg(test)]
 mod test {
-    macro_rules! trigger_assert {
-        ($f:ident, $e:expr) => {
-            let (rx, trigger) = create_trigger();
-
-            trigger.$f();
-            assert_eq!($e, rx.recv().unwrap());
-        }
-    }
-
     #[test]
-    fn test_enable() {
+    fn test_status() {
         let (rx, trigger) = create_trigger();
 
         trigger.enable(::trigger::Source::NOW);
         assert_eq!("ACQ:TRIG NOW\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_disable() {
-        trigger_assert!(disable, "ACQ:TRIG DISABLED\r\n");
-    }
-
-    #[test]
-    fn test_get_state() {
-        let (_, trigger) = create_trigger();
 
         assert_eq!(trigger.get_state(), Ok(::trigger::State::WAIT));
+
+        trigger.disable();
+        assert_eq!("ACQ:TRIG DISABLED\r\n", rx.recv().unwrap());
     }
 
     #[test]
-    fn test_set_delay() {
+    fn test_delay() {
         let (rx, trigger) = create_trigger();
 
-        trigger.set_delay(0);
-        assert_eq!("ACQ:TRIG:DLY 0\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_delay() {
-        let (_, trigger) = create_trigger();
+        trigger.set_delay(2314);
+        assert_eq!("ACQ:TRIG:DLY 2314\r\n", rx.recv().unwrap());
 
         assert_eq!(trigger.get_delay(), Ok(2314));
     }
 
     #[test]
-    fn test_set_delay_in_ns() {
+    fn test_delay_in_ns() {
         let (rx, trigger) = create_trigger();
 
-        trigger.set_delay_in_ns(0);
-        assert_eq!("ACQ:TRIG:DLY:NS 0\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_delay_in_ns() {
-        let (_, trigger) = create_trigger();
+        trigger.set_delay_in_ns(128);
+        assert_eq!("ACQ:TRIG:DLY:NS 128\r\n", rx.recv().unwrap());
 
         assert_eq!(trigger.get_delay_in_ns(), Ok(128));
     }
 
     #[test]
-    fn test_set_hysteresis() {
+    fn test_hysteresis() {
         let (rx, trigger) = create_trigger();
 
-        trigger.set_hysteresis(0.1);
-        assert_eq!("ACQ:TRIG:HYST 0.1\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_hysteresis() {
-        let (_, trigger) = create_trigger();
+        trigger.set_hysteresis(0.75);
+        assert_eq!("ACQ:TRIG:HYST 0.75\r\n", rx.recv().unwrap());
 
         assert_eq!(trigger.get_hysteresis(), Ok(0.75));
     }
 
     #[test]
-    fn test_set_level() {
+    fn test_level() {
         let (rx, trigger) = create_trigger();
 
-        trigger.set_level(0.0);
-        assert_eq!("ACQ:TRIG:LEV 0\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_get_level() {
-        let (_, trigger) = create_trigger();
+        trigger.set_level(123.0);
+        assert_eq!("ACQ:TRIG:LEV 123\r\n", rx.recv().unwrap());
 
         assert_eq!(trigger.get_level(), Ok(123.0));
     }
