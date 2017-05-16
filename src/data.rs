@@ -32,15 +32,15 @@ impl ::std::str::FromStr for Unit  {
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Format {
-    FLOAT,
     ASCII,
+    BIN,
 }
 
 impl ::std::convert::Into<String> for Format {
     fn into(self) -> String {
         let s = match self {
-            Format::FLOAT => "FLOAT",
             Format::ASCII => "ASCII",
+            Format::BIN => "BIN",
         };
 
         String::from(s)
