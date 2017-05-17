@@ -176,12 +176,14 @@ impl Generator {
     }
 
     pub fn is_started(&self, source: Source) -> Result<bool, <i8 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:STATE?", Into::<String>::into(source)));
+        let output = match source {
+            Source::OUT1 => "OUTPUT1",
+            Source::OUT2 => "OUTPUT2",
+        };
 
-        match self.receive().parse::<u8>() {
-            Ok(state) => Ok(state == 1),
-            Err(err) => Err(err),
-        }
+        self.send(format!("{}:STATE?", output));
+
+        Ok(self.receive() == "ON")
     }
 
     /**
@@ -197,7 +199,7 @@ impl Generator {
     pub fn get_frequency(&self, source: Source) -> Result<u32, <f32 as ::std::str::FromStr>::Err> {
         self.send(format!("{}:FREQ:FIX?", Into::<String>::into(source)));
 
-        let value: f32 =self.receive()
+        let value: f32 = self.receive()
             .parse()?;
 
         Ok(value as u32)
@@ -406,6 +408,9 @@ mod test {
     fn test_amplitude() {
         let (rx, generator) = create_generator();
 
+        generator.start(::generator::Source::OUT1);
+        assert_eq!("OUTPUT1:STATE ON\r\n", rx.recv().unwrap());
+
         generator.set_amplitude(::generator::Source::OUT1, -1.1);
         assert_eq!("SOUR1:VOLT -1.1\r\n", rx.recv().unwrap());
 
@@ -426,10 +431,10 @@ mod test {
     fn test_phase() {
         let (rx, generator) = create_generator();
 
-        generator.set_phase(::generator::Source::OUT1, -180);
-        assert_eq!("SOUR1:PHAS -180\r\n", rx.recv().unwrap());
+        generator.set_phase(::generator::Source::OUT1, 180);
+        assert_eq!("SOUR1:PHAS 180\r\n", rx.recv().unwrap());
 
-        assert_eq!(generator.get_phase(::generator::Source::OUT1), Ok(-180));
+        assert_eq!(generator.get_phase(::generator::Source::OUT1), Ok(180));
     }
 
     #[test]

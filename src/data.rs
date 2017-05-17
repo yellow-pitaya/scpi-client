@@ -244,7 +244,7 @@ mod test {
 
         let (_, data) = create_data();
 
-        let vec = data.read_slice(::acquire::Source::IN1, 10, 13);
+        let vec = data.read_slice(::acquire::Source::IN1, 10, 12);
 
         #[cfg(features = "mock")]
         assert_eq!(vec, vec![123.0, 231.0, -231.0]);
