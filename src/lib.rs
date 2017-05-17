@@ -45,7 +45,7 @@ impl Redpitaya {
     pub fn new<S>(addr: S) -> Redpitaya
         where S: ::std::net::ToSocketAddrs
     {
-        let socket = socket::Socket::new(addr);
+        let socket = ::std::cell::RefCell::new(socket::Socket::new(addr));
 
         Redpitaya {
             acquire: acquire::Acquire::new(socket.clone()),

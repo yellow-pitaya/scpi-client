@@ -64,9 +64,9 @@ impl ::Module for Analog {
 }
 
 impl Analog {
-    pub fn new(socket: Socket) -> Self {
+    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
         Analog {
-            socket: ::std::cell::RefCell::new(socket),
+            socket,
         }
     }
 

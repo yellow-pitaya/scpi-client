@@ -219,9 +219,9 @@ impl ::Module for Acquire {
 }
 
 impl Acquire {
-    pub fn new(socket: Socket) -> Self {
+    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
         Acquire {
-            socket: ::std::cell::RefCell::new(socket),
+            socket,
         }
     }
 

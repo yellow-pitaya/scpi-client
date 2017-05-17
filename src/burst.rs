@@ -60,9 +60,9 @@ impl ::Module for Burst {
 }
 
 impl Burst {
-    pub fn new(socket: Socket) -> Self {
+    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
         Burst {
-            socket: ::std::cell::RefCell::new(socket),
+            socket,
         }
     }
 

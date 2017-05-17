@@ -13,9 +13,9 @@ impl ::Module for General {
 }
 
 impl General {
-    pub fn new(socket: Socket) -> Self {
+    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
         General {
-            socket: ::std::cell::RefCell::new(socket),
+            socket,
         }
     }
 

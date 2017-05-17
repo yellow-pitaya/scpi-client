@@ -59,9 +59,9 @@ impl ::Module for Data {
 }
 
 impl Data {
-    pub fn new(socket: Socket) -> Self {
+    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
         Data {
-            socket: ::std::cell::RefCell::new(socket),
+            socket,
         }
     }
 

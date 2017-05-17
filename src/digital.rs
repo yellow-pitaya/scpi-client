@@ -144,9 +144,9 @@ impl ::Module for Digital {
 }
 
 impl Digital {
-    pub fn new(socket: Socket) -> Self {
+    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
         Digital {
-            socket: ::std::cell::RefCell::new(socket),
+            socket,
         }
     }
 
