@@ -454,10 +454,10 @@ mod test {
         generator.set_arbitrary_waveform(::generator::Source::OUT1, vec![1.0, 0.5, 0.2]);
         assert_eq!("SOUR1:TRAC:DATA:DATA 1,0.5,0.2\r\n", rx.recv().unwrap());
 
-        #[cfg(features = "mock")]
+        #[cfg(feature = "mock")]
         assert_eq!(generator.get_arbitrary_waveform(::generator::Source::OUT1), vec![1.0, 0.5, 0.2]);
 
-        #[cfg(not(features = "mock"))]
+        #[cfg(not(feature = "mock"))]
         assert!(generator.get_arbitrary_waveform(::generator::Source::OUT1).len() > 0);
     }
 

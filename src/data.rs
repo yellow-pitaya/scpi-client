@@ -200,10 +200,10 @@ mod test {
     fn test_get_write_pointer() {
         let (_, data) = create_data();
 
-        #[cfg(features = "mock")]
+        #[cfg(feature = "mock")]
         assert_eq!(data.get_write_pointer(), Ok(1024));
 
-        #[cfg(not(features = "mock"))]
+        #[cfg(not(feature = "mock"))]
         assert!(data.get_write_pointer().is_ok());
     }
 
@@ -211,10 +211,10 @@ mod test {
     fn test_get_write_pointer_at_trigger() {
         let (_, data) = create_data();
 
-        #[cfg(features = "mock")]
+        #[cfg(feature = "mock")]
         assert_eq!(data.get_trigger_position(), Ok(512));
 
-        #[cfg(not(features = "mock"))]
+        #[cfg(not(feature = "mock"))]
         assert!(data.get_trigger_position().is_ok());
     }
 
@@ -246,10 +246,10 @@ mod test {
 
         let vec = data.read_slice(::acquire::Source::IN1, 10, 12);
 
-        #[cfg(features = "mock")]
+        #[cfg(feature = "mock")]
         assert_eq!(vec, vec![123.0, 231.0, -231.0]);
 
-        #[cfg(not(features = "mock"))]
+        #[cfg(not(feature = "mock"))]
         assert_eq!(vec.len(), 3);
     }
 
@@ -259,10 +259,10 @@ mod test {
 
         let vec = data.read(::acquire::Source::IN1, 10, 3);
 
-        #[cfg(features = "mock")]
+        #[cfg(feature = "mock")]
         assert_eq!(vec, vec![1.2, 3.2, -1.2]);
 
-        #[cfg(not(features = "mock"))]
+        #[cfg(not(feature = "mock"))]
         assert_eq!(vec.len(), 3);
     }
 
@@ -272,10 +272,10 @@ mod test {
 
         let vec = data.read_all(::acquire::Source::IN1);
 
-        #[cfg(features = "mock")]
-        assert_eq!(vec, vec![]);
+        #[cfg(feature = "mock")]
+        assert_eq!(vec, vec![1.2, 3.2, -1.2]);
 
-        #[cfg(not(features = "mock"))]
+        #[cfg(not(feature = "mock"))]
         assert!(vec.len() > 0);
     }
 
@@ -285,10 +285,10 @@ mod test {
 
         let vec = data.read_oldest(::acquire::Source::IN1, 2);
 
-        #[cfg(features = "mock")]
+        #[cfg(feature = "mock")]
         assert_eq!(vec, vec![3.2, -1.2]);
 
-        #[cfg(not(features = "mock"))]
+        #[cfg(not(feature = "mock"))]
         assert!(vec.len() > 0);
     }
 
@@ -298,10 +298,10 @@ mod test {
 
         let vec = data.read_latest(::acquire::Source::IN1, 2);
 
-        #[cfg(features = "mock")]
+        #[cfg(feature = "mock")]
         assert_eq!(vec, vec![1.2, 3.2]);
 
-        #[cfg(not(features = "mock"))]
+        #[cfg(not(feature = "mock"))]
         assert!(vec.len() > 0);
     }
 
@@ -319,11 +319,11 @@ mod test {
         (rx, ::data::Data::new(socket))
     }
 
-    #[cfg(features = "mock")]
+    #[cfg(feature = "mock")]
     fn acquire_start() {
     }
 
-    #[cfg(not(features = "mock"))]
+    #[cfg(not(feature = "mock"))]
     fn acquire_start() {
         let (addr, _) = ::test::launch_server();
         let socket = ::socket::Socket::new(addr);

@@ -118,10 +118,10 @@ mod test {
         analog.set_value(::analog::OutputPin::AOUT1, 1.34);
         assert_eq!("ANALOG:PIN AOUT1,1.34\r\n", rx.recv().unwrap());
 
-        #[cfg(features = "mock")]
+        #[cfg(feature = "mock")]
         assert_eq!(analog.get_value(::analog::InputPin::AIN1), Ok(1.34));
 
-        #[cfg(not(features = "mock"))]
+        #[cfg(not(feature = "mock"))]
         assert!(analog.get_value(::analog::InputPin::AIN1).is_ok());
     }
 

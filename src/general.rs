@@ -60,7 +60,7 @@ impl General {
 }
 
 #[cfg(test)]
-#[cfg(features = "mock")]
+#[cfg(feature = "mock")]
 mod test {
     macro_rules! general_assert {
         ($f:ident, $e:expr) => {
