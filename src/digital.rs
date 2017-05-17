@@ -195,42 +195,35 @@ impl Digital {
 mod test {
     #[test]
     fn test_reset() {
-        let (rx, digital) = create_digital();
+        let (rx, rp) = ::test::create_client();
 
-        digital.reset();
+        rp.digital.reset();
         assert_eq!("DIG:RST\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_set_direction_in() {
-        let (rx, digital) = create_digital();
+        let (rx, rp) = ::test::create_client();
 
-        digital.set_direction(::digital::Gpio::DIO0_N, ::digital::Direction::IN);
+        rp.digital.set_direction(::digital::Gpio::DIO0_N, ::digital::Direction::IN);
         assert_eq!("DIG:PIN:DIR IN,DIO0_N\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_set_direction_out() {
-        let (rx, digital) = create_digital();
+        let (rx, rp) = ::test::create_client();
 
-        digital.set_direction(::digital::Led::LED0, ::digital::Direction::OUT);
+        rp.digital.set_direction(::digital::Led::LED0, ::digital::Direction::OUT);
         assert_eq!("DIG:PIN:DIR OUT,LED0\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_state() {
-        let (rx, digital) = create_digital();
+        let (rx, rp) = ::test::create_client();
 
-        digital.set_state(::digital::Gpio::DIO0_N, ::digital::State::HIGH);
+        rp.digital.set_state(::digital::Gpio::DIO0_N, ::digital::State::HIGH);
         assert_eq!("DIG:PIN DIO0_N,1\r\n", rx.recv().unwrap());
 
-        assert_eq!(digital.get_state(::digital::Gpio::DIO0_N), Ok(::digital::State::HIGH));
-    }
-
-    fn create_digital() -> (::std::sync::mpsc::Receiver<String>, ::digital::Digital) {
-        let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(addr);
-
-        (rx, ::digital::Digital::new(socket))
+        assert_eq!(rp.digital.get_state(::digital::Gpio::DIO0_N), Ok(::digital::State::HIGH));
     }
 }

@@ -64,9 +64,9 @@ impl General {
 mod test {
     macro_rules! general_assert {
         ($f:ident, $e:expr) => {
-            let (rx, general) = create_general();
+            let (rx, rp) = ::test::create_client();
 
-            general.$f();
+            rp.general.$f();
             assert_eq!($e, rx.recv().unwrap());
         }
     }
@@ -88,21 +88,14 @@ mod test {
 
     #[test]
     fn test_fpga_load_bitstream() {
-        let (rx, general) = create_general();
+        let (rx, rp) = ::test::create_client();
 
-        general.fpga_load_bitstream(0.93);
+        rp.general.fpga_load_bitstream(0.93);
         assert_eq!("RP:FPGABITREAM 0.93\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_enable_digital_loop() {
         general_assert!(enable_digital_loop, "RP:DIG:LOop\r\n");
-    }
-
-    fn create_general() -> (::std::sync::mpsc::Receiver<String>, ::general::General) {
-        let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(addr);
-
-        (rx, ::general::General::new(socket))
     }
 }

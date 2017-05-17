@@ -105,30 +105,23 @@ impl Analog {
 mod test {
     #[test]
     fn test_reset() {
-        let (rx, analog) = create_analog();
+        let (rx, rp) = ::test::create_client();
 
-        analog.reset();
+        rp.analog.reset();
         assert_eq!("ANALOG:RST\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_value() {
-        let (rx, analog) = create_analog();
+        let (rx, rp) = ::test::create_client();
 
-        analog.set_value(::analog::OutputPin::AOUT1, 1.34);
+        rp.analog.set_value(::analog::OutputPin::AOUT1, 1.34);
         assert_eq!("ANALOG:PIN AOUT1,1.34\r\n", rx.recv().unwrap());
 
         #[cfg(feature = "mock")]
-        assert_eq!(analog.get_value(::analog::InputPin::AIN1), Ok(1.34));
+        assert_eq!(rp.analog.get_value(::analog::InputPin::AIN1), Ok(1.34));
 
         #[cfg(not(feature = "mock"))]
-        assert!(analog.get_value(::analog::InputPin::AIN1).is_ok());
-    }
-
-    fn create_analog() -> (::std::sync::mpsc::Receiver<String>, ::analog::Analog) {
-        let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(addr);
-
-        (rx, ::analog::Analog::new(socket))
+        assert!(rp.analog.get_value(::analog::InputPin::AIN1).is_ok());
     }
 }

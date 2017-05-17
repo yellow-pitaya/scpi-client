@@ -337,55 +337,48 @@ mod test {
 
     #[test]
     fn test_status() {
-        let (rx, mut acquire) = create_acquire();
+        let (rx, mut rp) = ::test::create_client();
 
-        acquire.start();
+        rp.acquire.start();
         assert_eq!("ACQ:START\r\n", rx.recv().unwrap());
 
-        acquire.stop();
+        rp.acquire.stop();
         assert_eq!("ACQ:STOP\r\n", rx.recv().unwrap());
 
-        acquire.reset();
+        rp.acquire.reset();
         assert_eq!("ACQ:RST\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_decimation() {
-        let (rx, acquire) = create_acquire();
+        let (rx, rp) = ::test::create_client();
 
-        acquire.set_decimation(::acquire::Decimation::DEC_1);
+        rp.acquire.set_decimation(::acquire::Decimation::DEC_1);
         assert_eq!("ACQ:DEC 1\r\n", rx.recv().unwrap());
 
-        assert_eq!(acquire.get_decimation(), Ok(::acquire::Decimation::DEC_1));
+        assert_eq!(rp.acquire.get_decimation(), Ok(::acquire::Decimation::DEC_1));
     }
 
     #[test]
     fn test_average() {
-        let (rx, acquire) = create_acquire();
+        let (rx, rp) = ::test::create_client();
 
-        acquire.enable_average();
+        rp.acquire.enable_average();
         assert_eq!("ACQ:AVG ON\r\n", rx.recv().unwrap());
 
-        assert_eq!(acquire.is_average_enabled(), true);
+        assert_eq!(rp.acquire.is_average_enabled(), true);
 
-        acquire.disable_average();
+        rp.acquire.disable_average();
         assert_eq!("ACQ:AVG OFF\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_gain() {
-        let (rx, acquire) = create_acquire();
+        let (rx, rp) = ::test::create_client();
 
-        acquire.set_gain(::acquire::Source::IN1, ::acquire::Gain::HV);
+        rp.acquire.set_gain(::acquire::Source::IN1, ::acquire::Gain::HV);
         assert_eq!("ACQ:SOUR1:GAIN HV\r\n", rx.recv().unwrap());
 
-        assert_eq!(acquire.get_gain(::acquire::Source::IN1), Ok(::acquire::Gain::HV));
-    }
-
-    fn create_acquire() -> (::std::sync::mpsc::Receiver<String>, ::acquire::Acquire) {
-        let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(addr);
-
-        (rx, ::acquire::Acquire::new(socket))
+        assert_eq!(rp.acquire.get_gain(::acquire::Source::IN1), Ok(::acquire::Gain::HV));
     }
 }

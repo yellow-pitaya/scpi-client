@@ -362,120 +362,120 @@ impl Generator {
 mod test {
     macro_rules! generator_assert {
         ($f:ident, $e:expr) => {
-            let (rx, generator) = create_generator();
+            let (rx, rp) = ::test::create_client();
 
-            generator.$f();
+            rp.generator.$f();
             assert_eq!($e, rx.recv().unwrap());
         }
     }
 
     #[test]
     fn test_status() {
-        let (rx, generator) = create_generator();
+        let (rx, rp) = ::test::create_client();
 
-        generator.start(::generator::Source::OUT2);
+        rp.generator.start(::generator::Source::OUT2);
         assert_eq!("OUTPUT2:STATE ON\r\n", rx.recv().unwrap());
 
-        assert_eq!(generator.is_started(::generator::Source::OUT2), Ok(true));
+        assert_eq!(rp.generator.is_started(::generator::Source::OUT2), Ok(true));
 
-        generator.stop(::generator::Source::OUT2);
+        rp.generator.stop(::generator::Source::OUT2);
         assert_eq!("OUTPUT2:STATE OFF\r\n", rx.recv().unwrap());
     }
 
     #[test]
     fn test_frequency() {
-        let (rx, generator) = create_generator();
+        let (rx, rp) = ::test::create_client();
 
-        generator.set_frequency(::generator::Source::OUT1, 1_000);
+        rp.generator.set_frequency(::generator::Source::OUT1, 1_000);
         assert_eq!("SOUR1:FREQ:FIX 1000\r\n", rx.recv().unwrap());
 
-        assert_eq!(generator.get_frequency(::generator::Source::OUT1), Ok(1_000));
+        assert_eq!(rp.generator.get_frequency(::generator::Source::OUT1), Ok(1_000));
 
-        assert_eq!(generator.get_frequency(::generator::Source::OUT1), Ok(1_000));
+        assert_eq!(rp.generator.get_frequency(::generator::Source::OUT1), Ok(1_000));
     }
 
     #[test]
     fn test_form() {
-        let (rx, generator) = create_generator();
+        let (rx, rp) = ::test::create_client();
 
-        generator.set_form(::generator::Source::OUT1, ::generator::Form::SINE);
+        rp.generator.set_form(::generator::Source::OUT1, ::generator::Form::SINE);
         assert_eq!("SOUR1:FUNC SINE\r\n", rx.recv().unwrap());
 
-        assert_eq!(generator.get_form(::generator::Source::OUT1), Ok(::generator::Form::SINE));
+        assert_eq!(rp.generator.get_form(::generator::Source::OUT1), Ok(::generator::Form::SINE));
     }
 
     #[test]
     fn test_amplitude() {
-        let (rx, generator) = create_generator();
+        let (rx, rp) = ::test::create_client();
 
-        generator.start(::generator::Source::OUT1);
+        rp.generator.start(::generator::Source::OUT1);
         assert_eq!("OUTPUT1:STATE ON\r\n", rx.recv().unwrap());
 
-        generator.set_amplitude(::generator::Source::OUT1, -1.1);
+        rp.generator.set_amplitude(::generator::Source::OUT1, -1.1);
         assert_eq!("SOUR1:VOLT -1.1\r\n", rx.recv().unwrap());
 
-        assert_eq!(generator.get_amplitude(::generator::Source::OUT1), Ok(-1.1));
+        assert_eq!(rp.generator.get_amplitude(::generator::Source::OUT1), Ok(-1.1));
     }
 
     #[test]
     fn test_offset() {
-        let (rx, generator) = create_generator();
+        let (rx, rp) = ::test::create_client();
 
-        generator.set_offset(::generator::Source::OUT1, -1.2);
+        rp.generator.set_offset(::generator::Source::OUT1, -1.2);
         assert_eq!("SOUR1:VOLT:OFFS -1.2\r\n", rx.recv().unwrap());
 
-        assert_eq!(generator.get_offset(::generator::Source::OUT1), Ok(1.2));
+        assert_eq!(rp.generator.get_offset(::generator::Source::OUT1), Ok(1.2));
     }
 
     #[test]
     fn test_phase() {
-        let (rx, generator) = create_generator();
+        let (rx, rp) = ::test::create_client();
 
-        generator.set_phase(::generator::Source::OUT1, 180);
+        rp.generator.set_phase(::generator::Source::OUT1, 180);
         assert_eq!("SOUR1:PHAS 180\r\n", rx.recv().unwrap());
 
-        assert_eq!(generator.get_phase(::generator::Source::OUT1), Ok(180));
+        assert_eq!(rp.generator.get_phase(::generator::Source::OUT1), Ok(180));
     }
 
     #[test]
     fn test_duty_cycle() {
-        let (rx, generator) = create_generator();
+        let (rx, rp) = ::test::create_client();
 
-        generator.set_duty_cycle(::generator::Source::OUT1, 1.0);
+        rp.generator.set_duty_cycle(::generator::Source::OUT1, 1.0);
         assert_eq!("SOUR1:DCYC 1\r\n", rx.recv().unwrap());
 
-        assert_eq!(generator.get_duty_cycle(::generator::Source::OUT1), Ok(1.0));
+        assert_eq!(rp.generator.get_duty_cycle(::generator::Source::OUT1), Ok(1.0));
     }
 
     #[test]
     fn test_arbitrary_waveform() {
-        let (rx, generator) = create_generator();
+        let (rx, rp) = ::test::create_client();
 
-        generator.set_arbitrary_waveform(::generator::Source::OUT1, vec![1.0, 0.5, 0.2]);
+        rp.generator.set_arbitrary_waveform(::generator::Source::OUT1, vec![1.0, 0.5, 0.2]);
         assert_eq!("SOUR1:TRAC:DATA:DATA 1,0.5,0.2\r\n", rx.recv().unwrap());
 
         #[cfg(feature = "mock")]
-        assert_eq!(generator.get_arbitrary_waveform(::generator::Source::OUT1), vec![1.0, 0.5, 0.2]);
+        assert_eq!(rp.generator.get_arbitrary_waveform(::generator::Source::OUT1), vec![1.0, 0.5, 0.2]);
 
         #[cfg(not(feature = "mock"))]
-        assert!(generator.get_arbitrary_waveform(::generator::Source::OUT1).len() > 0);
+        assert!(rp.generator.get_arbitrary_waveform(::generator::Source::OUT1).len() > 0);
     }
 
     #[test]
     fn test_trigger_source() {
-        let (rx, generator) = create_generator();
+        let (rx, rp) = ::test::create_client();
 
-        generator.set_trigger_source(::generator::Source::OUT1, ::generator::TriggerSource::EXT_NE);
+        rp.generator.set_trigger_source(::generator::Source::OUT1, ::generator::TriggerSource::EXT_NE);
         assert_eq!("SOUR1:TRIG:SOUR EXT_NE\r\n", rx.recv().unwrap());
 
-        assert_eq!(generator.get_trigger_source(::generator::Source::OUT1), Ok(::generator::TriggerSource::EXT_NE));
+        assert_eq!(rp.generator.get_trigger_source(::generator::Source::OUT1), Ok(::generator::TriggerSource::EXT_NE));
     }
 
     #[test]
     fn test_trigger() {
-        let (rx, generator) = create_generator();
+        let (rx, rp) = ::test::create_client();
 
-        generator.trigger(::generator::Source::OUT1);
+        rp.generator.trigger(::generator::Source::OUT1);
         assert_eq!("SOUR1:TRIG:IMM\r\n", rx.recv().unwrap());
     }
 
@@ -487,12 +487,5 @@ mod test {
     #[test]
     fn test_reset() {
         generator_assert!(reset, "GEN:RST\r\n");
-    }
-
-    fn create_generator() -> (::std::sync::mpsc::Receiver<String>, ::generator::Generator) {
-        let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(addr);
-
-        (rx, ::generator::Generator::new(socket))
     }
 }

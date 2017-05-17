@@ -71,6 +71,12 @@ mod test {
     use ::std::io::Read;
     use ::std::io::Write;
 
+    pub fn create_client() -> (::std::sync::mpsc::Receiver<String>, ::Redpitaya) {
+        let (addr, rx) = ::test::launch_server();
+
+        (rx, ::Redpitaya::new(addr))
+    }
+
     pub fn launch_server() -> (::std::net::SocketAddr, ::std::sync::mpsc::Receiver<String>) {
         let addr = next_test_ip4();
         let listener = ::std::net::TcpListener::bind(format!("{}", addr))
@@ -190,7 +196,7 @@ mod test {
             "ACQ:TRIG:LEV?" => "123mV",
             "ANALOG:PIN? AIN1" => "1.34",
             "DIG:PIN? DIO0_N" => "1",
-            "OUTPUT:STATE?" => "1",
+            "OUTPUT2:STATE?" => "ON",
             "SOUR1:DCYC?" => "1.0",
             "SOUR1:FREQ:FIX?" => "1000",
             "SOUR2:FREQ:FIX?" => "8.82604e+06",

@@ -146,48 +146,41 @@ impl Burst {
 mod test {
     #[test]
     fn test_mode() {
-        let (rx, burst) = create_burst();
+        let (rx, rp) = ::test::create_client();
 
-        burst.set_mode(::burst::Source::OUT2, ::burst::Mode::BURST);
+        rp.burst.set_mode(::burst::Source::OUT2, ::burst::Mode::BURST);
         assert_eq!("SOUR2:BURS:STAT BURST\r\n", rx.recv().unwrap());
 
-        assert_eq!(burst.get_mode(::burst::Source::OUT2), Ok(::burst::Mode::BURST));
+        assert_eq!(rp.burst.get_mode(::burst::Source::OUT2), Ok(::burst::Mode::BURST));
     }
 
     #[test]
     fn test_count() {
-        let (rx, burst) = create_burst();
+        let (rx, rp) = ::test::create_client();
 
-        burst.set_count(::burst::Source::OUT2, 3);
+        rp.burst.set_count(::burst::Source::OUT2, 3);
         assert_eq!("SOUR2:BURS:NCYC 3\r\n", rx.recv().unwrap());
 
-        assert_eq!(burst.get_count(::burst::Source::OUT2), Ok(3));
+        assert_eq!(rp.burst.get_count(::burst::Source::OUT2), Ok(3));
     }
 
     #[test]
     fn test_repetitions() {
-        let (rx, burst) = create_burst();
+        let (rx, rp) = ::test::create_client();
 
-        burst.set_repetitions(::burst::Source::OUT1, 5);
+        rp.burst.set_repetitions(::burst::Source::OUT1, 5);
         assert_eq!("SOUR1:BURS:NOR 5\r\n", rx.recv().unwrap());
 
-        assert_eq!(burst.get_repetitions(::burst::Source::OUT1), Ok(5));
+        assert_eq!(rp.burst.get_repetitions(::burst::Source::OUT1), Ok(5));
     }
 
     #[test]
     fn test_period() {
-        let (rx, burst) = create_burst();
+        let (rx, rp) = ::test::create_client();
 
-        burst.set_period(::burst::Source::OUT2, 1_000_000);
+        rp.burst.set_period(::burst::Source::OUT2, 1_000_000);
         assert_eq!("SOUR2:BURS:INT:PER 1000000\r\n", rx.recv().unwrap());
 
-        assert_eq!(burst.get_period(::burst::Source::OUT2), Ok(1_000_000));
-    }
-
-    fn create_burst() -> (::std::sync::mpsc::Receiver<String>, ::burst::Burst) {
-        let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(addr);
-
-        (rx, ::burst::Burst::new(socket))
+        assert_eq!(rp.burst.get_period(::burst::Source::OUT2), Ok(1_000_000));
     }
 }

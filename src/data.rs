@@ -198,53 +198,53 @@ impl Data {
 mod test {
     #[test]
     fn test_get_write_pointer() {
-        let (_, data) = create_data();
+        let (_, rp) = ::test::create_client();
 
         #[cfg(feature = "mock")]
-        assert_eq!(data.get_write_pointer(), Ok(1024));
+        assert_eq!(rp.data.get_write_pointer(), Ok(1024));
 
         #[cfg(not(feature = "mock"))]
-        assert!(data.get_write_pointer().is_ok());
+        assert!(rp.data.get_write_pointer().is_ok());
     }
 
     #[test]
     fn test_get_write_pointer_at_trigger() {
-        let (_, data) = create_data();
+        let (_, rp) = ::test::create_client();
 
         #[cfg(feature = "mock")]
-        assert_eq!(data.get_trigger_position(), Ok(512));
+        assert_eq!(rp.data.get_trigger_position(), Ok(512));
 
         #[cfg(not(feature = "mock"))]
-        assert!(data.get_trigger_position().is_ok());
+        assert!(rp.data.get_trigger_position().is_ok());
     }
 
     #[test]
     fn test_units() {
-        let (rx, data) = create_data();
+        let (rx, rp) = ::test::create_client();
 
-        data.set_units(::data::Unit::RAW);
+        rp.data.set_units(::data::Unit::RAW);
         assert_eq!("ACQ:DATA:UNITS RAW\r\n", rx.recv().unwrap());
 
-        assert_eq!(data.get_units(), Ok(::data::Unit::RAW));
+        assert_eq!(rp.data.get_units(), Ok(::data::Unit::RAW));
     }
 
     #[test]
     fn test_set_format() {
-        let (rx, data) = create_data();
+        let (rx, rp) = ::test::create_client();
 
-        data.set_format(::data::Format::BIN);
+        rp.data.set_format(::data::Format::BIN);
         assert_eq!("ACQ:DATA:FORMAT BIN\r\n", rx.recv().unwrap());
 
-        data.set_format(::data::Format::ASCII);
+        rp.data.set_format(::data::Format::ASCII);
     }
 
     #[test]
     fn test_read_slice() {
         acquire_start();
 
-        let (_, data) = create_data();
+        let (_, rp) = ::test::create_client();
 
-        let vec = data.read_slice(::acquire::Source::IN1, 10, 12);
+        let vec = rp.data.read_slice(::acquire::Source::IN1, 10, 12);
 
         #[cfg(feature = "mock")]
         assert_eq!(vec, vec![123.0, 231.0, -231.0]);
@@ -255,9 +255,9 @@ mod test {
 
     #[test]
     fn test_read() {
-        let (_, data) = create_data();
+        let (_, rp) = ::test::create_client();
 
-        let vec = data.read(::acquire::Source::IN1, 10, 3);
+        let vec = rp.data.read(::acquire::Source::IN1, 10, 3);
 
         #[cfg(feature = "mock")]
         assert_eq!(vec, vec![1.2, 3.2, -1.2]);
@@ -268,9 +268,9 @@ mod test {
 
     #[test]
     fn test_read_all() {
-        let (_, data) = create_data();
+        let (_, rp) = ::test::create_client();
 
-        let vec = data.read_all(::acquire::Source::IN1);
+        let vec = rp.data.read_all(::acquire::Source::IN1);
 
         #[cfg(feature = "mock")]
         assert_eq!(vec, vec![1.2, 3.2, -1.2]);
@@ -281,9 +281,9 @@ mod test {
 
     #[test]
     fn test_read_oldest() {
-        let (_, data) = create_data();
+        let (_, rp) = ::test::create_client();
 
-        let vec = data.read_oldest(::acquire::Source::IN1, 2);
+        let vec = rp.data.read_oldest(::acquire::Source::IN1, 2);
 
         #[cfg(feature = "mock")]
         assert_eq!(vec, vec![3.2, -1.2]);
@@ -294,9 +294,9 @@ mod test {
 
     #[test]
     fn test_read_latest() {
-        let (_, data) = create_data();
+        let (_, rp) = ::test::create_client();
 
-        let vec = data.read_latest(::acquire::Source::IN1, 2);
+        let vec = rp.data.read_latest(::acquire::Source::IN1, 2);
 
         #[cfg(feature = "mock")]
         assert_eq!(vec, vec![1.2, 3.2]);
@@ -307,16 +307,9 @@ mod test {
 
     #[test]
     fn test_buffer_size() {
-        let (_, data) = create_data();
+        let (_, rp) = ::test::create_client();
 
-        assert_eq!(data.buffer_size(), Ok(16384));
-    }
-
-    fn create_data() -> (::std::sync::mpsc::Receiver<String>, ::data::Data) {
-        let (addr, rx) = ::test::launch_server();
-        let socket = ::socket::Socket::new(addr);
-
-        (rx, ::data::Data::new(socket))
+        assert_eq!(rp.data.buffer_size(), Ok(16384));
     }
 
     #[cfg(feature = "mock")]
