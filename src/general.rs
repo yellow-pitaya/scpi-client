@@ -3,17 +3,14 @@ use socket::Socket;
 
 #[derive(Clone)]
 pub struct General {
-    socket: ::std::cell::RefCell<Socket>,
+    socket: Socket,
 }
 
 impl ::Module for General {
-    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
-        self.socket.borrow_mut()
-    }
 }
 
 impl General {
-    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
+    pub fn new(socket: Socket) -> Self {
         General {
             socket,
         }
@@ -24,14 +21,14 @@ impl General {
      * library method.
      */
     pub fn init(&self) {
-        self.send("RP:INit");
+        self.socket.send("RP:INit");
     }
 
     /**
      * Resets all modules.
      */
     pub fn reset(&self) {
-        self.send("RP:REset");
+        self.socket.send("RP:REset");
     }
 
     /**
@@ -39,14 +36,14 @@ impl General {
      * not used anymore. Typically before application exits.
      */
     pub fn release(&self) {
-        self.send("RP:RELease");
+        self.socket.send("RP:RELease");
     }
 
     /**
      * Load specified bitstream version (0.93 or 0.94) in the fpga.
      */
     pub fn fpga_load_bitstream(&self, version: f32) {
-        self.send(format!("RP:FPGABITREAM {}", version));
+        self.socket.send(format!("RP:FPGABITREAM {}", version));
     }
 
     /**
@@ -55,7 +52,7 @@ impl General {
      * This internally connect output to input.
      */
     pub fn enable_digital_loop(&self) {
-        self.send("RP:DIG:LOop");
+        self.socket.send("RP:DIG:LOop");
     }
 }
 

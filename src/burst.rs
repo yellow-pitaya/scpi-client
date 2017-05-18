@@ -50,17 +50,14 @@ impl ::std::str::FromStr for Mode {
 
 #[derive(Clone)]
 pub struct Burst {
-    socket: ::std::cell::RefCell<Socket>,
+    socket: Socket,
 }
 
 impl ::Module for Burst {
-    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
-        self.socket.borrow_mut()
-    }
 }
 
 impl Burst {
-    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
+    pub fn new(socket: Socket) -> Self {
         Burst {
             socket,
         }
@@ -73,14 +70,14 @@ impl Burst {
      * is P.
      */
     pub fn set_mode(&self, source: Source, mode: Mode) {
-        self.send(format!("{}:BURS:STAT {}", Into::<String>::into(source), Into::<String>::into(mode)));
+        self.socket.send(format!("{}:BURS:STAT {}", Into::<String>::into(source), Into::<String>::into(mode)));
     }
 
     /**
      * Set burst (pulse) mode.
      */
     pub fn get_mode(&self, source: Source) -> Result<Mode, String> {
-        self.send(format!("{}:BURS:STAT?", Into::<String>::into(source)))
+        self.socket.send(format!("{}:BURS:STAT?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -89,14 +86,14 @@ impl Burst {
      * Set N number of periods in one burst.
      */
     pub fn set_count(&self, source: Source, count: u32) {
-        self.send(format!("{}:BURS:NCYC {}", Into::<String>::into(source), count));
+        self.socket.send(format!("{}:BURS:NCYC {}", Into::<String>::into(source), count));
     }
 
     /**
      * Get number of periods in one burst.
      */
     pub fn get_count(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:BURS:NCYC?", Into::<String>::into(source)))
+        self.socket.send(format!("{}:BURS:NCYC?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -105,14 +102,14 @@ impl Burst {
      * Set R number of repeated bursts.
      */
     pub fn set_repetitions(&self, source: Source, repetitions: u32) {
-        self.send(format!("{}:BURS:NOR {}", Into::<String>::into(source), repetitions));
+        self.socket.send(format!("{}:BURS:NOR {}", Into::<String>::into(source), repetitions));
     }
 
     /**
      * Get number of repeated bursts.
      */
     pub fn get_repetitions(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:BURS:NOR?", Into::<String>::into(source)))
+        self.socket.send(format!("{}:BURS:NOR?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -123,7 +120,7 @@ impl Burst {
      * This includes the signal and delay.
      */
     pub fn set_period(&self, source: Source, period: u32) {
-        self.send(format!("{}:BURS:INT:PER {}", Into::<String>::into(source), period));
+        self.socket.send(format!("{}:BURS:INT:PER {}", Into::<String>::into(source), period));
     }
 
     /**
@@ -132,7 +129,7 @@ impl Burst {
      * This includes the signal and delay.
      */
     pub fn get_period(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:BURS:INT:PER?", Into::<String>::into(source)))
+        self.socket.send(format!("{}:BURS:INT:PER?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }

@@ -134,17 +134,14 @@ impl ::std::convert::Into<String> for Direction {
 
 #[derive(Clone)]
 pub struct Digital {
-    socket: ::std::cell::RefCell<Socket>,
+    socket: Socket,
 }
 
 impl ::Module for Digital {
-    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
-        self.socket.borrow_mut()
-    }
 }
 
 impl Digital {
-    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
+    pub fn new(socket: Socket) -> Self {
         Digital {
             socket,
         }
@@ -157,7 +154,7 @@ impl Digital {
      * LEDs are set to LOW/OFF
      */
     pub fn reset(&self) {
-        self.send("DIG:RST");
+        self.socket.send("DIG:RST");
     }
 
     /**
@@ -166,7 +163,7 @@ impl Digital {
     pub fn set_direction<P>(&self, pin: P, direction: Direction)
         where P: Pin
     {
-        self.send(format!("DIG:PIN:DIR {},{}", Into::<String>::into(direction), Into::<String>::into(pin)));
+        self.socket.send(format!("DIG:PIN:DIR {},{}", Into::<String>::into(direction), Into::<String>::into(pin)));
     }
 
     /**
@@ -175,7 +172,7 @@ impl Digital {
     pub fn set_state<P>(&self, pin: P, state: State)
         where P: Pin
     {
-        self.send(format!("DIG:PIN {},{}", Into::<String>::into(pin), Into::<String>::into(state)));
+        self.socket.send(format!("DIG:PIN {},{}", Into::<String>::into(pin), Into::<String>::into(state)));
     }
 
     /**
@@ -184,7 +181,7 @@ impl Digital {
     pub fn get_state<P>(&self, pin: P) -> Result<State, <State as ::std::str::FromStr>::Err>
         where P: Pin
     {
-        self.send(format!("DIG:PIN? {}", Into::<String>::into(pin)))
+        self.socket.send(format!("DIG:PIN? {}", Into::<String>::into(pin)))
             .unwrap()
             .parse()
     }

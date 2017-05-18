@@ -13,7 +13,7 @@ impl Socket {
         }
     }
 
-    pub fn send<D>(&mut self, command: D) -> Option<String>
+    pub fn send<D>(&self, command: D) -> Option<String>
         where D: ::std::fmt::Display
     {
         let mut stream = match ::std::net::TcpStream::connect(self.addr.clone()) {
@@ -35,7 +35,7 @@ impl Socket {
         }
     }
 
-    fn receive(&mut self, stream: ::std::net::TcpStream) -> String {
+    fn receive(&self, stream: ::std::net::TcpStream) -> String {
         let mut message = String::new();
         let mut reader = ::std::io::BufReader::new(stream);
 

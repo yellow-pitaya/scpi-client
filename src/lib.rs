@@ -12,15 +12,6 @@ pub mod trigger;
 pub mod socket;
 
 trait Module {
-    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket>;
-
-    fn send<D>(&self, message: D) -> Option<String>
-        where D: ::std::fmt::Display
-    {
-        let mut socket = self.get_socket();
-
-        socket.send(message)
-    }
 }
 
 #[derive(Clone)]
@@ -38,7 +29,7 @@ pub struct Redpitaya {
 impl Redpitaya {
     pub fn new(addr: String) -> Redpitaya
     {
-        let socket = ::std::cell::RefCell::new(socket::Socket::new(addr));
+        let socket = socket::Socket::new(addr);
 
         Redpitaya {
             acquire: acquire::Acquire::new(socket.clone()),
@@ -70,7 +61,7 @@ mod test {
         (rx, ::Redpitaya::new(addr))
     }
 
-    pub fn launch_server() -> (::std::net::SocketAddr, ::std::sync::mpsc::Receiver<String>) {
+    pub fn launch_server() -> (String, ::std::sync::mpsc::Receiver<String>) {
         let addr = next_test_ip4();
         let listener = ::std::net::TcpListener::bind(format!("{}", addr))
             .unwrap();
@@ -94,9 +85,10 @@ mod test {
 
     static PORT: ::std::sync::atomic::AtomicUsize = ::std::sync::atomic::ATOMIC_USIZE_INIT;
 
-    fn next_test_ip4() -> ::std::net::SocketAddr {
+    fn next_test_ip4() -> String {
         let port = PORT.fetch_add(1, ::std::sync::atomic::Ordering::SeqCst) as u16 + base_port();
-        ::std::net::SocketAddr::V4(::std::net::SocketAddrV4::new(::std::net::Ipv4Addr::new(127, 0, 0, 1), port))
+
+        format!("127.0.0.1:{}", port)
     }
 
     // The bots run multiple builds at the same time, and these builds

@@ -54,17 +54,14 @@ impl ::std::convert::Into<String> for InputPin {
 
 #[derive(Clone)]
 pub struct Analog {
-    socket: ::std::cell::RefCell<Socket>,
+    socket: Socket,
 }
 
 impl ::Module for Analog {
-    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
-        self.socket.borrow_mut()
-    }
 }
 
 impl Analog {
-    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
+    pub fn new(socket: Socket) -> Self {
         Analog {
             socket,
         }
@@ -74,7 +71,7 @@ impl Analog {
      * Sets analog outputs to default values (0V).
      */
     pub fn reset(&self) {
-        self.send("ANALOG:RST");
+        self.socket.send("ANALOG:RST");
     }
 
     /**
@@ -83,7 +80,7 @@ impl Analog {
      * Voltage range of slow analog outputs is: 0 - 1.8 V
      */
     pub fn set_value(&self, pin: OutputPin, value: f32) {
-        self.send(format!("ANALOG:PIN {},{}", Into::<String>::into(pin), value));
+        self.socket.send(format!("ANALOG:PIN {},{}", Into::<String>::into(pin), value));
     }
 
     /**
@@ -94,7 +91,7 @@ impl Analog {
     pub fn get_value<P>(&self, pin: P) -> Result<f32, <f32 as ::std::str::FromStr>::Err>
         where P: Pin
     {
-        self.send(format!("ANALOG:PIN? {}", Into::<String>::into(pin)))
+        self.socket.send(format!("ANALOG:PIN? {}", Into::<String>::into(pin)))
             .unwrap()
             .parse()
     }

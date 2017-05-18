@@ -136,17 +136,14 @@ impl ::std::fmt::Display for Source {
 
 #[derive(Clone)]
 pub struct Generator {
-    socket: ::std::cell::RefCell<Socket>,
+    socket: Socket,
 }
 
 impl ::Module for Generator {
-    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
-        self.socket.borrow_mut()
-    }
 }
 
 impl Generator {
-    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
+    pub fn new(socket: Socket) -> Self {
         Generator {
             socket,
         }
@@ -172,7 +169,7 @@ impl Generator {
             Source::OUT2 => "OUTPUT2",
         };
 
-        self.send(format!("{}:STATE {}", output, state));
+        self.socket.send(format!("{}:STATE {}", output, state));
     }
 
     pub fn is_started(&self, source: Source) -> bool {
@@ -181,21 +178,21 @@ impl Generator {
             Source::OUT2 => "OUTPUT2",
         };
 
-        self.send(format!("{}:STATE?", output)) == Some("ON".to_owned())
+        self.socket.send(format!("{}:STATE?", output)) == Some("ON".to_owned())
     }
 
     /**
      * Set frequency of fast analog outputs.
      */
     pub fn set_frequency(&self, source: Source, frequency: u32) {
-        self.send(format!("{}:FREQ:FIX {}", Into::<String>::into(source), frequency));
+        self.socket.send(format!("{}:FREQ:FIX {}", Into::<String>::into(source), frequency));
     }
 
     /**
      * Get frequency of fast analog outputs.
      */
     pub fn get_frequency(&self, source: Source) -> Result<u32, <f32 as ::std::str::FromStr>::Err> {
-        let value: f32 = self.send(format!("{}:FREQ:FIX?", Into::<String>::into(source)))
+        let value: f32 = self.socket.send(format!("{}:FREQ:FIX?", Into::<String>::into(source)))
             .unwrap()
             .parse()?;
 
@@ -208,11 +205,11 @@ impl Generator {
      * PWM doesn’t work https://github.com/RedPitaya/RedPitaya/issues/81
      */
     pub fn set_form(&self, source: Source, form: Form) {
-        self.send(format!("{}:FUNC {}", Into::<String>::into(source), Into::<String>::into(form)));
+        self.socket.send(format!("{}:FUNC {}", Into::<String>::into(source), Into::<String>::into(form)));
     }
 
     pub fn get_form(&self, source: Source) -> Result<Form, String> {
-        self.send(format!("{}:FUNC?", Into::<String>::into(source)))
+        self.socket.send(format!("{}:FUNC?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -223,14 +220,14 @@ impl Generator {
      * Amplitude + offset value must be less than maximum output range ± 1V
      */
     pub fn set_amplitude(&self, source: Source, amplitude: f32) {
-        self.send(format!("{}:VOLT {}", Into::<String>::into(source), amplitude));
+        self.socket.send(format!("{}:VOLT {}", Into::<String>::into(source), amplitude));
     }
 
     /**
      * Get amplitude voltage of fast analog outputs.
      */
     pub fn get_amplitude(&self, source: Source) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:VOLT?", Into::<String>::into(source)))
+        self.socket.send(format!("{}:VOLT?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -241,14 +238,14 @@ impl Generator {
      * Amplitude + offset value must be less than maximum output range ± 1V
      */
     pub fn set_offset(&self, source: Source, offset: f32) {
-        self.send(format!("{}:VOLT:OFFS {}", Into::<String>::into(source), offset));
+        self.socket.send(format!("{}:VOLT:OFFS {}", Into::<String>::into(source), offset));
     }
 
     /**
      * Get offset voltage of fast analog outputs.
      */
     pub fn get_offset(&self, source: Source) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:VOLT:OFFS?", Into::<String>::into(source)))
+        self.socket.send(format!("{}:VOLT:OFFS?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -257,14 +254,14 @@ impl Generator {
      * Set phase of fast analog outputs.
      */
     pub fn set_phase(&self, source: Source, phase: i32) {
-        self.send(format!("{}:PHAS {}", Into::<String>::into(source), phase));
+        self.socket.send(format!("{}:PHAS {}", Into::<String>::into(source), phase));
     }
 
     /**
      * Get phase of fast analog outputs.
      */
     pub fn get_phase(&self, source: Source) -> Result<i32, <i32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:PHAS?", Into::<String>::into(source)))
+        self.socket.send(format!("{}:PHAS?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -273,14 +270,14 @@ impl Generator {
      * Set duty cycle of PWM waveform.
      */
     pub fn set_duty_cycle(&self, source: Source, dcyc: f32) {
-        self.send(format!("{}:DCYC {}", Into::<String>::into(source), dcyc));
+        self.socket.send(format!("{}:DCYC {}", Into::<String>::into(source), dcyc));
     }
 
     /**
      * Get duty cycle of PWM waveform.
      */
     pub fn get_duty_cycle(&self, source: Source) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:DCYC?", Into::<String>::into(source)))
+        self.socket.send(format!("{}:DCYC?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -295,14 +292,14 @@ impl Generator {
             });
         data.pop();
 
-        self.send(format!("{}:TRAC:DATA:DATA {}", Into::<String>::into(source), data));
+        self.socket.send(format!("{}:TRAC:DATA:DATA {}", Into::<String>::into(source), data));
     }
 
     /**
      * Get data for arbitrary waveform generation.
      */
     pub fn get_arbitrary_waveform(&self, source: Source) -> Vec<f32> {
-        let data = self.send(format!("{}:TRAC:DATA:DATA?", Into::<String>::into(source)))
+        let data = self.socket.send(format!("{}:TRAC:DATA:DATA?", Into::<String>::into(source)))
             .unwrap();
 
         data.trim_matches(|c| c == '{' || c == '}')
@@ -315,14 +312,14 @@ impl Generator {
      * Set trigger source for selected signal.
      */
     pub fn set_trigger_source(&self, source: Source, trigger: TriggerSource) {
-        self.send(format!("{}:TRIG:SOUR {}", Into::<String>::into(source), Into::<String>::into(trigger)));
+        self.socket.send(format!("{}:TRIG:SOUR {}", Into::<String>::into(source), Into::<String>::into(trigger)));
     }
 
     /**
      * Get trigger source for selected signal.
      */
     pub fn get_trigger_source(&self, source: Source) -> Result<TriggerSource, String> {
-        self.send(format!("{}:TRIG:SOUR?", Into::<String>::into(source)))
+        self.socket.send(format!("{}:TRIG:SOUR?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -331,21 +328,21 @@ impl Generator {
      * Triggers selected source immediately.
      */
     pub fn trigger(&self, source: Source) {
-        self.send(format!("{}:TRIG:IMM", Into::<String>::into(source)));
+        self.socket.send(format!("{}:TRIG:IMM", Into::<String>::into(source)));
     }
 
     /**
      * Triggers both sources immediately.
      */
     pub fn trigger_all(&self) {
-        self.send("TRIG:IMM");
+        self.socket.send("TRIG:IMM");
     }
 
     /**
      * Reset generator to default settings.
      */
     pub fn reset(&self) {
-        self.send("GEN:RST");
+        self.socket.send("GEN:RST");
     }
 }
 

@@ -209,17 +209,14 @@ impl ::std::str::FromStr for SamplingRate {
 
 #[derive(Clone)]
 pub struct Acquire {
-    socket: ::std::cell::RefCell<Socket>,
+    socket: Socket,
 }
 
 impl ::Module for Acquire {
-    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
-        self.socket.borrow_mut()
-    }
 }
 
 impl Acquire {
-    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
+    pub fn new(socket: Socket) -> Self {
         Acquire {
             socket,
         }
@@ -229,35 +226,35 @@ impl Acquire {
      * Starts acquisition.
      */
     pub fn start(&mut self) {
-        self.send("ACQ:START");
+        self.socket.send("ACQ:START");
     }
 
     /**
      * Stops acquisition.
      */
     pub fn stop(&mut self) {
-        self.send("ACQ:STOP");
+        self.socket.send("ACQ:STOP");
     }
 
     /**
      * Stops acquisition and sets all parameters to default values.
      */
     pub fn reset(&self) {
-        self.send("ACQ:RST");
+        self.socket.send("ACQ:RST");
     }
 
     /**
      * Set decimation factor.
      */
     pub fn set_decimation(&self, decimation: Decimation) {
-        self.send(format!("ACQ:DEC {}", Into::<String>::into(decimation)));
+        self.socket.send(format!("ACQ:DEC {}", Into::<String>::into(decimation)));
     }
 
     /**
      * Get decimation factor.
      */
     pub fn get_decimation(&self) -> Result<Decimation, String> {
-        self.send("ACQ:DEC?")
+        self.socket.send("ACQ:DEC?")
             .unwrap()
             .parse()
     }
@@ -271,7 +268,7 @@ impl Acquire {
      * See https://github.com/RedPitaya/RedPitaya/pull/110
      */
     pub fn get_sampling_rate(&self) -> Result<SamplingRate, String> {
-        self.send("ACQ:SRAT?")
+        self.socket.send("ACQ:SRAT?")
             .unwrap()
             .parse()
     }
@@ -280,21 +277,21 @@ impl Acquire {
      * Enable averaging.
      */
     pub fn enable_average(&self) {
-        self.send("ACQ:AVG ON");
+        self.socket.send("ACQ:AVG ON");
     }
 
     /**
      * Disable averaging.
      */
     pub fn disable_average(&self) {
-        self.send("ACQ:AVG OFF");
+        self.socket.send("ACQ:AVG OFF");
     }
 
     /**
      * Get averaging status.
      */
     pub fn is_average_enabled(&self) -> bool {
-        let message = self.send("ACQ:AVG?")
+        let message = self.socket.send("ACQ:AVG?")
             .unwrap();
 
         match message.as_str() {
@@ -309,14 +306,14 @@ impl Acquire {
      * This gain is referring to jumper settings on Red Pitaya fast analog inputs.
      */
     pub fn set_gain(&self, source: Source, gain: Gain) {
-        self.send(format!("ACQ:{}:GAIN {}", Into::<String>::into(source), Into::<String>::into(gain)));
+        self.socket.send(format!("ACQ:{}:GAIN {}", Into::<String>::into(source), Into::<String>::into(gain)));
     }
 
     /**
      * Get gain settings to HIGH or LOW.
      */
     pub fn get_gain(&self, source: Source) -> Result<Gain, String> {
-        self.send(format!("ACQ:{}:GAIN?", Into::<String>::into(source)))
+        self.socket.send(format!("ACQ:{}:GAIN?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }

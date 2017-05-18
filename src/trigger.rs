@@ -54,17 +54,14 @@ impl ::std::str::FromStr for State {
 
 #[derive(Clone)]
 pub struct Trigger {
-    socket: ::std::cell::RefCell<Socket>,
+    socket: Socket,
 }
 
 impl ::Module for Trigger {
-    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
-        self.socket.borrow_mut()
-    }
 }
 
 impl Trigger {
-    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
+    pub fn new(socket: Socket) -> Self {
         Trigger {
             socket,
         }
@@ -76,7 +73,7 @@ impl Trigger {
      * https://forum.redpitaya.com/viewtopic.php?f=14&t=1014
      */
     pub fn enable(&self, source: Source) {
-        self.send(format!("ACQ:TRIG {}", Into::<String>::into(source)));
+        self.socket.send(format!("ACQ:TRIG {}", Into::<String>::into(source)));
     }
 
     /**
@@ -92,7 +89,7 @@ impl Trigger {
      *  If DISABLED -> TD else WAIT.
      */
     pub fn get_state(&self) -> Result<State, String> {
-        self.send("ACQ:TRIG:STAT?")
+        self.socket.send("ACQ:TRIG:STAT?")
             .unwrap()
             .parse()
     }
@@ -101,14 +98,14 @@ impl Trigger {
      * Set trigger delay in samples.
      */
     pub fn set_delay(&self, delay: u16) {
-        self.send(format!("ACQ:TRIG:DLY {}", delay));
+        self.socket.send(format!("ACQ:TRIG:DLY {}", delay));
     }
 
     /**
      * Get trigger delay in samples.
      */
     pub fn get_delay(&self) -> Result<u16, <u16 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:TRIG:DLY?")
+        self.socket.send("ACQ:TRIG:DLY?")
             .unwrap()
             .parse()
     }
@@ -117,14 +114,14 @@ impl Trigger {
      * Set trigger delay in ns.
      */
     pub fn set_delay_in_ns(&self, delay: u8) {
-        self.send(format!("ACQ:TRIG:DLY:NS {}", delay));
+        self.socket.send(format!("ACQ:TRIG:DLY:NS {}", delay));
     }
 
     /**
      * Get trigger delay in ns.
      */
     pub fn get_delay_in_ns(&self) -> Result<u8, <u8 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:TRIG:DLY:NS?")
+        self.socket.send("ACQ:TRIG:DLY:NS?")
             .unwrap()
             .replace("ns", "")
             .parse()
@@ -136,14 +133,14 @@ impl Trigger {
      * Value must be outside to enable the trigger again.
      */
     pub fn set_hysteresis(&self, hysteresis: f32) {
-        self.send(format!("ACQ:TRIG:HYST {}", hysteresis));
+        self.socket.send(format!("ACQ:TRIG:HYST {}", hysteresis));
     }
 
     /**
      * Gets currently set trigger threshold hysteresis value in volts.
      */
     pub fn get_hysteresis(&self) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:TRIG:HYST?")
+        self.socket.send("ACQ:TRIG:HYST?")
             .unwrap()
             .parse()
     }
@@ -152,14 +149,14 @@ impl Trigger {
      * Set trigger level in mV.
      */
     pub fn set_level(&self, level: f32) {
-        self.send(format!("ACQ:TRIG:LEV {}", level));
+        self.socket.send(format!("ACQ:TRIG:LEV {}", level));
     }
 
     /**
      * Get trigger level in mV.
      */
     pub fn get_level(&self) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:TRIG:LEV?")
+        self.socket.send("ACQ:TRIG:LEV?")
             .unwrap()
             .replace("mV", "")
             .parse()

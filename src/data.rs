@@ -49,17 +49,14 @@ impl ::std::convert::Into<String> for Format {
 
 #[derive(Clone)]
 pub struct Data {
-    socket: ::std::cell::RefCell<Socket>,
+    socket: Socket,
 }
 
 impl ::Module for Data {
-    fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket> {
-        self.socket.borrow_mut()
-    }
 }
 
 impl Data {
-    pub fn new(socket: ::std::cell::RefCell<Socket>) -> Self {
+    pub fn new(socket: Socket) -> Self {
         Data {
             socket,
         }
@@ -69,7 +66,7 @@ impl Data {
      * Returns current position of write pointer.
      */
     pub fn get_write_pointer(&self) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:WPOS?")
+        self.socket.send("ACQ:WPOS?")
             .unwrap()
             .parse()
     }
@@ -78,7 +75,7 @@ impl Data {
      * Returns position where trigger event appeared.
      */
     pub fn get_trigger_position(&self) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:TPOS?")
+        self.socket.send("ACQ:TPOS?")
             .unwrap()
             .parse()
     }
@@ -87,14 +84,14 @@ impl Data {
      * Selects units in which acquired data will be returned.
      */
     pub fn set_units(&self, unit: Unit) {
-        self.send(format!("ACQ:DATA:UNITS {}", Into::<String>::into(unit)));
+        self.socket.send(format!("ACQ:DATA:UNITS {}", Into::<String>::into(unit)));
     }
 
     /**
      * Get units in which acquired data will be returned.
      */
     pub fn get_units(&self) -> Result<Unit, String> {
-        self.send("ACQ:DATA:UNITS?")
+        self.socket.send("ACQ:DATA:UNITS?")
             .unwrap()
             .parse()
     }
@@ -103,7 +100,7 @@ impl Data {
      * Selects format acquired data will be returned.
      */
     pub fn set_format(&self, format: Format) {
-        self.send(format!("ACQ:DATA:FORMAT {}", Into::<String>::into(format)));
+        self.socket.send(format!("ACQ:DATA:FORMAT {}", Into::<String>::into(format)));
     }
 
     /**
@@ -113,7 +110,7 @@ impl Data {
      * stop_pos = {0,1,...16384}
      */
     pub fn read_slice(&self, source: ::acquire::Source, start: u16, end: u16) -> Vec<f64> {
-        let data = self.send(format!("ACQ:{}:DATA:STA:END? {},{}", Into::<String>::into(source), start, end))
+        let data = self.socket.send(format!("ACQ:{}:DATA:STA:END? {},{}", Into::<String>::into(source), start, end))
             .unwrap();
 
         self.parse(data)
@@ -123,7 +120,7 @@ impl Data {
      * Read `m` samples from start position on.
      */
     pub fn read(&self, source: ::acquire::Source, start: u16, len: u32) -> Vec<f64> {
-        let data = self.send(format!("ACQ:{}:DATA:STA:N? {},{}", Into::<String>::into(source), start, len))
+        let data = self.socket.send(format!("ACQ:{}:DATA:STA:N? {},{}", Into::<String>::into(source), start, len))
             .unwrap();
 
         self.parse(data)
@@ -138,7 +135,7 @@ impl Data {
      * Size starting from trigger.
      */
     pub fn read_all(&self, source: ::acquire::Source) -> Vec<f64> {
-        let data = self.send(format!("ACQ:{}:DATA?", Into::<String>::into(source)))
+        let data = self.socket.send(format!("ACQ:{}:DATA?", Into::<String>::into(source)))
             .unwrap();
 
         self.parse(data)
@@ -166,7 +163,7 @@ impl Data {
      * trigger delay is set to zero it will read m samples starting from trigger.
      */
     pub fn read_oldest(&self, source: ::acquire::Source, len: u32) -> Vec<f64> {
-        let data = self.send(format!("ACQ:{}:DATA:OLD:N? {}", Into::<String>::into(source), len))
+        let data = self.socket.send(format!("ACQ:{}:DATA:OLD:N? {}", Into::<String>::into(source), len))
             .unwrap();
 
         self.parse(data)
@@ -179,7 +176,7 @@ impl Data {
      * trigger delay is set to zero it will read m samples before trigger.
      */
     pub fn read_latest(&self, source: ::acquire::Source, len: u32) -> Vec<f64> {
-        let data = self.send(format!("ACQ:{}:DATA:LAT:N? {}", Into::<String>::into(source), len))
+        let data = self.socket.send(format!("ACQ:{}:DATA:LAT:N? {}", Into::<String>::into(source), len))
             .unwrap();
 
         self.parse(data)
@@ -189,7 +186,7 @@ impl Data {
      * Returns buffer size.
      */
     pub fn buffer_size(&self) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:BUF:SIZE?")
+        self.socket.send("ACQ:BUF:SIZE?")
             .unwrap()
             .parse()
     }
@@ -320,7 +317,7 @@ mod test {
     #[cfg(not(feature = "mock"))]
     fn acquire_start() {
         let (addr, _) = ::test::launch_server();
-        let socket = ::std::cell::RefCell::new(::socket::Socket::new(addr));
+        let socket = ::socket::Socket::new(addr);
 
         let mut acquire = ::acquire::Acquire::new(socket);
 
