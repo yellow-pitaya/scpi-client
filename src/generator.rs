@@ -43,6 +43,7 @@ pub enum Form {
     TRIANGLE,
     SAWU,
     SAWD,
+    DC,
     PWM,
     ARBITRARY,
 }
@@ -55,6 +56,7 @@ impl ::std::convert::Into<String> for Form {
             Form::TRIANGLE => "TRIANGLE",
             Form::SAWU => "SAWU",
             Form::SAWD => "SAWD",
+            Form::DC => "DC",
             Form::PWM => "PWM",
             Form::ARBITRARY => "ARBITRARY",
         };
@@ -73,6 +75,7 @@ impl ::std::str::FromStr for Form {
             "TRIANGLE" => Ok(Form::TRIANGLE),
             "SAWU" => Ok(Form::SAWU),
             "SAWD" => Ok(Form::SAWD),
+            "DC" => Ok(Form::DC),
             "PWM" => Ok(Form::PWM),
             "ARBITRARY" => Ok(Form::ARBITRARY),
             form => Err(format!("Unknow signal form '{}'", form)),
@@ -88,6 +91,7 @@ impl ::std::fmt::Display for Form {
             &Form::TRIANGLE => "Triangle",
             &Form::SAWU => "SAWU",
             &Form::SAWD => "SAWD",
+            &Form::DC => "DC",
             &Form::PWM => "PWM",
             &Form::ARBITRARY => "Arbitrary",
         };
