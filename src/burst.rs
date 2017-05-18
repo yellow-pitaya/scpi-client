@@ -54,15 +54,14 @@ pub struct Burst {
 }
 
 impl ::Module for Burst {
-}
-
-impl Burst {
-    pub fn new(socket: Socket) -> Self {
+    fn new(socket: Socket) -> Self {
         Burst {
             socket,
         }
     }
+}
 
+impl Burst {
     /**
      * Set burst (pulse) mode.
      *

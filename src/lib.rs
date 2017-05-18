@@ -12,6 +12,7 @@ pub mod trigger;
 pub mod socket;
 
 trait Module {
+    fn new(socket: socket::Socket) -> Self;
 }
 
 #[derive(Clone)]

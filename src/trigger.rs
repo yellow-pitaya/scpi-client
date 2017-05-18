@@ -58,15 +58,14 @@ pub struct Trigger {
 }
 
 impl ::Module for Trigger {
-}
-
-impl Trigger {
-    pub fn new(socket: Socket) -> Self {
+    fn new(socket: Socket) -> Self {
         Trigger {
             socket,
         }
     }
+}
 
+impl Trigger {
     /**
      * Trigger immediately or set trigger source & edge.
      *

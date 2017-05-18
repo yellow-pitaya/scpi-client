@@ -58,15 +58,14 @@ pub struct Analog {
 }
 
 impl ::Module for Analog {
-}
-
-impl Analog {
-    pub fn new(socket: Socket) -> Self {
+    fn new(socket: Socket) -> Self {
         Analog {
             socket,
         }
     }
+}
 
+impl Analog {
     /**
      * Sets analog outputs to default values (0V).
      */

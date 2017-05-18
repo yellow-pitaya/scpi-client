@@ -7,15 +7,14 @@ pub struct General {
 }
 
 impl ::Module for General {
-}
-
-impl General {
-    pub fn new(socket: Socket) -> Self {
+    fn new(socket: Socket) -> Self {
         General {
             socket,
         }
     }
+}
 
+impl General {
     /**
      * Initializes the library. It must be called first, before any other
      * library method.

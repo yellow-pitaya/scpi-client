@@ -138,15 +138,14 @@ pub struct Digital {
 }
 
 impl ::Module for Digital {
-}
-
-impl Digital {
-    pub fn new(socket: Socket) -> Self {
+    fn new(socket: Socket) -> Self {
         Digital {
             socket,
         }
     }
+}
 
+impl Digital {
     /**
      * Sets digital pins to default values.
      *

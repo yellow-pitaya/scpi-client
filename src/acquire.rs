@@ -213,15 +213,14 @@ pub struct Acquire {
 }
 
 impl ::Module for Acquire {
-}
-
-impl Acquire {
-    pub fn new(socket: Socket) -> Self {
+    fn new(socket: Socket) -> Self {
         Acquire {
             socket,
         }
     }
+}
 
+impl Acquire {
     /**
      * Starts acquisition.
      */

@@ -140,15 +140,14 @@ pub struct Generator {
 }
 
 impl ::Module for Generator {
-}
-
-impl Generator {
-    pub fn new(socket: Socket) -> Self {
+    fn new(socket: Socket) -> Self {
         Generator {
             socket,
         }
     }
+}
 
+impl Generator {
     /**
      * Enable fast analog outputs.
      */

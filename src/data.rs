@@ -53,15 +53,14 @@ pub struct Data {
 }
 
 impl ::Module for Data {
-}
-
-impl Data {
-    pub fn new(socket: Socket) -> Self {
+    fn new(socket: Socket) -> Self {
         Data {
             socket,
         }
     }
+}
 
+impl Data {
     /**
      * Returns current position of write pointer.
      */
@@ -238,8 +237,6 @@ mod test {
 
     #[test]
     fn test_read_slice() {
-        acquire_start();
-
         let (_, rp) = ::test::create_client();
 
         let vec = rp.data.read_slice(::acquire::Source::IN1, 10, 12);
@@ -308,19 +305,5 @@ mod test {
         let (_, rp) = ::test::create_client();
 
         assert_eq!(rp.data.buffer_size(), Ok(16384));
-    }
-
-    #[cfg(feature = "mock")]
-    fn acquire_start() {
-    }
-
-    #[cfg(not(feature = "mock"))]
-    fn acquire_start() {
-        let (addr, _) = ::test::launch_server();
-        let socket = ::socket::Socket::new(addr);
-
-        let mut acquire = ::acquire::Acquire::new(socket);
-
-        acquire.start();
     }
 }
