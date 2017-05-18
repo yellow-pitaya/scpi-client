@@ -8,24 +8,18 @@ pub mod data;
 pub mod digital;
 pub mod general;
 pub mod generator;
-pub mod socket;
 pub mod trigger;
+pub mod socket;
 
 trait Module {
     fn get_socket<'a>(&'a self) -> ::std::cell::RefMut<'a, ::socket::Socket>;
 
-    fn send<D>(&self, message: D)
+    fn send<D>(&self, message: D) -> Option<String>
         where D: ::std::fmt::Display
     {
         let mut socket = self.get_socket();
 
-        socket.send(message);
-    }
-
-    fn receive(&self) -> String {
-        let mut socket = self.get_socket();
-
-        socket.receive()
+        socket.send(message)
     }
 }
 
@@ -34,16 +28,15 @@ pub struct Redpitaya {
     pub acquire: acquire::Acquire,
     pub analog: analog::Analog,
     pub burst: burst::Burst,
+    pub data: data::Data,
     pub digital: digital::Digital,
     pub general: general::General,
     pub generator: generator::Generator,
     pub trigger: trigger::Trigger,
-    pub data: data::Data,
 }
 
 impl Redpitaya {
-    pub fn new<S>(addr: S) -> Redpitaya
-        where S: ::std::net::ToSocketAddrs
+    pub fn new(addr: String) -> Redpitaya
     {
         let socket = ::std::cell::RefCell::new(socket::Socket::new(addr));
 
@@ -51,25 +44,25 @@ impl Redpitaya {
             acquire: acquire::Acquire::new(socket.clone()),
             analog: analog::Analog::new(socket.clone()),
             burst: burst::Burst::new(socket.clone()),
+            data: data::Data::new(socket.clone()),
             digital: digital::Digital::new(socket.clone()),
             general: general::General::new(socket.clone()),
             generator: generator::Generator::new(socket.clone()),
             trigger: trigger::Trigger::new(socket.clone()),
-            data: data::Data::new(socket.clone()),
         }
     }
 }
 
 impl ::std::default::Default for Redpitaya {
     fn default() -> Self {
-        Redpitaya::new("127.0.0.1:5000")
+        Redpitaya::new("127.0.0.1:5000".to_owned())
     }
 }
 
 #[cfg(test)]
 mod test {
-    use ::std::io::Read;
-    use ::std::io::Write;
+    use std::io::Read;
+    use std::io::Write;
 
     pub fn create_client() -> (::std::sync::mpsc::Receiver<String>, ::Redpitaya) {
         let (addr, rx) = ::test::launch_server();
@@ -161,16 +154,9 @@ mod test {
 
     #[cfg(not(feature = "mock"))]
     fn handle_message(message: String) -> Option<String> {
-        let mut socket = ::socket::Socket::new("192.168.1.5:5000");
+        let mut socket = ::socket::Socket::new("192.168.1.5:5000".to_owned());
 
-        socket.send(message.clone());
-
-        if message.contains("?") {
-            Some(socket.receive())
-        }
-        else {
-            None
-        }
+        socket.send(message.clone())
     }
 
     #[cfg(feature = "mock")]

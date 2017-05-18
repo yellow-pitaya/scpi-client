@@ -257,9 +257,8 @@ impl Acquire {
      * Get decimation factor.
      */
     pub fn get_decimation(&self) -> Result<Decimation, String> {
-        self.send("ACQ:DEC?");
-
-        self.receive()
+        self.send("ACQ:DEC?")
+            .unwrap()
             .parse()
     }
 
@@ -272,9 +271,8 @@ impl Acquire {
      * See https://github.com/RedPitaya/RedPitaya/pull/110
      */
     pub fn get_sampling_rate(&self) -> Result<SamplingRate, String> {
-        self.send("ACQ:SRAT?");
-
-        self.receive()
+        self.send("ACQ:SRAT?")
+            .unwrap()
             .parse()
     }
 
@@ -296,9 +294,8 @@ impl Acquire {
      * Get averaging status.
      */
     pub fn is_average_enabled(&self) -> bool {
-        self.send("ACQ:AVG?");
-
-        let message = self.receive();
+        let message = self.send("ACQ:AVG?")
+            .unwrap();
 
         match message.as_str() {
             "ON" => true,
@@ -319,9 +316,8 @@ impl Acquire {
      * Get gain settings to HIGH or LOW.
      */
     pub fn get_gain(&self, source: Source) -> Result<Gain, String> {
-        self.send(format!("ACQ:{}:GAIN?", Into::<String>::into(source)));
-
-        self.receive()
+        self.send(format!("ACQ:{}:GAIN?", Into::<String>::into(source)))
+            .unwrap()
             .parse()
     }
 }

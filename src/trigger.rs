@@ -92,9 +92,8 @@ impl Trigger {
      *  If DISABLED -> TD else WAIT.
      */
     pub fn get_state(&self) -> Result<State, String> {
-        self.send("ACQ:TRIG:STAT?");
-
-        self.receive()
+        self.send("ACQ:TRIG:STAT?")
+            .unwrap()
             .parse()
     }
 
@@ -109,9 +108,8 @@ impl Trigger {
      * Get trigger delay in samples.
      */
     pub fn get_delay(&self) -> Result<u16, <u16 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:TRIG:DLY?");
-
-        self.receive()
+        self.send("ACQ:TRIG:DLY?")
+            .unwrap()
             .parse()
     }
 
@@ -126,9 +124,8 @@ impl Trigger {
      * Get trigger delay in ns.
      */
     pub fn get_delay_in_ns(&self) -> Result<u8, <u8 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:TRIG:DLY:NS?");
-
-        self.receive()
+        self.send("ACQ:TRIG:DLY:NS?")
+            .unwrap()
             .replace("ns", "")
             .parse()
     }
@@ -146,9 +143,8 @@ impl Trigger {
      * Gets currently set trigger threshold hysteresis value in volts.
      */
     pub fn get_hysteresis(&self) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:TRIG:HYST?");
-
-        self.receive()
+        self.send("ACQ:TRIG:HYST?")
+            .unwrap()
             .parse()
     }
 
@@ -163,9 +159,8 @@ impl Trigger {
      * Get trigger level in mV.
      */
     pub fn get_level(&self) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
-        self.send("ACQ:TRIG:LEV?");
-
-        self.receive()
+        self.send("ACQ:TRIG:LEV?")
+            .unwrap()
             .replace("mV", "")
             .parse()
     }

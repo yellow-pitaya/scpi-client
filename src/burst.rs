@@ -80,9 +80,8 @@ impl Burst {
      * Set burst (pulse) mode.
      */
     pub fn get_mode(&self, source: Source) -> Result<Mode, String> {
-        self.send(format!("{}:BURS:STAT?", Into::<String>::into(source)));
-
-        self.receive()
+        self.send(format!("{}:BURS:STAT?", Into::<String>::into(source)))
+            .unwrap()
             .parse()
     }
 
@@ -97,9 +96,8 @@ impl Burst {
      * Get number of periods in one burst.
      */
     pub fn get_count(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:BURS:NCYC?", Into::<String>::into(source)));
-
-        self.receive()
+        self.send(format!("{}:BURS:NCYC?", Into::<String>::into(source)))
+            .unwrap()
             .parse()
     }
 
@@ -114,9 +112,8 @@ impl Burst {
      * Get number of repeated bursts.
      */
     pub fn get_repetitions(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:BURS:NOR?", Into::<String>::into(source)));
-
-        self.receive()
+        self.send(format!("{}:BURS:NOR?", Into::<String>::into(source)))
+            .unwrap()
             .parse()
     }
 
@@ -135,9 +132,8 @@ impl Burst {
      * This includes the signal and delay.
      */
     pub fn get_period(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:BURS:INT:PER?", Into::<String>::into(source)));
-
-        self.receive()
+        self.send(format!("{}:BURS:INT:PER?", Into::<String>::into(source)))
+            .unwrap()
             .parse()
     }
 }

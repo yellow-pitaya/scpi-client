@@ -94,9 +94,8 @@ impl Analog {
     pub fn get_value<P>(&self, pin: P) -> Result<f32, <f32 as ::std::str::FromStr>::Err>
         where P: Pin
     {
-        self.send(format!("ANALOG:PIN? {}", Into::<String>::into(pin)));
-
-        self.receive()
+        self.send(format!("ANALOG:PIN? {}", Into::<String>::into(pin)))
+            .unwrap()
             .parse()
     }
 }

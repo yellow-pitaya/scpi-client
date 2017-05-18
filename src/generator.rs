@@ -175,15 +175,13 @@ impl Generator {
         self.send(format!("{}:STATE {}", output, state));
     }
 
-    pub fn is_started(&self, source: Source) -> Result<bool, <i8 as ::std::str::FromStr>::Err> {
+    pub fn is_started(&self, source: Source) -> bool {
         let output = match source {
             Source::OUT1 => "OUTPUT1",
             Source::OUT2 => "OUTPUT2",
         };
 
-        self.send(format!("{}:STATE?", output));
-
-        Ok(self.receive() == "ON")
+        self.send(format!("{}:STATE?", output)) == Some("ON".to_owned())
     }
 
     /**
@@ -197,9 +195,8 @@ impl Generator {
      * Get frequency of fast analog outputs.
      */
     pub fn get_frequency(&self, source: Source) -> Result<u32, <f32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:FREQ:FIX?", Into::<String>::into(source)));
-
-        let value: f32 = self.receive()
+        let value: f32 = self.send(format!("{}:FREQ:FIX?", Into::<String>::into(source)))
+            .unwrap()
             .parse()?;
 
         Ok(value as u32)
@@ -215,9 +212,8 @@ impl Generator {
     }
 
     pub fn get_form(&self, source: Source) -> Result<Form, String> {
-        self.send(format!("{}:FUNC?", Into::<String>::into(source)));
-
-        self.receive()
+        self.send(format!("{}:FUNC?", Into::<String>::into(source)))
+            .unwrap()
             .parse()
     }
 
@@ -234,9 +230,8 @@ impl Generator {
      * Get amplitude voltage of fast analog outputs.
      */
     pub fn get_amplitude(&self, source: Source) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:VOLT?", Into::<String>::into(source)));
-
-        self.receive()
+        self.send(format!("{}:VOLT?", Into::<String>::into(source)))
+            .unwrap()
             .parse()
     }
 
@@ -253,9 +248,8 @@ impl Generator {
      * Get offset voltage of fast analog outputs.
      */
     pub fn get_offset(&self, source: Source) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:VOLT:OFFS?", Into::<String>::into(source)));
-
-        self.receive()
+        self.send(format!("{}:VOLT:OFFS?", Into::<String>::into(source)))
+            .unwrap()
             .parse()
     }
 
@@ -270,9 +264,8 @@ impl Generator {
      * Get phase of fast analog outputs.
      */
     pub fn get_phase(&self, source: Source) -> Result<i32, <i32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:PHAS?", Into::<String>::into(source)));
-
-        self.receive()
+        self.send(format!("{}:PHAS?", Into::<String>::into(source)))
+            .unwrap()
             .parse()
     }
 
@@ -287,9 +280,8 @@ impl Generator {
      * Get duty cycle of PWM waveform.
      */
     pub fn get_duty_cycle(&self, source: Source) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
-        self.send(format!("{}:DCYC?", Into::<String>::into(source)));
-
-        self.receive()
+        self.send(format!("{}:DCYC?", Into::<String>::into(source)))
+            .unwrap()
             .parse()
     }
 
@@ -310,9 +302,9 @@ impl Generator {
      * Get data for arbitrary waveform generation.
      */
     pub fn get_arbitrary_waveform(&self, source: Source) -> Vec<f32> {
-        self.send(format!("{}:TRAC:DATA:DATA?", Into::<String>::into(source)));
+        let data = self.send(format!("{}:TRAC:DATA:DATA?", Into::<String>::into(source)))
+            .unwrap();
 
-        let data = self.receive();
         data.trim_matches(|c| c == '{' || c == '}')
             .split(",")
             .map(|x| x.parse().unwrap())
@@ -330,9 +322,8 @@ impl Generator {
      * Get trigger source for selected signal.
      */
     pub fn get_trigger_source(&self, source: Source) -> Result<TriggerSource, String> {
-        self.send(format!("{}:TRIG:SOUR?", Into::<String>::into(source)));
-
-        self.receive()
+        self.send(format!("{}:TRIG:SOUR?", Into::<String>::into(source)))
+            .unwrap()
             .parse()
     }
 
@@ -376,7 +367,7 @@ mod test {
         rp.generator.start(::generator::Source::OUT2);
         assert_eq!("OUTPUT2:STATE ON\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.is_started(::generator::Source::OUT2), Ok(true));
+        assert_eq!(rp.generator.is_started(::generator::Source::OUT2), true);
 
         rp.generator.stop(::generator::Source::OUT2);
         assert_eq!("OUTPUT2:STATE OFF\r\n", rx.recv().unwrap());

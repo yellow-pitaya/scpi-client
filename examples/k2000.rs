@@ -6,7 +6,7 @@ use std::thread::sleep;
 use std::time::Duration;
 
 fn main() {
-    let redpitaya = Redpitaya::new("192.168.1.5:5000");
+    let redpitaya = Redpitaya::new("192.168.1.5:5000".to_owned());
 
     loop {
         let leds = [

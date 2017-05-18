@@ -1,35 +1,43 @@
 use std::io::prelude::*;
 
+#[derive(Clone)]
 pub struct Socket {
-    socket: ::std::net::TcpStream,
+    addr: String,
 }
 
 impl Socket {
-    pub fn new<S>(addr: S) -> Self
-        where S: ::std::net::ToSocketAddrs
+    pub fn new(addr: String) -> Self
     {
-        let socket = match ::std::net::TcpStream::connect(addr) {
-            Ok(socket) => socket,
-            Err(_) => panic!("Unable to connect"),
-        };
-
         Socket {
-            socket: socket,
+            addr,
         }
     }
 
-    pub fn send<D>(&mut self, command: D)
+    pub fn send<D>(&mut self, command: D) -> Option<String>
         where D: ::std::fmt::Display
     {
+        let mut stream = match ::std::net::TcpStream::connect(self.addr.clone()) {
+            Ok(stream) => stream,
+            Err(_) => panic!("Unable to connect"),
+        };
+
         info!("> {}", command);
 
-        self.socket.write(format!("{}\r\n", command).as_bytes())
+        let message = format!("{}\r\n", command);
+        stream.write(message.as_bytes())
             .unwrap();
+
+        if message.contains("?") {
+            Some(self.receive(stream))
+        }
+        else {
+            None
+        }
     }
 
-    pub fn receive(&mut self) -> String {
+    fn receive(&mut self, stream: ::std::net::TcpStream) -> String {
         let mut message = String::new();
-        let mut reader = ::std::io::BufReader::new(self.socket.try_clone().unwrap());
+        let mut reader = ::std::io::BufReader::new(stream);
 
         reader.read_line(&mut message)
             .unwrap();
@@ -39,13 +47,5 @@ impl Socket {
         debug!("< {}", message);
 
         message.into()
-    }
-}
-
-impl Clone for Socket {
-    fn clone(&self) -> Self {
-        Socket {
-            socket: self.socket.try_clone().unwrap(),
-        }
     }
 }

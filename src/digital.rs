@@ -184,9 +184,8 @@ impl Digital {
     pub fn get_state<P>(&self, pin: P) -> Result<State, <State as ::std::str::FromStr>::Err>
         where P: Pin
     {
-        self.send(format!("DIG:PIN? {}", Into::<String>::into(pin)));
-
-        self.receive()
+        self.send(format!("DIG:PIN? {}", Into::<String>::into(pin)))
+            .unwrap()
             .parse()
     }
 }
