@@ -172,7 +172,7 @@ mod test {
         assert_eq!("ACQ:TRIG NOW\r\n", rx.recv().unwrap());
 
         #[cfg(feature = "mock")]
-        assert_eq!(rp.trigger.get_state(), Ok(::trigger::State::TD));
+        assert_eq!(rp.trigger.get_state(), Ok(::trigger::State::WAIT));
 
         #[cfg(not(feature = "mock"))]
         assert!(rp.trigger.get_state().is_ok());
