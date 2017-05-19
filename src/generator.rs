@@ -335,13 +335,6 @@ impl Generator {
     }
 
     /**
-     * Triggers both sources immediately.
-     */
-    pub fn trigger_all(&self) {
-        self.socket.send("TRIG:IMM");
-    }
-
-    /**
      * Reset generator to default settings.
      */
     pub fn reset(&self) {
@@ -471,11 +464,6 @@ mod test {
 
         rp.generator.trigger(::generator::Source::OUT1);
         assert_eq!("SOUR1:TRIG:IMM\r\n", rx.recv().unwrap());
-    }
-
-    #[test]
-    fn test_trigger_all() {
-        generator_assert!(trigger_all, "TRIG:IMM\r\n");
     }
 
     #[test]
