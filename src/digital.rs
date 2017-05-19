@@ -216,6 +216,9 @@ mod test {
     fn test_state() {
         let (rx, rp) = ::test::create_client();
 
+        rp.digital.set_direction(::digital::Gpio::DIO0_N, ::digital::Direction::OUT);
+        assert_eq!("DIG:PIN:DIR OUT,DIO0_N\r\n", rx.recv().unwrap());
+
         rp.digital.set_state(::digital::Gpio::DIO0_N, ::digital::State::HIGH);
         assert_eq!("DIG:PIN DIO0_N,1\r\n", rx.recv().unwrap());
 
