@@ -412,10 +412,10 @@ mod test {
     fn test_offset() {
         let (rx, rp) = ::test::create_client();
 
-        rp.generator.set_offset(::generator::Source::OUT1, -1.2);
-        assert_eq!("SOUR1:VOLT:OFFS -1.2\r\n", rx.recv().unwrap());
+        rp.generator.set_offset(::generator::Source::OUT1, 0.3);
+        assert_eq!("SOUR1:VOLT:OFFS 0.3\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.get_offset(::generator::Source::OUT1), Ok(1.2));
+        assert_eq!(rp.generator.get_offset(::generator::Source::OUT1), Ok(0.3));
     }
 
     #[test]
