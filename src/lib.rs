@@ -183,7 +183,7 @@ mod test {
             "SOUR1:PHAS?" => "180",
             "SOUR1:TRAC:DATA:DATA?" => "1,0.5,0.2",
             "SOUR1:TRIG:SOUR?" => "EXT_NE",
-            "SOUR1:VOLT?" => "-1.1",
+            "SOUR1:VOLT?" => "-0.5",
             "SOUR1:VOLT:OFFS?" => "1.2",
             "SOUR2:BURS:STAT?" => "BURST",
             "SOUR2:BURS:NCYC?" => "3",

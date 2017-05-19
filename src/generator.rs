@@ -402,10 +402,10 @@ mod test {
         rp.generator.start(::generator::Source::OUT1);
         assert_eq!("OUTPUT1:STATE ON\r\n", rx.recv().unwrap());
 
-        rp.generator.set_amplitude(::generator::Source::OUT1, -1.1);
-        assert_eq!("SOUR1:VOLT -1.1\r\n", rx.recv().unwrap());
+        rp.generator.set_amplitude(::generator::Source::OUT1, -0.5);
+        assert_eq!("SOUR1:VOLT -0.5\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.get_amplitude(::generator::Source::OUT1), Ok(-1.1));
+        assert_eq!(rp.generator.get_amplitude(::generator::Source::OUT1), Ok(-0.5));
     }
 
     #[test]
