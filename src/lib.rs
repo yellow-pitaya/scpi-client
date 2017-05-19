@@ -182,7 +182,7 @@ mod test {
             "SOUR1:FUNC?" => "SINE",
             "SOUR1:PHAS?" => "180",
             "SOUR1:TRAC:DATA:DATA?" => "1,0.5,0.2",
-            "SOUR1:TRIG:SOUR?" => "EXT_NE",
+            "SOUR1:TRIG:SOUR?" => "BURST",
             "SOUR1:VOLT?" => "-0.5",
             "SOUR1:VOLT:OFFS?" => "0.3",
             "SOUR2:BURS:STAT?" => "BURST",

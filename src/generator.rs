@@ -6,7 +6,7 @@ pub enum TriggerSource {
     EXT_PE,
     EXT_NE,
     INT,
-    GATED,
+    BURST,
 }
 
 impl ::std::convert::Into<String> for TriggerSource {
@@ -15,7 +15,7 @@ impl ::std::convert::Into<String> for TriggerSource {
             TriggerSource::EXT_PE => "EXT_PE",
             TriggerSource::EXT_NE => "EXT_NE",
             TriggerSource::INT => "INT",
-            TriggerSource::GATED => "GATED",
+            TriggerSource::BURST => "BURST",
         };
 
         String::from(s)
@@ -30,7 +30,7 @@ impl ::std::str::FromStr for TriggerSource {
             "EXT_PE" => Ok(TriggerSource::EXT_PE),
             "EXT_NE" => Ok(TriggerSource::EXT_NE),
             "INT" => Ok(TriggerSource::INT),
-            "GATED" => Ok(TriggerSource::GATED),
+            "BURST" => Ok(TriggerSource::BURST),
             source => Err(format!("Unknow source '{}'", source)),
         }
     }
@@ -456,10 +456,13 @@ mod test {
     fn test_trigger_source() {
         let (rx, rp) = ::test::create_client();
 
-        rp.generator.set_trigger_source(::generator::Source::OUT1, ::generator::TriggerSource::EXT_NE);
-        assert_eq!("SOUR1:TRIG:SOUR EXT_NE\r\n", rx.recv().unwrap());
+        rp.generator.set_trigger_source(::generator::Source::OUT1, ::generator::TriggerSource::BURST);
+        assert_eq!("SOUR1:TRIG:SOUR BURST\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.get_trigger_source(::generator::Source::OUT1), Ok(::generator::TriggerSource::EXT_NE));
+        assert_eq!(rp.generator.get_trigger_source(::generator::Source::OUT1), Ok(::generator::TriggerSource::BURST));
+
+        rp.generator.set_trigger_source(::generator::Source::OUT1, ::generator::TriggerSource::INT);
+        assert_eq!("SOUR1:TRIG:SOUR INT\r\n", rx.recv().unwrap());
     }
 
     #[test]
