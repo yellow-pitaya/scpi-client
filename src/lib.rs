@@ -172,7 +172,7 @@ mod test {
             "ACQ:TRIG:DLY?" => "2314",
             "ACQ:TRIG:DLY:NS?" => "128ns",
             "ACQ:TRIG:HYST?" => "0.75",
-            "ACQ:TRIG:LEV?" => "123mV",
+            "ACQ:TRIG:LEV?" => "0.4",
             "ANALOG:PIN? AIN1" => "1.34",
             "DIG:PIN? DIO0_N" => "1",
             "OUTPUT2:STATE?" => "ON",

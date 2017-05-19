@@ -211,9 +211,9 @@ mod test {
     fn test_level() {
         let (rx, rp) = ::test::create_client();
 
-        rp.trigger.set_level(123.0);
-        assert_eq!("ACQ:TRIG:LEV 123\r\n", rx.recv().unwrap());
+        rp.trigger.set_level(0.4);
+        assert_eq!("ACQ:TRIG:LEV 0.4\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.trigger.get_level(), Ok(123.0));
+        assert_eq!(rp.trigger.get_level(), Ok(0.4));
     }
 }
