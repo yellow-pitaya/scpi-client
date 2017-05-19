@@ -147,7 +147,7 @@ mod test {
 
     #[cfg(not(feature = "mock"))]
     fn handle_message(message: String) -> Option<String> {
-        let mut socket = ::socket::Socket::new("192.168.1.5:5000".to_owned());
+        let socket = ::socket::Socket::new("192.168.1.5:5000".to_owned());
 
         socket.send(message.clone())
     }
