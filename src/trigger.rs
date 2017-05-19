@@ -171,7 +171,11 @@ mod test {
         rp.trigger.enable(::trigger::Source::NOW);
         assert_eq!("ACQ:TRIG NOW\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.trigger.get_state(), Ok(::trigger::State::WAIT));
+        #[cfg(feature = "mock")]
+        assert_eq!(rp.trigger.get_state(), Ok(::trigger::State::TD));
+
+        #[cfg(not(feature = "mock"))]
+        assert!(rp.trigger.get_state().is_ok());
 
         rp.trigger.disable();
         assert_eq!("ACQ:TRIG DISABLED\r\n", rx.recv().unwrap());

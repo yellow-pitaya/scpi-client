@@ -1,0 +1,20 @@
+    Finished dev [unoptimized + debuginfo] target(s) in 0.0 secs
+     Running target/debug/deps/redpitaya_scpi-a9e9b34583454096
+
+running 42 tests
+test acquire::test::test_average ... ok
+test acquire::test::test_decimation ... ok
+test acquire::test::test_gain ... ok
+test acquire::test::test_sampling_rate_get_buffer_duration ... ok
+test acquire::test::test_status ... ok
+test analog::test::test_reset ... ok
+test analog::test::test_value ... ok
+test burst::test::test_count ... ok
+test burst::test::test_mode ... ok
+test burst::test::test_period ... FAILED
+test burst::test::test_repetitions ... ok
+test data::test::test_buffer_size ... ok
+test data::test::test_get_write_pointer ... ok
+test data::test::test_get_write_pointer_at_trigger ... ok
+test data::test::test_read ... ok
+test data::test::test_read_all ... 
