@@ -1,4 +1,3 @@
-use Module;
 use socket::Socket;
 
 pub trait Pin : ::std::convert::Into<String> {

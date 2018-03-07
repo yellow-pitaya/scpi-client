@@ -1,4 +1,3 @@
-use Module;
 use socket::Socket;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
