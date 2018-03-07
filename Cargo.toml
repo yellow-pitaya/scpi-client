@@ -10,7 +10,7 @@ keywords = ["redpitaya", "scpi"]
 categories = ["hardware-support"]
 
 [dependencies]
-log = "0.3"
+log = "0.4"
 
 [badges]
 travis-ci = { repository = "yellow-pitaya/scpi-client" }
