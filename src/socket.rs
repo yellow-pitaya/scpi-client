@@ -42,7 +42,7 @@ impl Socket {
         reader.read_line(&mut message)
             .unwrap();
 
-        let message = message.trim_right_matches("\r\n");
+        let message = message.trim_end_matches("\r\n");
 
         debug!("< {}", message);
 
