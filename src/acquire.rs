@@ -1,4 +1,4 @@
-use socket::Socket;
+use crate::socket::Socket;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Gain {
@@ -6,7 +6,7 @@ pub enum Gain {
     HV,
 }
 
-impl ::std::convert::Into<String> for Gain {
+impl std::convert::Into<String> for Gain {
     fn into(self) -> String {
         let s = match self {
             Gain::LV => "LV",
@@ -17,7 +17,7 @@ impl ::std::convert::Into<String> for Gain {
     }
 }
 
-impl ::std::str::FromStr for Gain {
+impl std::str::FromStr for Gain {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -29,8 +29,8 @@ impl ::std::str::FromStr for Gain {
     }
 }
 
-impl ::std::fmt::Display for Gain {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+impl std::fmt::Display for Gain {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let display = match self {
             &Gain::LV => "LV",
             &Gain::HV => "HV",
@@ -46,7 +46,7 @@ pub enum Source {
     IN2,
 }
 
-impl ::std::convert::Into<String> for Source {
+impl std::convert::Into<String> for Source {
     fn into(self) -> String {
         let s = match self {
             Source::IN1 => "SOUR1",
@@ -57,8 +57,8 @@ impl ::std::convert::Into<String> for Source {
     }
 }
 
-impl ::std::fmt::Display for Source {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+impl std::fmt::Display for Source {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let display = match self {
             &Source::IN1 => "IN 1",
             &Source::IN2 => "IN 2",
@@ -78,7 +78,7 @@ pub enum Decimation {
     DEC_65536,
 }
 
-impl ::std::convert::Into<String> for Decimation {
+impl std::convert::Into<String> for Decimation {
     fn into(self) -> String {
         let s = match self {
             Decimation::DEC_1 => "1",
@@ -93,7 +93,7 @@ impl ::std::convert::Into<String> for Decimation {
     }
 }
 
-impl ::std::str::FromStr for Decimation {
+impl std::str::FromStr for Decimation {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -109,7 +109,7 @@ impl ::std::str::FromStr for Decimation {
     }
 }
 
-impl ::std::convert::Into<SamplingRate> for Decimation {
+impl std::convert::Into<SamplingRate> for Decimation {
     fn into(self) -> SamplingRate {
         match self {
             Decimation::DEC_1 => SamplingRate::RATE_125MHz,
@@ -133,7 +133,7 @@ pub enum SamplingRate {
 }
 
 impl SamplingRate {
-    pub fn get_buffer_duration(self) -> ::std::time::Duration {
+    pub fn get_buffer_duration(self) -> std::time::Duration {
         let (s, ns) = match self {
             SamplingRate::RATE_125MHz => (0, 131_072),
             SamplingRate::RATE_15_6MHz => (0, 1_049_000),
@@ -143,12 +143,12 @@ impl SamplingRate {
             SamplingRate::RATE_1_9kHz => (8, 590_000_000),
         };
 
-        ::std::time::Duration::new(s, ns)
+        std::time::Duration::new(s, ns)
     }
 }
 
-impl ::std::fmt::Display for SamplingRate {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+impl std::fmt::Display for SamplingRate {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let display = match self {
             &SamplingRate::RATE_125MHz => "125 MHz",
             &SamplingRate::RATE_15_6MHz => "15.6 MHz",
@@ -162,7 +162,7 @@ impl ::std::fmt::Display for SamplingRate {
     }
 }
 
-impl ::std::convert::Into<Decimation> for SamplingRate {
+impl std::convert::Into<Decimation> for SamplingRate {
     fn into(self) -> Decimation {
         match self {
             SamplingRate::RATE_125MHz => Decimation::DEC_1,
@@ -175,7 +175,7 @@ impl ::std::convert::Into<Decimation> for SamplingRate {
     }
 }
 
-impl ::std::convert::Into<String> for SamplingRate {
+impl std::convert::Into<String> for SamplingRate {
     fn into(self) -> String {
         let s = match self {
             SamplingRate::RATE_125MHz => "125MHz",
@@ -190,7 +190,7 @@ impl ::std::convert::Into<String> for SamplingRate {
     }
 }
 
-impl ::std::str::FromStr for SamplingRate {
+impl std::str::FromStr for SamplingRate {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -211,7 +211,7 @@ pub struct Acquire {
     socket: Socket,
 }
 
-impl ::Module for Acquire {
+impl crate::Module for Acquire {
     fn new(socket: Socket) -> Self {
         Acquire {
             socket,
@@ -321,14 +321,14 @@ impl Acquire {
 mod test {
     #[test]
     fn test_sampling_rate_get_buffer_duration() {
-        let duration = ::std::time::Duration::new(8, 590_000_000);
+        let duration = std::time::Duration::new(8, 590_000_000);
 
-        assert_eq!(duration, ::acquire::SamplingRate::RATE_1_9kHz.get_buffer_duration());
+        assert_eq!(duration, crate::acquire::SamplingRate::RATE_1_9kHz.get_buffer_duration());
     }
 
     #[test]
     fn test_status() {
-        let (rx, mut rp) = ::test::create_client();
+        let (rx, mut rp) = crate::test::create_client();
 
         rp.acquire.start();
         assert_eq!("ACQ:START\r\n", rx.recv().unwrap());
@@ -342,17 +342,17 @@ mod test {
 
     #[test]
     fn test_decimation() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
-        rp.acquire.set_decimation(::acquire::Decimation::DEC_1);
+        rp.acquire.set_decimation(crate::acquire::Decimation::DEC_1);
         assert_eq!("ACQ:DEC 1\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.acquire.get_decimation(), Ok(::acquire::Decimation::DEC_1));
+        assert_eq!(rp.acquire.get_decimation(), Ok(crate::acquire::Decimation::DEC_1));
     }
 
     #[test]
     fn test_average() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
         rp.acquire.enable_average();
         assert_eq!("ACQ:AVG ON\r\n", rx.recv().unwrap());
@@ -365,11 +365,11 @@ mod test {
 
     #[test]
     fn test_gain() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
-        rp.acquire.set_gain(::acquire::Source::IN1, ::acquire::Gain::HV);
+        rp.acquire.set_gain(crate::acquire::Source::IN1, crate::acquire::Gain::HV);
         assert_eq!("ACQ:SOUR1:GAIN HV\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.acquire.get_gain(::acquire::Source::IN1), Ok(::acquire::Gain::HV));
+        assert_eq!(rp.acquire.get_gain(crate::acquire::Source::IN1), Ok(crate::acquire::Gain::HV));
     }
 }

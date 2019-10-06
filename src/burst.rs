@@ -1,4 +1,4 @@
-use socket::Socket;
+use crate::socket::Socket;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Source {
@@ -6,7 +6,7 @@ pub enum Source {
     OUT2,
 }
 
-impl ::std::convert::Into<String> for Source {
+impl std::convert::Into<String> for Source {
     fn into(self) -> String {
         let s = match self {
             Source::OUT1 => "SOUR1",
@@ -24,7 +24,7 @@ pub enum Mode {
     STREAM
 }
 
-impl ::std::convert::Into<String> for Mode {
+impl std::convert::Into<String> for Mode {
     fn into(self) -> String {
         match self {
             Mode::CONTINUOUS => "CONTINUOUS",
@@ -34,7 +34,7 @@ impl ::std::convert::Into<String> for Mode {
     }
 }
 
-impl ::std::str::FromStr for Mode {
+impl std::str::FromStr for Mode {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -52,7 +52,7 @@ pub struct Burst {
     socket: Socket,
 }
 
-impl ::Module for Burst {
+impl crate::Module for Burst {
     fn new(socket: Socket) -> Self {
         Burst {
             socket,
@@ -90,7 +90,7 @@ impl Burst {
     /**
      * Get number of periods in one burst.
      */
-    pub fn get_count(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
+    pub fn get_count(&self, source: Source) -> Result<u32, <u32 as std::str::FromStr>::Err> {
         self.socket.send(format!("{}:BURS:NCYC?", Into::<String>::into(source)))
             .unwrap()
             .parse()
@@ -106,7 +106,7 @@ impl Burst {
     /**
      * Get number of repeated bursts.
      */
-    pub fn get_repetitions(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
+    pub fn get_repetitions(&self, source: Source) -> Result<u32, <u32 as std::str::FromStr>::Err> {
         self.socket.send(format!("{}:BURS:NOR?", Into::<String>::into(source)))
             .unwrap()
             .parse()
@@ -126,7 +126,7 @@ impl Burst {
      *
      * This includes the signal and delay.
      */
-    pub fn get_period(&self, source: Source) -> Result<u32, <u32 as ::std::str::FromStr>::Err> {
+    pub fn get_period(&self, source: Source) -> Result<u32, <u32 as std::str::FromStr>::Err> {
         self.socket.send(format!("{}:BURS:INT:PER?", Into::<String>::into(source)))
             .unwrap()
             .parse()
@@ -137,41 +137,41 @@ impl Burst {
 mod test {
     #[test]
     fn test_mode() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
-        rp.burst.set_mode(::burst::Source::OUT2, ::burst::Mode::BURST);
+        rp.burst.set_mode(crate::burst::Source::OUT2, crate::burst::Mode::BURST);
         assert_eq!("SOUR2:BURS:STAT BURST\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.burst.get_mode(::burst::Source::OUT2), Ok(::burst::Mode::BURST));
+        assert_eq!(rp.burst.get_mode(crate::burst::Source::OUT2), Ok(crate::burst::Mode::BURST));
     }
 
     #[test]
     fn test_count() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
-        rp.burst.set_count(::burst::Source::OUT2, 3);
+        rp.burst.set_count(crate::burst::Source::OUT2, 3);
         assert_eq!("SOUR2:BURS:NCYC 3\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.burst.get_count(::burst::Source::OUT2), Ok(3));
+        assert_eq!(rp.burst.get_count(crate::burst::Source::OUT2), Ok(3));
     }
 
     #[test]
     fn test_repetitions() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
-        rp.burst.set_repetitions(::burst::Source::OUT1, 5);
+        rp.burst.set_repetitions(crate::burst::Source::OUT1, 5);
         assert_eq!("SOUR1:BURS:NOR 5\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.burst.get_repetitions(::burst::Source::OUT1), Ok(5));
+        assert_eq!(rp.burst.get_repetitions(crate::burst::Source::OUT1), Ok(5));
     }
 
     #[test]
     fn test_period() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
-        rp.burst.set_period(::burst::Source::OUT2, 1_000_000);
+        rp.burst.set_period(crate::burst::Source::OUT2, 1_000_000);
         assert_eq!("SOUR2:BURS:INT:PER 1000000\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.burst.get_period(::burst::Source::OUT2), Ok(1_000_000));
+        assert_eq!(rp.burst.get_period(crate::burst::Source::OUT2), Ok(1_000_000));
     }
 }

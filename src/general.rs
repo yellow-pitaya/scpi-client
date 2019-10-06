@@ -1,11 +1,11 @@
-use socket::Socket;
+use crate::socket::Socket;
 
 #[derive(Clone)]
 pub struct General {
     socket: Socket,
 }
 
-impl ::Module for General {
+impl crate::Module for General {
     fn new(socket: Socket) -> Self {
         General {
             socket,
@@ -59,7 +59,7 @@ impl General {
 mod test {
     macro_rules! general_assert {
         ($f:ident, $e:expr) => {
-            let (rx, rp) = ::test::create_client();
+            let (rx, rp) = crate::test::create_client();
 
             rp.general.$f();
             assert_eq!($e, rx.recv().unwrap());
@@ -83,7 +83,7 @@ mod test {
 
     #[test]
     fn test_fpga_load_bitstream() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
         rp.general.fpga_load_bitstream(0.93);
         assert_eq!("RP:FPGABITREAM 0.93\r\n", rx.recv().unwrap());

@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate log;
-
 pub mod acquire;
 pub mod analog;
 pub mod burst;
@@ -28,11 +25,11 @@ pub struct Redpitaya {
 }
 
 impl Redpitaya {
-    pub fn new(addr: String) -> Redpitaya
+    pub fn new(addr: String) -> Self
     {
         let socket = socket::Socket::new(addr);
 
-        Redpitaya {
+        Self {
             acquire: acquire::Acquire::new(socket.clone()),
             analog: analog::Analog::new(socket.clone()),
             burst: burst::Burst::new(socket.clone()),
@@ -45,9 +42,9 @@ impl Redpitaya {
     }
 }
 
-impl ::std::default::Default for Redpitaya {
+impl std::default::Default for Redpitaya {
     fn default() -> Self {
-        Redpitaya::new("127.0.0.1:5000".to_owned())
+        Self::new("127.0.0.1:5000".to_owned())
     }
 }
 
@@ -56,25 +53,25 @@ mod test {
     use std::io::Read;
     use std::io::Write;
 
-    pub fn create_client() -> (::std::sync::mpsc::Receiver<String>, ::Redpitaya) {
-        let (addr, rx) = ::test::launch_server();
+    pub fn create_client() -> (std::sync::mpsc::Receiver<String>, crate::Redpitaya) {
+        let (addr, rx) = crate::test::launch_server();
 
-        (rx, ::Redpitaya::new(addr))
+        (rx, crate::Redpitaya::new(addr))
     }
 
-    pub fn launch_server() -> (String, ::std::sync::mpsc::Receiver<String>) {
+    pub fn launch_server() -> (String, std::sync::mpsc::Receiver<String>) {
         let addr = next_test_ip4();
-        let listener = ::std::net::TcpListener::bind(format!("{}", addr))
+        let listener = std::net::TcpListener::bind(format!("{}", addr))
             .unwrap();
 
-        let (tx, rx) = ::std::sync::mpsc::channel();
+        let (tx, rx) = std::sync::mpsc::channel();
 
-        ::std::thread::spawn(move || {
+        std::thread::spawn(move || {
             loop {
                 if let Ok((mut stream, _)) =  listener.accept() {
                     let tx = tx.clone();
 
-                    ::std::thread::spawn(move || {
+                    std::thread::spawn(move || {
                         handle_client(&mut stream, tx);
                     });
                 }
@@ -84,10 +81,10 @@ mod test {
         (addr, rx)
     }
 
-    static PORT: ::std::sync::atomic::AtomicUsize = ::std::sync::atomic::ATOMIC_USIZE_INIT;
+    static PORT: std::sync::atomic::AtomicUsize = std::sync::atomic::ATOMIC_USIZE_INIT;
 
     fn next_test_ip4() -> String {
-        let port = PORT.fetch_add(1, ::std::sync::atomic::Ordering::SeqCst) as u16 + base_port();
+        let port = PORT.fetch_add(1, std::sync::atomic::Ordering::SeqCst) as u16 + base_port();
 
         format!("127.0.0.1:{}", port)
     }
@@ -96,7 +93,7 @@ mod test {
     // all want to use ports. This function figures out which workspace
     // it is running in and assigns a port range based on it.
     fn base_port() -> u16 {
-        let cwd = ::std::env::current_dir()
+        let cwd = std::env::current_dir()
             .unwrap();
         let dirs = [
             "32-opt",
@@ -119,7 +116,7 @@ mod test {
             .unwrap_or(0) as u16 * 1000 + 19600
     }
 
-    fn handle_client(stream: &mut ::std::net::TcpStream, tx: ::std::sync::mpsc::Sender<String>) {
+    fn handle_client(stream: &mut std::net::TcpStream, tx: std::sync::mpsc::Sender<String>) {
         let mut message = String::new();
 
         loop {
@@ -147,7 +144,7 @@ mod test {
 
     #[cfg(not(feature = "mock"))]
     fn handle_message(message: String) -> Option<String> {
-        let socket = ::socket::Socket::new("192.168.1.5:5000".to_owned());
+        let socket = crate::socket::Socket::new("192.168.1.5:5000".to_owned());
 
         socket.send(message.clone())
     }

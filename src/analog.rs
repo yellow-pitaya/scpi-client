@@ -1,6 +1,6 @@
-use socket::Socket;
+use crate::socket::Socket;
 
-pub trait Pin : ::std::convert::Into<String> {
+pub trait Pin : std::convert::Into<String> {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -14,7 +14,7 @@ pub enum OutputPin {
 impl Pin for OutputPin {
 }
 
-impl ::std::convert::Into<String> for OutputPin {
+impl std::convert::Into<String> for OutputPin {
     fn into(self) -> String {
         let s = match self {
             OutputPin::AOUT0 => "AOUT0",
@@ -38,7 +38,7 @@ pub enum InputPin {
 impl Pin for InputPin {
 }
 
-impl ::std::convert::Into<String> for InputPin {
+impl std::convert::Into<String> for InputPin {
     fn into(self) -> String {
         let s = match self {
             InputPin::AIN0 => "AIN0",
@@ -56,7 +56,7 @@ pub struct Analog {
     socket: Socket,
 }
 
-impl ::Module for Analog {
+impl crate::Module for Analog {
     fn new(socket: Socket) -> Self {
         Analog {
             socket,
@@ -86,7 +86,7 @@ impl Analog {
      *
      * Voltage range of slow analog inputs is: 0 3.3 V
      */
-    pub fn get_value<P>(&self, pin: P) -> Result<f32, <f32 as ::std::str::FromStr>::Err>
+    pub fn get_value<P>(&self, pin: P) -> Result<f32, <f32 as std::str::FromStr>::Err>
         where P: Pin
     {
         self.socket.send(format!("ANALOG:PIN? {}", Into::<String>::into(pin)))
@@ -99,7 +99,7 @@ impl Analog {
 mod test {
     #[test]
     fn test_reset() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
         rp.analog.reset();
         assert_eq!("ANALOG:RST\r\n", rx.recv().unwrap());
@@ -107,15 +107,15 @@ mod test {
 
     #[test]
     fn test_value() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
-        rp.analog.set_value(::analog::OutputPin::AOUT1, 1.34);
+        rp.analog.set_value(crate::analog::OutputPin::AOUT1, 1.34);
         assert_eq!("ANALOG:PIN AOUT1,1.34\r\n", rx.recv().unwrap());
 
         #[cfg(feature = "mock")]
-        assert_eq!(rp.analog.get_value(::analog::InputPin::AIN1), Ok(1.34));
+        assert_eq!(rp.analog.get_value(crate::analog::InputPin::AIN1), Ok(1.34));
 
         #[cfg(not(feature = "mock"))]
-        assert!(rp.analog.get_value(::analog::InputPin::AIN1).is_ok());
+        assert!(rp.analog.get_value(crate::analog::InputPin::AIN1).is_ok());
     }
 }

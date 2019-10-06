@@ -1,4 +1,4 @@
-use socket::Socket;
+use crate::socket::Socket;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Source {
@@ -14,7 +14,7 @@ pub enum Source {
     AWG_NE,
 }
 
-impl ::std::convert::Into<String> for Source {
+impl std::convert::Into<String> for Source {
     fn into(self) -> String {
         let s = match self {
             Source::DISABLED => "DISABLED",
@@ -39,7 +39,7 @@ pub enum State {
     TD,
 }
 
-impl ::std::str::FromStr for State {
+impl std::str::FromStr for State {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -56,7 +56,7 @@ pub struct Trigger {
     socket: Socket,
 }
 
-impl ::Module for Trigger {
+impl crate::Module for Trigger {
     fn new(socket: Socket) -> Self {
         Trigger {
             socket,
@@ -102,7 +102,7 @@ impl Trigger {
     /**
      * Get trigger delay in samples.
      */
-    pub fn get_delay(&self) -> Result<u16, <u16 as ::std::str::FromStr>::Err> {
+    pub fn get_delay(&self) -> Result<u16, <u16 as std::str::FromStr>::Err> {
         self.socket.send("ACQ:TRIG:DLY?")
             .unwrap()
             .parse()
@@ -118,7 +118,7 @@ impl Trigger {
     /**
      * Get trigger delay in ns.
      */
-    pub fn get_delay_in_ns(&self) -> Result<u8, <u8 as ::std::str::FromStr>::Err> {
+    pub fn get_delay_in_ns(&self) -> Result<u8, <u8 as std::str::FromStr>::Err> {
         self.socket.send("ACQ:TRIG:DLY:NS?")
             .unwrap()
             .replace("ns", "")
@@ -137,7 +137,7 @@ impl Trigger {
     /**
      * Gets currently set trigger threshold hysteresis value in volts.
      */
-    pub fn get_hysteresis(&self) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
+    pub fn get_hysteresis(&self) -> Result<f32, <f32 as std::str::FromStr>::Err> {
         self.socket.send("ACQ:TRIG:HYST?")
             .unwrap()
             .parse()
@@ -153,7 +153,7 @@ impl Trigger {
     /**
      * Get trigger level in mV.
      */
-    pub fn get_level(&self) -> Result<f32, <f32 as ::std::str::FromStr>::Err> {
+    pub fn get_level(&self) -> Result<f32, <f32 as std::str::FromStr>::Err> {
         self.socket.send("ACQ:TRIG:LEV?")
             .unwrap()
             .replace("mV", "")
@@ -165,13 +165,13 @@ impl Trigger {
 mod test {
     #[test]
     fn test_status() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
-        rp.trigger.enable(::trigger::Source::NOW);
+        rp.trigger.enable(crate::trigger::Source::NOW);
         assert_eq!("ACQ:TRIG NOW\r\n", rx.recv().unwrap());
 
         #[cfg(feature = "mock")]
-        assert_eq!(rp.trigger.get_state(), Ok(::trigger::State::WAIT));
+        assert_eq!(rp.trigger.get_state(), Ok(crate::trigger::State::WAIT));
 
         #[cfg(not(feature = "mock"))]
         assert!(rp.trigger.get_state().is_ok());
@@ -182,7 +182,7 @@ mod test {
 
     #[test]
     fn test_delay() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
         rp.trigger.set_delay(2314);
         assert_eq!("ACQ:TRIG:DLY 2314\r\n", rx.recv().unwrap());
@@ -192,7 +192,7 @@ mod test {
 
     #[test]
     fn test_delay_in_ns() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
         rp.trigger.set_delay_in_ns(128);
         assert_eq!("ACQ:TRIG:DLY:NS 128\r\n", rx.recv().unwrap());
@@ -202,7 +202,7 @@ mod test {
 
     #[test]
     fn test_hysteresis() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
         rp.trigger.set_hysteresis(0.75);
         assert_eq!("ACQ:TRIG:HYST 0.75\r\n", rx.recv().unwrap());
@@ -212,7 +212,7 @@ mod test {
 
     #[test]
     fn test_level() {
-        let (rx, rp) = ::test::create_client();
+        let (rx, rp) = crate::test::create_client();
 
         rp.trigger.set_level(0.4);
         assert_eq!("ACQ:TRIG:LEV 0.4\r\n", rx.recv().unwrap());
