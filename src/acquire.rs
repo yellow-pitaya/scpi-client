@@ -30,7 +30,7 @@ impl std::str::FromStr for Gain {
 }
 
 impl std::fmt::Display for Gain {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let display = match self {
             &Gain::LV => "LV",
             &Gain::HV => "HV",
@@ -58,7 +58,7 @@ impl std::convert::Into<String> for Source {
 }
 
 impl std::fmt::Display for Source {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let display = match self {
             &Source::IN1 => "IN 1",
             &Source::IN2 => "IN 2",
@@ -148,7 +148,7 @@ impl SamplingRate {
 }
 
 impl std::fmt::Display for SamplingRate {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let display = match self {
             &SamplingRate::RATE_125MHz => "125 MHz",
             &SamplingRate::RATE_15_6MHz => "15.6 MHz",

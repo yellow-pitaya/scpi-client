@@ -83,7 +83,7 @@ impl std::str::FromStr for Form {
 }
 
 impl std::fmt::Display for Form {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let display = match self {
             &Form::SINE => "Sine",
             &Form::SQUARE => "Square",
@@ -127,7 +127,7 @@ impl std::convert::Into<usize> for Source {
 }
 
 impl std::fmt::Display for Source {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let display = match self {
             &Source::OUT1 => "OUT 1",
             &Source::OUT2 => "OUT 2",
