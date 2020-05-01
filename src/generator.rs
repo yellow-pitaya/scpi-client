@@ -85,14 +85,14 @@ impl std::str::FromStr for Form {
 impl std::fmt::Display for Form {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let display = match self {
-            &Form::SINE => "Sine",
-            &Form::SQUARE => "Square",
-            &Form::TRIANGLE => "Triangle",
-            &Form::SAWU => "SAWU",
-            &Form::SAWD => "SAWD",
-            &Form::DC => "DC",
-            &Form::PWM => "PWM",
-            &Form::ARBITRARY => "Arbitrary",
+            Form::SINE => "Sine",
+            Form::SQUARE => "Square",
+            Form::TRIANGLE => "Triangle",
+            Form::SAWU => "SAWU",
+            Form::SAWD => "SAWD",
+            Form::DC => "DC",
+            Form::PWM => "PWM",
+            Form::ARBITRARY => "Arbitrary",
         };
 
         write!(f, "{}", display)
@@ -129,8 +129,8 @@ impl std::convert::Into<usize> for Source {
 impl std::fmt::Display for Source {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let display = match self {
-            &Source::OUT1 => "OUT 1",
-            &Source::OUT2 => "OUT 2",
+            Source::OUT1 => "OUT 1",
+            Source::OUT2 => "OUT 2",
         };
 
         write!(f, "{}", display)
@@ -155,18 +155,18 @@ impl Generator {
      * Enable fast analog outputs.
      */
     pub fn start(&self, source: Source) {
-        self.set_state(&source, "ON");
+        self.set_state(source, "ON");
     }
 
     /**
      * Disable fast analog outputs.
      */
     pub fn stop(&self, source: Source) {
-        self.set_state(&source, "OFF");
+        self.set_state(source, "OFF");
     }
 
-    fn set_state(&self, source: &Source, state: &str) {
-        let output = match *source {
+    fn set_state(&self, source: Source, state: &str) {
+        let output = match source {
             Source::OUT1 => "OUTPUT1",
             Source::OUT2 => "OUTPUT2",
         };
@@ -305,7 +305,7 @@ impl Generator {
             .unwrap();
 
         data.trim_matches(|c| c == '{' || c == '}')
-            .split(",")
+            .split(',')
             .map(|x| x.parse().unwrap())
             .collect()
     }

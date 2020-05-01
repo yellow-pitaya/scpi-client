@@ -141,7 +141,7 @@ impl Data {
 
     fn parse(&self, data: String) -> Vec<f64> {
         data.trim_matches(|c: char| c == '{' || c == '}' || c == '!' || c.is_alphabetic())
-            .split(",")
+            .split(',')
             .map(|s| {
                 match s.parse::<f64>() {
                     Ok(f) => f,

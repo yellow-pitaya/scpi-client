@@ -1,3 +1,4 @@
+#![allow(non_camel_case_types)]
 #![warn(rust_2018_idioms)]
 
 pub mod acquire;
@@ -39,7 +40,7 @@ impl Redpitaya {
             digital: digital::Digital::new(socket.clone()),
             general: general::General::new(socket.clone()),
             generator: generator::Generator::new(socket.clone()),
-            trigger: trigger::Trigger::new(socket.clone()),
+            trigger: trigger::Trigger::new(socket),
         }
     }
 }
@@ -83,7 +84,7 @@ mod test {
         (addr, rx)
     }
 
-    static PORT: std::sync::atomic::AtomicUsize = std::sync::atomic::ATOMIC_USIZE_INIT;
+    static PORT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
 
     fn next_test_ip4() -> String {
         let port = PORT.fetch_add(1, std::sync::atomic::Ordering::SeqCst) as u16 + base_port();

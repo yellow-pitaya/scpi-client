@@ -27,7 +27,7 @@ impl Socket {
         stream.write(message.as_bytes())
             .unwrap();
 
-        if message.contains("?") {
+        if message.contains('?') {
             Some(self.receive(stream))
         }
         else {
