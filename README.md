@@ -1,6 +1,7 @@
 # Redpitaya SCPI
 
 [![Build Status](https://travis-ci.org/sanpii/redpitaya-scpi.svg?branch=master)](https://travis-ci.org/sanpii/redpitaya-scpi)
+[![.github/workflows/ci.yml](https://github.com/yellow-pitaya/scpi-client/actions/workflows/ci.yml/badge.svg)](https://github.com/yellow-pitaya/scpi-client/actions/workflows/ci.yml)
 [![pipeline status](https://gitlab.com/yellow-pitaya/scpi-client/badges/main/pipeline.svg)](https://gitlab.com/yellow-pitaya/scpi-client/-/commits/main)
 
 Controlling your redpitaya via SCPI commands in rust.
