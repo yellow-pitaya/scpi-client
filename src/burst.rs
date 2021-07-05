@@ -6,9 +6,9 @@ pub enum Source {
     OUT2,
 }
 
-impl std::convert::Into<String> for Source {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Source> for String {
+    fn from(source: Source) -> Self {
+        let s = match source {
             Source::OUT1 => "SOUR1",
             Source::OUT2 => "SOUR2",
         };
@@ -24,9 +24,9 @@ pub enum Mode {
     STREAM
 }
 
-impl std::convert::Into<String> for Mode {
-    fn into(self) -> String {
-        match self {
+impl std::convert::From<Mode> for String {
+    fn from(mode: Mode) -> Self {
+        match mode {
             Mode::CONTINUOUS => "CONTINUOUS",
             Mode::BURST => "BURST",
             Mode::STREAM => "STREAM",

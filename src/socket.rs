@@ -24,7 +24,7 @@ impl Socket {
         log::info!("> {}", command);
 
         let message = format!("{}\r\n", command);
-        stream.write(message.as_bytes())
+        stream.write_all(message.as_bytes())
             .unwrap();
 
         if message.contains('?') {

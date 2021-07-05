@@ -8,9 +8,9 @@ pub enum TriggerSource {
     BURST,
 }
 
-impl std::convert::Into<String> for TriggerSource {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<TriggerSource> for String {
+    fn from(source: TriggerSource) -> Self {
+        let s = match source {
             TriggerSource::EXT_PE => "EXT_PE",
             TriggerSource::EXT_NE => "EXT_NE",
             TriggerSource::INT => "INT",
@@ -47,9 +47,9 @@ pub enum Form {
     ARBITRARY,
 }
 
-impl std::convert::Into<String> for Form {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Form> for String {
+    fn from(form: Form) -> Self {
+        let s = match form {
             Form::SINE => "SINE",
             Form::SQUARE => "SQUARE",
             Form::TRIANGLE => "TRIANGLE",
@@ -105,9 +105,9 @@ pub enum Source {
     OUT2,
 }
 
-impl std::convert::Into<String> for Source {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Source> for String {
+    fn from(source: Source) -> Self {
+        let s = match source {
             Source::OUT1 => "SOUR1",
             Source::OUT2 => "SOUR2",
         };
@@ -117,9 +117,9 @@ impl std::convert::Into<String> for Source {
 }
 
 // @TODO impl std::slice::SliceIndex<generator::State> instead
-impl std::convert::Into<usize> for Source {
-    fn into(self) -> usize {
-        match self {
+impl std::convert::From<Source> for usize {
+    fn from(source: Source) -> Self {
+        match source {
             Source::OUT1 => 0,
             Source::OUT2 => 1,
         }

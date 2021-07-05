@@ -6,9 +6,9 @@ pub enum Gain {
     HV,
 }
 
-impl std::convert::Into<String> for Gain {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Gain> for String {
+    fn from(gain: Gain) -> Self {
+        let s = match gain {
             Gain::LV => "LV",
             Gain::HV => "HV",
         };
@@ -46,9 +46,9 @@ pub enum Source {
     IN2,
 }
 
-impl std::convert::Into<String> for Source {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Source> for String {
+    fn from(source: Source) -> Self {
+        let s = match source {
             Source::IN1 => "SOUR1",
             Source::IN2 => "SOUR2",
         };
@@ -78,9 +78,9 @@ pub enum Decimation {
     DEC_65536,
 }
 
-impl std::convert::Into<String> for Decimation {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Decimation> for String {
+    fn from(decimation: Decimation) -> Self {
+        let s = match decimation {
             Decimation::DEC_1 => "1",
             Decimation::DEC_8 => "8",
             Decimation::DEC_64 => "64",
@@ -109,9 +109,9 @@ impl std::str::FromStr for Decimation {
     }
 }
 
-impl std::convert::Into<SamplingRate> for Decimation {
-    fn into(self) -> SamplingRate {
-        match self {
+impl std::convert::From<Decimation> for SamplingRate {
+    fn from(decimation: Decimation) -> Self {
+        match decimation {
             Decimation::DEC_1 => SamplingRate::RATE_125MHz,
             Decimation::DEC_8 => SamplingRate::RATE_15_6MHz,
             Decimation::DEC_64 => SamplingRate::RATE_1_9MHz,
@@ -162,9 +162,9 @@ impl std::fmt::Display for SamplingRate {
     }
 }
 
-impl std::convert::Into<Decimation> for SamplingRate {
-    fn into(self) -> Decimation {
-        match self {
+impl std::convert::From<SamplingRate> for Decimation {
+    fn from(rate: SamplingRate) -> Self {
+        match rate {
             SamplingRate::RATE_125MHz => Decimation::DEC_1,
             SamplingRate::RATE_15_6MHz => Decimation::DEC_8,
             SamplingRate::RATE_1_9MHz => Decimation::DEC_64,
@@ -175,9 +175,9 @@ impl std::convert::Into<Decimation> for SamplingRate {
     }
 }
 
-impl std::convert::Into<String> for SamplingRate {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<SamplingRate> for String {
+    fn from(rate: SamplingRate) -> Self {
+        let s = match rate {
             SamplingRate::RATE_125MHz => "125MHz",
             SamplingRate::RATE_15_6MHz => "15_6MHz",
             SamplingRate::RATE_1_9MHz => "1_9MHz",
@@ -292,10 +292,7 @@ impl Acquire {
         let message = self.socket.send("ACQ:AVG?")
             .unwrap();
 
-        match message.as_str() {
-            "ON" => true,
-            _ => false,
-        }
+        message == "ON"
     }
 
     /**

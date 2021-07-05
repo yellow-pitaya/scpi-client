@@ -26,9 +26,9 @@ pub enum Gpio {
 impl Pin for Gpio {
 }
 
-impl std::convert::Into<String> for Gpio {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Gpio> for String {
+    fn from(gpio: Gpio) -> Self {
+        let s = match gpio {
             Gpio::DIO0_N => "DIO0_N",
             Gpio::DIO0_P => "DIO0_P",
             Gpio::DIO1_N => "DIO1_N",
@@ -67,9 +67,9 @@ pub enum Led {
 impl Pin for Led {
 }
 
-impl std::convert::Into<String> for Led {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Led> for String {
+    fn from(led: Led) -> Self {
+        let s = match led {
             Led::LED0 => "LED0",
             Led::LED1 => "LED1",
             Led::LED2 => "LED2",
@@ -91,9 +91,9 @@ pub enum State {
     HIGH,
 }
 
-impl std::convert::Into<String> for State {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<State> for String {
+    fn from(state: State) -> Self {
+        let s = match state {
             State::LOW => "0",
             State::HIGH => "1",
         };
@@ -120,9 +120,9 @@ pub enum Direction {
     IN,
 }
 
-impl std::convert::Into<String> for Direction {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Direction> for String {
+    fn from(direction: Direction) -> Self {
+        let s = match direction {
             Direction::OUT => "OUT",
             Direction::IN => "IN",
         };

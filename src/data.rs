@@ -6,9 +6,9 @@ pub enum Unit {
     VOLTS,
 }
 
-impl std::convert::Into<String> for Unit {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Unit> for String {
+    fn from(unit: Unit) -> Self {
+        let s = match unit {
             Unit::RAW => "RAW",
             Unit::VOLTS => "VOLTS",
         };
@@ -35,9 +35,9 @@ pub enum Format {
     BIN,
 }
 
-impl std::convert::Into<String> for Format {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Format> for String {
+    fn from(format: Format) -> Self {
+        let s = match format {
             Format::ASCII => "ASCII",
             Format::BIN => "BIN",
         };

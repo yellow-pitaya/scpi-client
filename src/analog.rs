@@ -14,9 +14,9 @@ pub enum OutputPin {
 impl Pin for OutputPin {
 }
 
-impl std::convert::Into<String> for OutputPin {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<OutputPin> for String {
+    fn from(pin: OutputPin) -> Self {
+        let s = match pin {
             OutputPin::AOUT0 => "AOUT0",
             OutputPin::AOUT1 => "AOUT1",
             OutputPin::AOUT2 => "AOUT2",
@@ -38,9 +38,9 @@ pub enum InputPin {
 impl Pin for InputPin {
 }
 
-impl std::convert::Into<String> for InputPin {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<InputPin> for String {
+    fn from(pin: InputPin) -> Self {
+        let s = match pin {
             InputPin::AIN0 => "AIN0",
             InputPin::AIN1 => "AIN1",
             InputPin::AIN2 => "AIN2",

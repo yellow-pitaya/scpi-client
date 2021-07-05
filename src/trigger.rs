@@ -14,9 +14,9 @@ pub enum Source {
     AWG_NE,
 }
 
-impl std::convert::Into<String> for Source {
-    fn into(self) -> String {
-        let s = match self {
+impl std::convert::From<Source> for String {
+    fn from(source: Source) -> Self {
+        let s = match source {
             Source::DISABLED => "DISABLED",
             Source::NOW => "NOW",
             Source::CH1_PE => "CH1_PE",
