@@ -1,7 +1,6 @@
 use crate::socket::Socket;
 
-pub trait Pin : std::convert::Into<String> {
-}
+pub trait Pin: std::convert::Into<String> {}
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum OutputPin {
@@ -11,8 +10,7 @@ pub enum OutputPin {
     AOUT3,
 }
 
-impl Pin for OutputPin {
-}
+impl Pin for OutputPin {}
 
 impl std::convert::From<OutputPin> for String {
     fn from(pin: OutputPin) -> Self {
@@ -35,8 +33,7 @@ pub enum InputPin {
     AIN3,
 }
 
-impl Pin for InputPin {
-}
+impl Pin for InputPin {}
 
 impl std::convert::From<InputPin> for String {
     fn from(pin: InputPin) -> Self {
@@ -58,9 +55,7 @@ pub struct Analog {
 
 impl crate::Module for Analog {
     fn new(socket: Socket) -> Self {
-        Analog {
-            socket,
-        }
+        Analog { socket }
     }
 }
 
@@ -78,7 +73,11 @@ impl Analog {
      * Voltage range of slow analog outputs is: 0 - 1.8 V
      */
     pub fn set_value(&self, pin: OutputPin, value: f32) {
-        self.socket.send(format!("ANALOG:PIN {},{}", Into::<String>::into(pin), value));
+        self.socket.send(format!(
+            "ANALOG:PIN {},{}",
+            Into::<String>::into(pin),
+            value
+        ));
     }
 
     /**
@@ -87,9 +86,11 @@ impl Analog {
      * Voltage range of slow analog inputs is: 0 3.3 V
      */
     pub fn get_value<P>(&self, pin: P) -> Result<f32, <f32 as std::str::FromStr>::Err>
-        where P: Pin
+    where
+        P: Pin,
     {
-        self.socket.send(format!("ANALOG:PIN? {}", Into::<String>::into(pin)))
+        self.socket
+            .send(format!("ANALOG:PIN? {}", Into::<String>::into(pin)))
             .unwrap()
             .parse()
     }

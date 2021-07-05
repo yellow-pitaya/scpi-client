@@ -7,9 +7,7 @@ pub struct General {
 
 impl crate::Module for General {
     fn new(socket: Socket) -> Self {
-        General {
-            socket,
-        }
+        General { socket }
     }
 }
 
@@ -63,7 +61,7 @@ mod test {
 
             rp.general.$f();
             assert_eq!($e, rx.recv().unwrap());
-        }
+        };
     }
 
     #[test]

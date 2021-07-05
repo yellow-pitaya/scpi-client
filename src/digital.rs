@@ -1,7 +1,6 @@
 use crate::socket::Socket;
 
-pub trait Pin : std::convert::Into<String> {
-}
+pub trait Pin: std::convert::Into<String> {}
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Gpio {
@@ -23,8 +22,7 @@ pub enum Gpio {
     DIO7_P,
 }
 
-impl Pin for Gpio {
-}
+impl Pin for Gpio {}
 
 impl std::convert::From<Gpio> for String {
     fn from(gpio: Gpio) -> Self {
@@ -64,8 +62,7 @@ pub enum Led {
     LED8,
 }
 
-impl Pin for Led {
-}
+impl Pin for Led {}
 
 impl std::convert::From<Led> for String {
     fn from(led: Led) -> Self {
@@ -138,9 +135,7 @@ pub struct Digital {
 
 impl crate::Module for Digital {
     fn new(socket: Socket) -> Self {
-        Digital {
-            socket,
-        }
+        Digital { socket }
     }
 }
 
@@ -159,27 +154,39 @@ impl Digital {
      * Set direction of digital pins to output or input.
      */
     pub fn set_direction<P>(&self, pin: P, direction: Direction)
-        where P: Pin
+    where
+        P: Pin,
     {
-        self.socket.send(format!("DIG:PIN:DIR {},{}", Into::<String>::into(direction), Into::<String>::into(pin)));
+        self.socket.send(format!(
+            "DIG:PIN:DIR {},{}",
+            Into::<String>::into(direction),
+            Into::<String>::into(pin)
+        ));
     }
 
     /**
      * Set state of digital outputs to 1 (HIGH) or 0 (LOW).
      */
     pub fn set_state<P>(&self, pin: P, state: State)
-        where P: Pin
+    where
+        P: Pin,
     {
-        self.socket.send(format!("DIG:PIN {},{}", Into::<String>::into(pin), Into::<String>::into(state)));
+        self.socket.send(format!(
+            "DIG:PIN {},{}",
+            Into::<String>::into(pin),
+            Into::<String>::into(state)
+        ));
     }
 
     /**
      * Get state of digital inputs and outputs.
      */
     pub fn get_state<P>(&self, pin: P) -> Result<State, <State as std::str::FromStr>::Err>
-        where P: Pin
+    where
+        P: Pin,
     {
-        self.socket.send(format!("DIG:PIN? {}", Into::<String>::into(pin)))
+        self.socket
+            .send(format!("DIG:PIN? {}", Into::<String>::into(pin)))
             .unwrap()
             .parse()
     }
@@ -199,7 +206,8 @@ mod test {
     fn test_set_direction_in() {
         let (rx, rp) = crate::test::create_client();
 
-        rp.digital.set_direction(crate::digital::Gpio::DIO0_N, crate::digital::Direction::IN);
+        rp.digital
+            .set_direction(crate::digital::Gpio::DIO0_N, crate::digital::Direction::IN);
         assert_eq!("DIG:PIN:DIR IN,DIO0_N\r\n", rx.recv().unwrap());
     }
 
@@ -207,7 +215,8 @@ mod test {
     fn test_set_direction_out() {
         let (rx, rp) = crate::test::create_client();
 
-        rp.digital.set_direction(crate::digital::Led::LED0, crate::digital::Direction::OUT);
+        rp.digital
+            .set_direction(crate::digital::Led::LED0, crate::digital::Direction::OUT);
         assert_eq!("DIG:PIN:DIR OUT,LED0\r\n", rx.recv().unwrap());
     }
 
@@ -215,12 +224,17 @@ mod test {
     fn test_state() {
         let (rx, rp) = crate::test::create_client();
 
-        rp.digital.set_direction(crate::digital::Gpio::DIO0_N, crate::digital::Direction::OUT);
+        rp.digital
+            .set_direction(crate::digital::Gpio::DIO0_N, crate::digital::Direction::OUT);
         assert_eq!("DIG:PIN:DIR OUT,DIO0_N\r\n", rx.recv().unwrap());
 
-        rp.digital.set_state(crate::digital::Gpio::DIO0_N, crate::digital::State::HIGH);
+        rp.digital
+            .set_state(crate::digital::Gpio::DIO0_N, crate::digital::State::HIGH);
         assert_eq!("DIG:PIN DIO0_N,1\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.digital.get_state(crate::digital::Gpio::DIO0_N), Ok(crate::digital::State::HIGH));
+        assert_eq!(
+            rp.digital.get_state(crate::digital::Gpio::DIO0_N),
+            Ok(crate::digital::State::HIGH)
+        );
     }
 }

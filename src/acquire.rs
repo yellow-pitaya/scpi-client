@@ -213,9 +213,7 @@ pub struct Acquire {
 
 impl crate::Module for Acquire {
     fn new(socket: Socket) -> Self {
-        Acquire {
-            socket,
-        }
+        Acquire { socket }
     }
 }
 
@@ -245,16 +243,15 @@ impl Acquire {
      * Set decimation factor.
      */
     pub fn set_decimation(&self, decimation: Decimation) {
-        self.socket.send(format!("ACQ:DEC {}", Into::<String>::into(decimation)));
+        self.socket
+            .send(format!("ACQ:DEC {}", Into::<String>::into(decimation)));
     }
 
     /**
      * Get decimation factor.
      */
     pub fn get_decimation(&self) -> Result<Decimation, String> {
-        self.socket.send("ACQ:DEC?")
-            .unwrap()
-            .parse()
+        self.socket.send("ACQ:DEC?").unwrap().parse()
     }
 
     /**
@@ -266,9 +263,7 @@ impl Acquire {
      * See https://github.com/RedPitaya/RedPitaya/pull/110
      */
     pub fn get_sampling_rate(&self) -> Result<SamplingRate, String> {
-        self.socket.send("ACQ:SRAT?")
-            .unwrap()
-            .parse()
+        self.socket.send("ACQ:SRAT?").unwrap().parse()
     }
 
     /**
@@ -289,8 +284,7 @@ impl Acquire {
      * Get averaging status.
      */
     pub fn is_average_enabled(&self) -> bool {
-        let message = self.socket.send("ACQ:AVG?")
-            .unwrap();
+        let message = self.socket.send("ACQ:AVG?").unwrap();
 
         message == "ON"
     }
@@ -301,14 +295,19 @@ impl Acquire {
      * This gain is referring to jumper settings on Red Pitaya fast analog inputs.
      */
     pub fn set_gain(&self, source: Source, gain: Gain) {
-        self.socket.send(format!("ACQ:{}:GAIN {}", Into::<String>::into(source), Into::<String>::into(gain)));
+        self.socket.send(format!(
+            "ACQ:{}:GAIN {}",
+            Into::<String>::into(source),
+            Into::<String>::into(gain)
+        ));
     }
 
     /**
      * Get gain settings to HIGH or LOW.
      */
     pub fn get_gain(&self, source: Source) -> Result<Gain, String> {
-        self.socket.send(format!("ACQ:{}:GAIN?", Into::<String>::into(source)))
+        self.socket
+            .send(format!("ACQ:{}:GAIN?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -320,7 +319,10 @@ mod test {
     fn test_sampling_rate_get_buffer_duration() {
         let duration = std::time::Duration::new(8, 590_000_000);
 
-        assert_eq!(duration, crate::acquire::SamplingRate::RATE_1_9kHz.get_buffer_duration());
+        assert_eq!(
+            duration,
+            crate::acquire::SamplingRate::RATE_1_9kHz.get_buffer_duration()
+        );
     }
 
     #[test]
@@ -344,7 +346,10 @@ mod test {
         rp.acquire.set_decimation(crate::acquire::Decimation::DEC_1);
         assert_eq!("ACQ:DEC 1\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.acquire.get_decimation(), Ok(crate::acquire::Decimation::DEC_1));
+        assert_eq!(
+            rp.acquire.get_decimation(),
+            Ok(crate::acquire::Decimation::DEC_1)
+        );
     }
 
     #[test]
@@ -364,9 +369,13 @@ mod test {
     fn test_gain() {
         let (rx, rp) = crate::test::create_client();
 
-        rp.acquire.set_gain(crate::acquire::Source::IN1, crate::acquire::Gain::HV);
+        rp.acquire
+            .set_gain(crate::acquire::Source::IN1, crate::acquire::Gain::HV);
         assert_eq!("ACQ:SOUR1:GAIN HV\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.acquire.get_gain(crate::acquire::Source::IN1), Ok(crate::acquire::Gain::HV));
+        assert_eq!(
+            rp.acquire.get_gain(crate::acquire::Source::IN1),
+            Ok(crate::acquire::Gain::HV)
+        );
     }
 }

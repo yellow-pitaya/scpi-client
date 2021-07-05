@@ -8,8 +8,8 @@ pub mod data;
 pub mod digital;
 pub mod general;
 pub mod generator;
-pub mod trigger;
 pub mod socket;
+pub mod trigger;
 
 trait Module {
     fn new(socket: socket::Socket) -> Self;
@@ -28,8 +28,7 @@ pub struct Redpitaya {
 }
 
 impl Redpitaya {
-    pub fn new(addr: String) -> Self
-    {
+    pub fn new(addr: String) -> Self {
         let socket = socket::Socket::new(addr);
 
         Self {
@@ -64,20 +63,17 @@ mod test {
 
     pub fn launch_server() -> (String, std::sync::mpsc::Receiver<String>) {
         let addr = next_test_ip4();
-        let listener = std::net::TcpListener::bind(format!("{}", addr))
-            .unwrap();
+        let listener = std::net::TcpListener::bind(format!("{}", addr)).unwrap();
 
         let (tx, rx) = std::sync::mpsc::channel();
 
-        std::thread::spawn(move || {
-            loop {
-                if let Ok((mut stream, _)) =  listener.accept() {
-                    let tx = tx.clone();
+        std::thread::spawn(move || loop {
+            if let Ok((mut stream, _)) = listener.accept() {
+                let tx = tx.clone();
 
-                    std::thread::spawn(move || {
-                        handle_client(&mut stream, tx);
-                    });
-                }
+                std::thread::spawn(move || {
+                    handle_client(&mut stream, tx);
+                });
             }
         });
 
@@ -96,8 +92,7 @@ mod test {
     // all want to use ports. This function figures out which workspace
     // it is running in and assigns a port range based on it.
     fn base_port() -> u16 {
-        let cwd = std::env::current_dir()
-            .unwrap();
+        let cwd = std::env::current_dir().unwrap();
         let dirs = [
             "32-opt",
             "32-nopt",
@@ -116,7 +111,9 @@ mod test {
             .enumerate()
             .find(|&(_, dir)| cwd.to_str().unwrap().contains(dir))
             .map(|p| p.0)
-            .unwrap_or(0) as u16 * 1000 + 19600
+            .unwrap_or(0) as u16
+            * 1000
+            + 19600
     }
 
     fn handle_client(stream: &mut std::net::TcpStream, tx: std::sync::mpsc::Sender<String>) {
@@ -125,8 +122,7 @@ mod test {
         loop {
             let mut buffer = [0; 1];
 
-            stream.read(&mut buffer[..])
-                .unwrap();
+            stream.read(&mut buffer[..]).unwrap();
             message.push(buffer[0] as char);
 
             if buffer[0] == ('\n' as u8) {
@@ -190,7 +186,8 @@ mod test {
             "SOUR1:BURS:NOR?" => "5",
             "SOUR2:BURS:INT:PER?" => "1000000",
             _ => return None,
-        }.to_owned();
+        }
+        .to_owned();
 
         response.push_str("\r\n");
 

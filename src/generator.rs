@@ -144,9 +144,7 @@ pub struct Generator {
 
 impl crate::Module for Generator {
     fn new(socket: Socket) -> Self {
-        Generator {
-            socket,
-        }
+        Generator { socket }
     }
 }
 
@@ -187,14 +185,20 @@ impl Generator {
      * Set frequency of fast analog outputs.
      */
     pub fn set_frequency(&self, source: Source, frequency: u32) {
-        self.socket.send(format!("{}:FREQ:FIX {}", Into::<String>::into(source), frequency));
+        self.socket.send(format!(
+            "{}:FREQ:FIX {}",
+            Into::<String>::into(source),
+            frequency
+        ));
     }
 
     /**
      * Get frequency of fast analog outputs.
      */
     pub fn get_frequency(&self, source: Source) -> Result<u32, <f32 as std::str::FromStr>::Err> {
-        let value: f32 = self.socket.send(format!("{}:FREQ:FIX?", Into::<String>::into(source)))
+        let value: f32 = self
+            .socket
+            .send(format!("{}:FREQ:FIX?", Into::<String>::into(source)))
             .unwrap()
             .parse()?;
 
@@ -207,11 +211,16 @@ impl Generator {
      * PWM doesn’t work https://github.com/RedPitaya/RedPitaya/issues/81
      */
     pub fn set_form(&self, source: Source, form: Form) {
-        self.socket.send(format!("{}:FUNC {}", Into::<String>::into(source), Into::<String>::into(form)));
+        self.socket.send(format!(
+            "{}:FUNC {}",
+            Into::<String>::into(source),
+            Into::<String>::into(form)
+        ));
     }
 
     pub fn get_form(&self, source: Source) -> Result<Form, String> {
-        self.socket.send(format!("{}:FUNC?", Into::<String>::into(source)))
+        self.socket
+            .send(format!("{}:FUNC?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -222,14 +231,19 @@ impl Generator {
      * Amplitude + offset value must be less than maximum output range ± 1V
      */
     pub fn set_amplitude(&self, source: Source, amplitude: f32) {
-        self.socket.send(format!("{}:VOLT {}", Into::<String>::into(source), amplitude));
+        self.socket.send(format!(
+            "{}:VOLT {}",
+            Into::<String>::into(source),
+            amplitude
+        ));
     }
 
     /**
      * Get amplitude voltage of fast analog outputs.
      */
     pub fn get_amplitude(&self, source: Source) -> Result<f32, <f32 as std::str::FromStr>::Err> {
-        self.socket.send(format!("{}:VOLT?", Into::<String>::into(source)))
+        self.socket
+            .send(format!("{}:VOLT?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -240,14 +254,19 @@ impl Generator {
      * Amplitude + offset value must be less than maximum output range ± 1V
      */
     pub fn set_offset(&self, source: Source, offset: f32) {
-        self.socket.send(format!("{}:VOLT:OFFS {}", Into::<String>::into(source), offset));
+        self.socket.send(format!(
+            "{}:VOLT:OFFS {}",
+            Into::<String>::into(source),
+            offset
+        ));
     }
 
     /**
      * Get offset voltage of fast analog outputs.
      */
     pub fn get_offset(&self, source: Source) -> Result<f32, <f32 as std::str::FromStr>::Err> {
-        self.socket.send(format!("{}:VOLT:OFFS?", Into::<String>::into(source)))
+        self.socket
+            .send(format!("{}:VOLT:OFFS?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -256,14 +275,16 @@ impl Generator {
      * Set phase of fast analog outputs.
      */
     pub fn set_phase(&self, source: Source, phase: i32) {
-        self.socket.send(format!("{}:PHAS {}", Into::<String>::into(source), phase));
+        self.socket
+            .send(format!("{}:PHAS {}", Into::<String>::into(source), phase));
     }
 
     /**
      * Get phase of fast analog outputs.
      */
     pub fn get_phase(&self, source: Source) -> Result<i32, <i32 as std::str::FromStr>::Err> {
-        self.socket.send(format!("{}:PHAS?", Into::<String>::into(source)))
+        self.socket
+            .send(format!("{}:PHAS?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -272,14 +293,16 @@ impl Generator {
      * Set duty cycle of PWM waveform.
      */
     pub fn set_duty_cycle(&self, source: Source, dcyc: f32) {
-        self.socket.send(format!("{}:DCYC {}", Into::<String>::into(source), dcyc));
+        self.socket
+            .send(format!("{}:DCYC {}", Into::<String>::into(source), dcyc));
     }
 
     /**
      * Get duty cycle of PWM waveform.
      */
     pub fn get_duty_cycle(&self, source: Source) -> Result<f32, <f32 as std::str::FromStr>::Err> {
-        self.socket.send(format!("{}:DCYC?", Into::<String>::into(source)))
+        self.socket
+            .send(format!("{}:DCYC?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -288,20 +311,25 @@ impl Generator {
      * Import data for arbitrary waveform generation.
      */
     pub fn set_arbitrary_waveform(&self, source: Source, data: Vec<f32>) {
-        let mut data = data.iter()
-            .fold(String::new(), |acc, e| {
-                format!("{}{},", acc, e)
-            });
+        let mut data = data
+            .iter()
+            .fold(String::new(), |acc, e| format!("{}{},", acc, e));
         data.pop();
 
-        self.socket.send(format!("{}:TRAC:DATA:DATA {}", Into::<String>::into(source), data));
+        self.socket.send(format!(
+            "{}:TRAC:DATA:DATA {}",
+            Into::<String>::into(source),
+            data
+        ));
     }
 
     /**
      * Get data for arbitrary waveform generation.
      */
     pub fn get_arbitrary_waveform(&self, source: Source) -> Vec<f32> {
-        let data = self.socket.send(format!("{}:TRAC:DATA:DATA?", Into::<String>::into(source)))
+        let data = self
+            .socket
+            .send(format!("{}:TRAC:DATA:DATA?", Into::<String>::into(source)))
             .unwrap();
 
         data.trim_matches(|c| c == '{' || c == '}')
@@ -314,14 +342,19 @@ impl Generator {
      * Set trigger source for selected signal.
      */
     pub fn set_trigger_source(&self, source: Source, trigger: TriggerSource) {
-        self.socket.send(format!("{}:TRIG:SOUR {}", Into::<String>::into(source), Into::<String>::into(trigger)));
+        self.socket.send(format!(
+            "{}:TRIG:SOUR {}",
+            Into::<String>::into(source),
+            Into::<String>::into(trigger)
+        ));
     }
 
     /**
      * Get trigger source for selected signal.
      */
     pub fn get_trigger_source(&self, source: Source) -> Result<TriggerSource, String> {
-        self.socket.send(format!("{}:TRIG:SOUR?", Into::<String>::into(source)))
+        self.socket
+            .send(format!("{}:TRIG:SOUR?", Into::<String>::into(source)))
             .unwrap()
             .parse()
     }
@@ -330,7 +363,8 @@ impl Generator {
      * Triggers selected source immediately.
      */
     pub fn trigger(&self, source: Source) {
-        self.socket.send(format!("{}:TRIG:IMM", Into::<String>::into(source)));
+        self.socket
+            .send(format!("{}:TRIG:IMM", Into::<String>::into(source)));
     }
 
     /**
@@ -349,7 +383,7 @@ mod test {
 
             rp.generator.$f();
             assert_eq!($e, rx.recv().unwrap());
-        }
+        };
     }
 
     #[test]
@@ -359,7 +393,10 @@ mod test {
         rp.generator.start(crate::generator::Source::OUT2);
         assert_eq!("OUTPUT2:STATE ON\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.is_started(crate::generator::Source::OUT2), true);
+        assert_eq!(
+            rp.generator.is_started(crate::generator::Source::OUT2),
+            true
+        );
 
         rp.generator.stop(crate::generator::Source::OUT2);
         assert_eq!("OUTPUT2:STATE OFF\r\n", rx.recv().unwrap());
@@ -369,22 +406,33 @@ mod test {
     fn test_frequency() {
         let (rx, rp) = crate::test::create_client();
 
-        rp.generator.set_frequency(crate::generator::Source::OUT1, 1_000);
+        rp.generator
+            .set_frequency(crate::generator::Source::OUT1, 1_000);
         assert_eq!("SOUR1:FREQ:FIX 1000\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.get_frequency(crate::generator::Source::OUT1), Ok(1_000));
+        assert_eq!(
+            rp.generator.get_frequency(crate::generator::Source::OUT1),
+            Ok(1_000)
+        );
 
-        assert_eq!(rp.generator.get_frequency(crate::generator::Source::OUT1), Ok(1_000));
+        assert_eq!(
+            rp.generator.get_frequency(crate::generator::Source::OUT1),
+            Ok(1_000)
+        );
     }
 
     #[test]
     fn test_form() {
         let (rx, rp) = crate::test::create_client();
 
-        rp.generator.set_form(crate::generator::Source::OUT1, crate::generator::Form::SINE);
+        rp.generator
+            .set_form(crate::generator::Source::OUT1, crate::generator::Form::SINE);
         assert_eq!("SOUR1:FUNC SINE\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.get_form(crate::generator::Source::OUT1), Ok(crate::generator::Form::SINE));
+        assert_eq!(
+            rp.generator.get_form(crate::generator::Source::OUT1),
+            Ok(crate::generator::Form::SINE)
+        );
     }
 
     #[test]
@@ -394,10 +442,14 @@ mod test {
         rp.generator.start(crate::generator::Source::OUT1);
         assert_eq!("OUTPUT1:STATE ON\r\n", rx.recv().unwrap());
 
-        rp.generator.set_amplitude(crate::generator::Source::OUT1, -0.5);
+        rp.generator
+            .set_amplitude(crate::generator::Source::OUT1, -0.5);
         assert_eq!("SOUR1:VOLT -0.5\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.get_amplitude(crate::generator::Source::OUT1), Ok(-0.5));
+        assert_eq!(
+            rp.generator.get_amplitude(crate::generator::Source::OUT1),
+            Ok(-0.5)
+        );
     }
 
     #[test]
@@ -407,7 +459,10 @@ mod test {
         rp.generator.set_offset(crate::generator::Source::OUT1, 0.3);
         assert_eq!("SOUR1:VOLT:OFFS 0.3\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.get_offset(crate::generator::Source::OUT1), Ok(0.3));
+        assert_eq!(
+            rp.generator.get_offset(crate::generator::Source::OUT1),
+            Ok(0.3)
+        );
     }
 
     #[test]
@@ -417,43 +472,70 @@ mod test {
         rp.generator.set_phase(crate::generator::Source::OUT1, 180);
         assert_eq!("SOUR1:PHAS 180\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.get_phase(crate::generator::Source::OUT1), Ok(180));
+        assert_eq!(
+            rp.generator.get_phase(crate::generator::Source::OUT1),
+            Ok(180)
+        );
     }
 
     #[test]
     fn test_duty_cycle() {
         let (rx, rp) = crate::test::create_client();
 
-        rp.generator.set_duty_cycle(crate::generator::Source::OUT1, 1.0);
+        rp.generator
+            .set_duty_cycle(crate::generator::Source::OUT1, 1.0);
         assert_eq!("SOUR1:DCYC 1\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.get_duty_cycle(crate::generator::Source::OUT1), Ok(1.0));
+        assert_eq!(
+            rp.generator.get_duty_cycle(crate::generator::Source::OUT1),
+            Ok(1.0)
+        );
     }
 
     #[test]
     fn test_arbitrary_waveform() {
         let (rx, rp) = crate::test::create_client();
 
-        rp.generator.set_arbitrary_waveform(crate::generator::Source::OUT1, vec![1.0, 0.5, 0.2]);
+        rp.generator
+            .set_arbitrary_waveform(crate::generator::Source::OUT1, vec![1.0, 0.5, 0.2]);
         assert_eq!("SOUR1:TRAC:DATA:DATA 1,0.5,0.2\r\n", rx.recv().unwrap());
 
         #[cfg(feature = "mock")]
-        assert_eq!(rp.generator.get_arbitrary_waveform(crate::generator::Source::OUT1), vec![1.0, 0.5, 0.2]);
+        assert_eq!(
+            rp.generator
+                .get_arbitrary_waveform(crate::generator::Source::OUT1),
+            vec![1.0, 0.5, 0.2]
+        );
 
         #[cfg(not(feature = "mock"))]
-        assert!(rp.generator.get_arbitrary_waveform(crate::generator::Source::OUT1).len() > 0);
+        assert!(
+            rp.generator
+                .get_arbitrary_waveform(crate::generator::Source::OUT1)
+                .len()
+                > 0
+        );
     }
 
     #[test]
     fn test_trigger_source() {
         let (rx, rp) = crate::test::create_client();
 
-        rp.generator.set_trigger_source(crate::generator::Source::OUT1, crate::generator::TriggerSource::BURST);
+        rp.generator.set_trigger_source(
+            crate::generator::Source::OUT1,
+            crate::generator::TriggerSource::BURST,
+        );
         assert_eq!("SOUR1:TRIG:SOUR BURST\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.generator.get_trigger_source(crate::generator::Source::OUT1), Ok(crate::generator::TriggerSource::BURST));
+        assert_eq!(
+            rp.generator
+                .get_trigger_source(crate::generator::Source::OUT1),
+            Ok(crate::generator::TriggerSource::BURST)
+        );
 
-        rp.generator.set_trigger_source(crate::generator::Source::OUT1, crate::generator::TriggerSource::INT);
+        rp.generator.set_trigger_source(
+            crate::generator::Source::OUT1,
+            crate::generator::TriggerSource::INT,
+        );
         assert_eq!("SOUR1:TRIG:SOUR INT\r\n", rx.recv().unwrap());
     }
 
