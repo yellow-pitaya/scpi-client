@@ -2,7 +2,7 @@ use crate::socket::Socket;
 
 pub trait Pin: std::convert::Into<String> {}
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Gpio {
     DIO0_N,
     DIO0_P,
@@ -49,7 +49,7 @@ impl std::convert::From<Gpio> for String {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Led {
     LED0,
     LED1,
@@ -82,7 +82,7 @@ impl std::convert::From<Led> for String {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum State {
     LOW,
     HIGH,
@@ -111,7 +111,7 @@ impl std::str::FromStr for State {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Direction {
     OUT,
     IN,

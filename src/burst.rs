@@ -1,6 +1,6 @@
 use crate::socket::Socket;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Source {
     OUT1,
     OUT2,
@@ -17,7 +17,7 @@ impl std::convert::From<Source> for String {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Mode {
     CONTINUOUS,
     BURST,

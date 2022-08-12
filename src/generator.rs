@@ -1,6 +1,6 @@
 use crate::socket::Socket;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum TriggerSource {
     EXT_PE,
     EXT_NE,
@@ -35,7 +35,7 @@ impl std::str::FromStr for TriggerSource {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Form {
     SINE,
     SQUARE,
@@ -99,7 +99,7 @@ impl std::fmt::Display for Form {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Source {
     OUT1,
     OUT2,

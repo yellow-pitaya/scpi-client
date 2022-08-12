@@ -1,6 +1,6 @@
 use crate::socket::Socket;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Source {
     DISABLED,
     NOW,
@@ -33,7 +33,7 @@ impl std::convert::From<Source> for String {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum State {
     WAIT,
     TD,

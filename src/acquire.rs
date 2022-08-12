@@ -1,6 +1,6 @@
 use crate::socket::Socket;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Gain {
     LV,
     HV,
@@ -40,7 +40,7 @@ impl std::fmt::Display for Gain {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Source {
     IN1,
     IN2,
@@ -68,7 +68,7 @@ impl std::fmt::Display for Source {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Decimation {
     DEC_1,
     DEC_8,
@@ -122,7 +122,7 @@ impl std::convert::From<Decimation> for SamplingRate {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum SamplingRate {
     RATE_125MHz,
     RATE_15_6MHz,

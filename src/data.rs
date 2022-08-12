@@ -1,6 +1,6 @@
 use crate::socket::Socket;
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Unit {
     RAW,
     VOLTS,
@@ -29,7 +29,7 @@ impl std::str::FromStr for Unit {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Format {
     ASCII,
     BIN,
