@@ -1,5 +1,5 @@
 #![allow(non_camel_case_types)]
-#![warn(rust_2018_idioms)]
+#![warn(warnings)]
 
 pub mod acquire;
 pub mod analog;
