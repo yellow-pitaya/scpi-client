@@ -30,7 +30,7 @@ impl std::str::FromStr for TriggerSource {
             "EXT_NE" => Ok(TriggerSource::EXT_NE),
             "INT" => Ok(TriggerSource::INT),
             "BURST" => Ok(TriggerSource::BURST),
-            source => Err(format!("Unknow source '{}'", source)),
+            source => Err(format!("Unknow source '{source}'")),
         }
     }
 }
@@ -77,7 +77,7 @@ impl std::str::FromStr for Form {
             "DC" => Ok(Form::DC),
             "PWM" => Ok(Form::PWM),
             "ARBITRARY" => Ok(Form::ARBITRARY),
-            form => Err(format!("Unknow signal form '{}'", form)),
+            form => Err(format!("Unknow signal form '{form}'")),
         }
     }
 }
@@ -95,7 +95,7 @@ impl std::fmt::Display for Form {
             Form::ARBITRARY => "Arbitrary",
         };
 
-        write!(f, "{}", display)
+        write!(f, "{display}")
     }
 }
 
@@ -133,7 +133,7 @@ impl std::fmt::Display for Source {
             Source::OUT2 => "OUT 2",
         };
 
-        write!(f, "{}", display)
+        write!(f, "{display}")
     }
 }
 
@@ -169,7 +169,7 @@ impl Generator {
             Source::OUT2 => "OUTPUT2",
         };
 
-        self.socket.send(format!("{}:STATE {}", output, state));
+        self.socket.send(format!("{output}:STATE {state}"));
     }
 
     pub fn is_started(&self, source: Source) -> bool {
@@ -178,7 +178,7 @@ impl Generator {
             Source::OUT2 => "OUTPUT2",
         };
 
-        self.socket.send(format!("{}:STATE?", output)) == Some("ON".to_owned())
+        self.socket.send(format!("{output}:STATE?")) == Some("ON".to_owned())
     }
 
     /**
@@ -313,13 +313,12 @@ impl Generator {
     pub fn set_arbitrary_waveform(&self, source: Source, data: Vec<f32>) {
         let mut data = data
             .iter()
-            .fold(String::new(), |acc, e| format!("{}{},", acc, e));
+            .fold(String::new(), |acc, e| format!("{acc}{e},"));
         data.pop();
 
         self.socket.send(format!(
-            "{}:TRAC:DATA:DATA {}",
-            Into::<String>::into(source),
-            data
+            "{}:TRAC:DATA:DATA {data}",
+            Into::<String>::into(source)
         ));
     }
 

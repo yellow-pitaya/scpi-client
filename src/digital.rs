@@ -106,7 +106,7 @@ impl std::str::FromStr for State {
         match s {
             "0" => Ok(State::LOW),
             "1" => Ok(State::HIGH),
-            state => Err(format!("Unknow state '{}'", state)),
+            state => Err(format!("Unknow state '{state}'")),
         }
     }
 }

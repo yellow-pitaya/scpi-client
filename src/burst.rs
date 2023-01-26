@@ -43,7 +43,7 @@ impl std::str::FromStr for Mode {
             "CONTINUOUS" => Ok(Mode::CONTINUOUS),
             "BURST" => Ok(Mode::BURST),
             "STREAM" => Ok(Mode::STREAM),
-            state => Err(format!("Unknow state '{}'", state)),
+            state => Err(format!("Unknow state '{state}'")),
         }
     }
 }

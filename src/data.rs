@@ -24,7 +24,7 @@ impl std::str::FromStr for Unit {
         match s {
             "RAW" => Ok(Unit::RAW),
             "VOLTS" => Ok(Unit::VOLTS),
-            unit => Err(format!("Unknow unit '{}'", unit)),
+            unit => Err(format!("Unknow unit '{unit}'")),
         }
     }
 }

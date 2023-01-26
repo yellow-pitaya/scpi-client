@@ -19,9 +19,9 @@ impl Socket {
             Err(_) => panic!("Unable to connect"),
         };
 
-        log::info!("> {}", command);
+        log::info!("> {command}");
 
-        let message = format!("{}\r\n", command);
+        let message = format!("{command}\r\n");
         stream.write_all(message.as_bytes()).unwrap();
 
         if message.contains('?') {

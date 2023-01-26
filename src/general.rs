@@ -39,7 +39,7 @@ impl General {
      * Load specified bitstream version (0.93 or 0.94) in the fpga.
      */
     pub fn fpga_load_bitstream(&self, version: f32) {
-        self.socket.send(format!("RP:FPGABITREAM {}", version));
+        self.socket.send(format!("RP:FPGABITREAM {version}"));
     }
 
     /**

@@ -46,7 +46,7 @@ impl std::str::FromStr for State {
         match s {
             "WAIT" => Ok(State::WAIT),
             "TD" => Ok(State::TD),
-            state => Err(format!("Unknow state '{}'", state)),
+            state => Err(format!("Unknow state '{state}'")),
         }
     }
 }
@@ -93,7 +93,7 @@ impl Trigger {
      * Set trigger delay in samples.
      */
     pub fn set_delay(&self, delay: u16) {
-        self.socket.send(format!("ACQ:TRIG:DLY {}", delay));
+        self.socket.send(format!("ACQ:TRIG:DLY {delay}"));
     }
 
     /**
@@ -107,7 +107,7 @@ impl Trigger {
      * Set trigger delay in ns.
      */
     pub fn set_delay_in_ns(&self, delay: u8) {
-        self.socket.send(format!("ACQ:TRIG:DLY:NS {}", delay));
+        self.socket.send(format!("ACQ:TRIG:DLY:NS {delay}"));
     }
 
     /**
@@ -127,7 +127,7 @@ impl Trigger {
      * Value must be outside to enable the trigger again.
      */
     pub fn set_hysteresis(&self, hysteresis: f32) {
-        self.socket.send(format!("ACQ:TRIG:HYST {}", hysteresis));
+        self.socket.send(format!("ACQ:TRIG:HYST {hysteresis}"));
     }
 
     /**
@@ -141,7 +141,7 @@ impl Trigger {
      * Set trigger level in mV.
      */
     pub fn set_level(&self, level: f32) {
-        self.socket.send(format!("ACQ:TRIG:LEV {}", level));
+        self.socket.send(format!("ACQ:TRIG:LEV {level}"));
     }
 
     /**

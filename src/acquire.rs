@@ -24,7 +24,7 @@ impl std::str::FromStr for Gain {
         match s {
             "LV" => Ok(Gain::LV),
             "HV" => Ok(Gain::HV),
-            gain => Err(format!("Unknow gain '{}'", gain)),
+            gain => Err(format!("Unknow gain '{gain}'")),
         }
     }
 }
@@ -36,7 +36,7 @@ impl std::fmt::Display for Gain {
             Gain::HV => "HV",
         };
 
-        write!(f, "{}", display)
+        write!(f, "{display}")
     }
 }
 
@@ -64,7 +64,7 @@ impl std::fmt::Display for Source {
             Source::IN2 => "IN 2",
         };
 
-        write!(f, "{}", display)
+        write!(f, "{display}")
     }
 }
 
@@ -104,7 +104,7 @@ impl std::str::FromStr for Decimation {
             "1024" => Ok(Decimation::DEC_1024),
             "8192" => Ok(Decimation::DEC_8192),
             "65536" => Ok(Decimation::DEC_65536),
-            decimation => Err(format!("Unknow decimation '{}'", decimation)),
+            decimation => Err(format!("Unknow decimation '{decimation}'")),
         }
     }
 }
@@ -158,7 +158,7 @@ impl std::fmt::Display for SamplingRate {
             SamplingRate::RATE_1_9kHz => "1.9 kHz",
         };
 
-        write!(f, "{}", display)
+        write!(f, "{display}")
     }
 }
 
@@ -201,7 +201,7 @@ impl std::str::FromStr for SamplingRate {
             "103800 Hz" => Ok(SamplingRate::RATE_103_8kHz),
             "15200 Hz" => Ok(SamplingRate::RATE_15_2kHz),
             "1900 Hz" => Ok(SamplingRate::RATE_1_9kHz),
-            rate => Err(format!("Unknow sampling rate {}", rate)),
+            rate => Err(format!("Unknow sampling rate {rate}")),
         }
     }
 }
