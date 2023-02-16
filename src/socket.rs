@@ -15,10 +15,8 @@ impl Socket {
     where
         D: std::fmt::Display,
     {
-        let mut stream = match std::net::TcpStream::connect(self.addr.clone()) {
-            Ok(stream) => stream,
-            Err(_) => panic!("Unable to connect"),
-        };
+        let mut stream =
+            std::net::TcpStream::connect(self.addr.clone()).expect("Unable to connect");
 
         log::info!("> {command}");
 
