@@ -26,13 +26,13 @@ impl Socket {
         stream.write_all(message.as_bytes()).unwrap();
 
         if message.contains('?') {
-            Some(self.receive(stream))
+            Some(Self::receive(stream))
         } else {
             None
         }
     }
 
-    fn receive(&self, stream: std::net::TcpStream) -> String {
+    fn receive(stream: std::net::TcpStream) -> String {
         let mut message = String::new();
         let mut reader = std::io::BufReader::new(stream);
 

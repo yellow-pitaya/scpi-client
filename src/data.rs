@@ -113,7 +113,7 @@ impl Data {
             ))
             .unwrap();
 
-        self.parse(data)
+        Self::parse(&data)
     }
 
     /**
@@ -131,7 +131,7 @@ impl Data {
             ))
             .unwrap();
 
-        self.parse(data)
+        Self::parse(&data)
     }
 
     /**
@@ -149,10 +149,10 @@ impl Data {
             .send(format!("ACQ:{}:DATA?", Into::<String>::into(source)))
             .unwrap();
 
-        self.parse(data)
+        Self::parse(&data)
     }
 
-    fn parse(&self, data: String) -> Vec<f64> {
+    fn parse(data: &str) -> Vec<f64> {
         data.trim_matches(|c: char| c == '{' || c == '}' || c == '!' || c.is_alphabetic())
             .split(',')
             .map(|s| match s.parse::<f64>() {
@@ -183,7 +183,7 @@ impl Data {
             ))
             .unwrap();
 
-        self.parse(data)
+        Self::parse(&data)
     }
 
     /**
@@ -203,7 +203,7 @@ impl Data {
             ))
             .unwrap();
 
-        self.parse(data)
+        Self::parse(&data)
     }
 
     /**
