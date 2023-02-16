@@ -133,6 +133,7 @@ pub enum SamplingRate {
 }
 
 impl SamplingRate {
+    #[must_use]
     pub fn get_buffer_duration(self) -> std::time::Duration {
         let (s, ns) = match self {
             SamplingRate::RATE_125MHz => (0, 131_072),
@@ -283,6 +284,7 @@ impl Acquire {
     /**
      * Get averaging status.
      */
+    #[must_use]
     pub fn is_average_enabled(&self) -> bool {
         let message = self.socket.send("ACQ:AVG?").unwrap();
 

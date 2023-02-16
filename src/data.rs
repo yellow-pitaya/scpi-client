@@ -101,6 +101,7 @@ impl Data {
      * start = {0,1,...,16384}
      * stop_pos = {0,1,...16384}
      */
+    #[must_use]
     pub fn read_slice(&self, source: crate::acquire::Source, start: u16, end: u16) -> Vec<f64> {
         let data = self
             .socket
@@ -118,6 +119,7 @@ impl Data {
     /**
      * Read `m` samples from start position on.
      */
+    #[must_use]
     pub fn read(&self, source: crate::acquire::Source, start: u16, len: u32) -> Vec<f64> {
         let data = self
             .socket
@@ -140,6 +142,7 @@ impl Data {
      * in seconds). If trigger delay is set to zero it will read full buf.
      * Size starting from trigger.
      */
+    #[must_use]
     pub fn read_all(&self, source: crate::acquire::Source) -> Vec<f64> {
         let data = self
             .socket
@@ -169,6 +172,7 @@ impl Data {
      * Trigger delay by default is set to zero (in samples or in seconds). If
      * trigger delay is set to zero it will read m samples starting from trigger.
      */
+    #[must_use]
     pub fn read_oldest(&self, source: crate::acquire::Source, len: u32) -> Vec<f64> {
         let data = self
             .socket
@@ -188,6 +192,7 @@ impl Data {
      * Trigger delay by default is set to zero (in samples or in seconds). If
      * trigger delay is set to zero it will read m samples before trigger.
      */
+    #[must_use]
     pub fn read_latest(&self, source: crate::acquire::Source, len: u32) -> Vec<f64> {
         let data = self
             .socket

@@ -6,6 +6,7 @@ pub struct Socket {
 }
 
 impl Socket {
+    #[must_use]
     pub fn new(addr: String) -> Self {
         Socket { addr }
     }

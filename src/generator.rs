@@ -172,6 +172,7 @@ impl Generator {
         self.socket.send(format!("{output}:STATE {state}"));
     }
 
+    #[must_use]
     pub fn is_started(&self, source: Source) -> bool {
         let output = match source {
             Source::OUT1 => "OUTPUT1",
@@ -325,6 +326,7 @@ impl Generator {
     /**
      * Get data for arbitrary waveform generation.
      */
+    #[must_use]
     pub fn get_arbitrary_waveform(&self, source: Source) -> Vec<f32> {
         let data = self
             .socket

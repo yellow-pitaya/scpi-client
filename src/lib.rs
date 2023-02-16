@@ -28,6 +28,7 @@ pub struct Redpitaya {
 }
 
 impl Redpitaya {
+    #[must_use]
     pub fn new(addr: String) -> Self {
         let socket = socket::Socket::new(addr);
 
