@@ -311,7 +311,7 @@ impl Generator {
     /**
      * Import data for arbitrary waveform generation.
      */
-    pub fn set_arbitrary_waveform(&self, source: Source, data: Vec<f32>) {
+    pub fn set_arbitrary_waveform(&self, source: Source, data: &[f32]) {
         let mut data = data
             .iter()
             .fold(String::new(), |acc, e| format!("{acc}{e},"));
@@ -498,7 +498,7 @@ mod test {
         let (rx, rp) = crate::test::create_client();
 
         rp.generator
-            .set_arbitrary_waveform(crate::generator::Source::OUT1, vec![1.0, 0.5, 0.2]);
+            .set_arbitrary_waveform(crate::generator::Source::OUT1, &[1.0, 0.5, 0.2]);
         assert_eq!("SOUR1:TRAC:DATA:DATA 1,0.5,0.2\r\n", rx.recv().unwrap());
 
         #[cfg(feature = "mock")]
