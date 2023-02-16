@@ -8,7 +8,7 @@ pub struct Socket {
 impl Socket {
     #[must_use]
     pub fn new(addr: String) -> Self {
-        Socket { addr }
+        Self { addr }
     }
 
     pub fn send<D>(&self, command: D) -> Option<String>
