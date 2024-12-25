@@ -181,7 +181,7 @@ impl Digital {
     /**
      * Get state of digital inputs and outputs.
      */
-    pub fn get_state<P>(&self, pin: P) -> Result<State, <State as std::str::FromStr>::Err>
+    pub fn state<P>(&self, pin: P) -> Result<State, <State as std::str::FromStr>::Err>
     where
         P: Pin,
     {
@@ -233,7 +233,7 @@ mod test {
         assert_eq!("DIG:PIN DIO0_N,1\r\n", rx.recv().unwrap());
 
         assert_eq!(
-            rp.digital.get_state(crate::digital::Gpio::DIO0_N),
+            rp.digital.state(crate::digital::Gpio::DIO0_N),
             Ok(crate::digital::State::HIGH)
         );
     }

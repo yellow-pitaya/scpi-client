@@ -196,7 +196,7 @@ impl Generator {
     /**
      * Get frequency of fast analog outputs.
      */
-    pub fn get_frequency(&self, source: Source) -> Result<u32, <f32 as std::str::FromStr>::Err> {
+    pub fn frequency(&self, source: Source) -> Result<u32, <f32 as std::str::FromStr>::Err> {
         let value: f32 = self
             .socket
             .send(format!("{}:FREQ:FIX?", Into::<String>::into(source)))
@@ -219,7 +219,7 @@ impl Generator {
         ));
     }
 
-    pub fn get_form(&self, source: Source) -> Result<Form, String> {
+    pub fn form(&self, source: Source) -> Result<Form, String> {
         self.socket
             .send(format!("{}:FUNC?", Into::<String>::into(source)))
             .unwrap()
@@ -242,7 +242,7 @@ impl Generator {
     /**
      * Get amplitude voltage of fast analog outputs.
      */
-    pub fn get_amplitude(&self, source: Source) -> Result<f32, <f32 as std::str::FromStr>::Err> {
+    pub fn amplitude(&self, source: Source) -> Result<f32, <f32 as std::str::FromStr>::Err> {
         self.socket
             .send(format!("{}:VOLT?", Into::<String>::into(source)))
             .unwrap()
@@ -265,7 +265,7 @@ impl Generator {
     /**
      * Get offset voltage of fast analog outputs.
      */
-    pub fn get_offset(&self, source: Source) -> Result<f32, <f32 as std::str::FromStr>::Err> {
+    pub fn offset(&self, source: Source) -> Result<f32, <f32 as std::str::FromStr>::Err> {
         self.socket
             .send(format!("{}:VOLT:OFFS?", Into::<String>::into(source)))
             .unwrap()
@@ -283,7 +283,7 @@ impl Generator {
     /**
      * Get phase of fast analog outputs.
      */
-    pub fn get_phase(&self, source: Source) -> Result<i32, <i32 as std::str::FromStr>::Err> {
+    pub fn phase(&self, source: Source) -> Result<i32, <i32 as std::str::FromStr>::Err> {
         self.socket
             .send(format!("{}:PHAS?", Into::<String>::into(source)))
             .unwrap()
@@ -301,7 +301,7 @@ impl Generator {
     /**
      * Get duty cycle of PWM waveform.
      */
-    pub fn get_duty_cycle(&self, source: Source) -> Result<f32, <f32 as std::str::FromStr>::Err> {
+    pub fn duty_cycle(&self, source: Source) -> Result<f32, <f32 as std::str::FromStr>::Err> {
         self.socket
             .send(format!("{}:DCYC?", Into::<String>::into(source)))
             .unwrap()
@@ -327,7 +327,7 @@ impl Generator {
      * Get data for arbitrary waveform generation.
      */
     #[must_use]
-    pub fn get_arbitrary_waveform(&self, source: Source) -> Vec<f32> {
+    pub fn arbitrary_waveform(&self, source: Source) -> Vec<f32> {
         let data = self
             .socket
             .send(format!("{}:TRAC:DATA:DATA?", Into::<String>::into(source)))
@@ -353,7 +353,7 @@ impl Generator {
     /**
      * Get trigger source for selected signal.
      */
-    pub fn get_trigger_source(&self, source: Source) -> Result<TriggerSource, String> {
+    pub fn trigger_source(&self, source: Source) -> Result<TriggerSource, String> {
         self.socket
             .send(format!("{}:TRIG:SOUR?", Into::<String>::into(source)))
             .unwrap()
@@ -412,12 +412,12 @@ mod test {
         assert_eq!("SOUR1:FREQ:FIX 1000\r\n", rx.recv().unwrap());
 
         assert_eq!(
-            rp.generator.get_frequency(crate::generator::Source::OUT1),
+            rp.generator.frequency(crate::generator::Source::OUT1),
             Ok(1_000)
         );
 
         assert_eq!(
-            rp.generator.get_frequency(crate::generator::Source::OUT1),
+            rp.generator.frequency(crate::generator::Source::OUT1),
             Ok(1_000)
         );
     }
@@ -431,7 +431,7 @@ mod test {
         assert_eq!("SOUR1:FUNC SINE\r\n", rx.recv().unwrap());
 
         assert_eq!(
-            rp.generator.get_form(crate::generator::Source::OUT1),
+            rp.generator.form(crate::generator::Source::OUT1),
             Ok(crate::generator::Form::SINE)
         );
     }
@@ -448,7 +448,7 @@ mod test {
         assert_eq!("SOUR1:VOLT -0.5\r\n", rx.recv().unwrap());
 
         assert_eq!(
-            rp.generator.get_amplitude(crate::generator::Source::OUT1),
+            rp.generator.amplitude(crate::generator::Source::OUT1),
             Ok(-0.5)
         );
     }
@@ -460,10 +460,7 @@ mod test {
         rp.generator.set_offset(crate::generator::Source::OUT1, 0.3);
         assert_eq!("SOUR1:VOLT:OFFS 0.3\r\n", rx.recv().unwrap());
 
-        assert_eq!(
-            rp.generator.get_offset(crate::generator::Source::OUT1),
-            Ok(0.3)
-        );
+        assert_eq!(rp.generator.offset(crate::generator::Source::OUT1), Ok(0.3));
     }
 
     #[test]
@@ -473,10 +470,7 @@ mod test {
         rp.generator.set_phase(crate::generator::Source::OUT1, 180);
         assert_eq!("SOUR1:PHAS 180\r\n", rx.recv().unwrap());
 
-        assert_eq!(
-            rp.generator.get_phase(crate::generator::Source::OUT1),
-            Ok(180)
-        );
+        assert_eq!(rp.generator.phase(crate::generator::Source::OUT1), Ok(180));
     }
 
     #[test]
@@ -488,7 +482,7 @@ mod test {
         assert_eq!("SOUR1:DCYC 1\r\n", rx.recv().unwrap());
 
         assert_eq!(
-            rp.generator.get_duty_cycle(crate::generator::Source::OUT1),
+            rp.generator.duty_cycle(crate::generator::Source::OUT1),
             Ok(1.0)
         );
     }
@@ -504,14 +498,14 @@ mod test {
         #[cfg(feature = "mock")]
         assert_eq!(
             rp.generator
-                .get_arbitrary_waveform(crate::generator::Source::OUT1),
+                .arbitrary_waveform(crate::generator::Source::OUT1),
             vec![1.0, 0.5, 0.2]
         );
 
         #[cfg(not(feature = "mock"))]
         assert!(
             rp.generator
-                .get_arbitrary_waveform(crate::generator::Source::OUT1)
+                .arbitrary_waveform(crate::generator::Source::OUT1)
                 .len()
                 > 0
         );
@@ -528,8 +522,7 @@ mod test {
         assert_eq!("SOUR1:TRIG:SOUR BURST\r\n", rx.recv().unwrap());
 
         assert_eq!(
-            rp.generator
-                .get_trigger_source(crate::generator::Source::OUT1),
+            rp.generator.trigger_source(crate::generator::Source::OUT1),
             Ok(crate::generator::TriggerSource::BURST)
         );
 

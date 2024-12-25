@@ -134,7 +134,7 @@ pub enum SamplingRate {
 
 impl SamplingRate {
     #[must_use]
-    pub fn get_buffer_duration(self) -> std::time::Duration {
+    pub fn buffer_duration(self) -> std::time::Duration {
         let (s, ns) = match self {
             SamplingRate::RATE_125MHz => (0, 131_072),
             SamplingRate::RATE_15_6MHz => (0, 1_049_000),
@@ -251,7 +251,7 @@ impl Acquire {
     /**
      * Get decimation factor.
      */
-    pub fn get_decimation(&self) -> Result<Decimation, String> {
+    pub fn decimation(&self) -> Result<Decimation, String> {
         self.socket.send("ACQ:DEC?").unwrap().parse()
     }
 
@@ -263,7 +263,7 @@ impl Acquire {
      * Calling this command makes buffer overflow.
      * See https://github.com/RedPitaya/RedPitaya/pull/110
      */
-    pub fn get_sampling_rate(&self) -> Result<SamplingRate, String> {
+    pub fn sampling_rate(&self) -> Result<SamplingRate, String> {
         self.socket.send("ACQ:SRAT?").unwrap().parse()
     }
 
@@ -307,7 +307,7 @@ impl Acquire {
     /**
      * Get gain settings to HIGH or LOW.
      */
-    pub fn get_gain(&self, source: Source) -> Result<Gain, String> {
+    pub fn gain(&self, source: Source) -> Result<Gain, String> {
         self.socket
             .send(format!("ACQ:{}:GAIN?", Into::<String>::into(source)))
             .unwrap()
@@ -318,12 +318,12 @@ impl Acquire {
 #[cfg(test)]
 mod test {
     #[test]
-    fn test_sampling_rate_get_buffer_duration() {
+    fn test_sampling_rate_buffer_duration() {
         let duration = std::time::Duration::new(8, 590_000_000);
 
         assert_eq!(
             duration,
-            crate::acquire::SamplingRate::RATE_1_9kHz.get_buffer_duration()
+            crate::acquire::SamplingRate::RATE_1_9kHz.buffer_duration()
         );
     }
 
@@ -349,7 +349,7 @@ mod test {
         assert_eq!("ACQ:DEC 1\r\n", rx.recv().unwrap());
 
         assert_eq!(
-            rp.acquire.get_decimation(),
+            rp.acquire.decimation(),
             Ok(crate::acquire::Decimation::DEC_1)
         );
     }
@@ -376,7 +376,7 @@ mod test {
         assert_eq!("ACQ:SOUR1:GAIN HV\r\n", rx.recv().unwrap());
 
         assert_eq!(
-            rp.acquire.get_gain(crate::acquire::Source::IN1),
+            rp.acquire.gain(crate::acquire::Source::IN1),
             Ok(crate::acquire::Gain::HV)
         );
     }

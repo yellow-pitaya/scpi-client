@@ -61,14 +61,14 @@ impl Data {
     /**
      * Returns current position of write pointer.
      */
-    pub fn get_write_pointer(&self) -> Result<u32, <u32 as std::str::FromStr>::Err> {
+    pub fn write_pointer(&self) -> Result<u32, <u32 as std::str::FromStr>::Err> {
         self.socket.send("ACQ:WPOS?").unwrap().parse()
     }
 
     /**
      * Returns position where trigger event appeared.
      */
-    pub fn get_trigger_position(&self) -> Result<u32, <u32 as std::str::FromStr>::Err> {
+    pub fn trigger_position(&self) -> Result<u32, <u32 as std::str::FromStr>::Err> {
         self.socket.send("ACQ:TPOS?").unwrap().parse()
     }
 
@@ -83,7 +83,7 @@ impl Data {
     /**
      * Get units in which acquired data will be returned.
      */
-    pub fn get_units(&self) -> Result<Unit, String> {
+    pub fn units(&self) -> Result<Unit, String> {
         self.socket.send("ACQ:DATA:UNITS?").unwrap().parse()
     }
 
@@ -217,25 +217,25 @@ impl Data {
 #[cfg(test)]
 mod test {
     #[test]
-    fn test_get_write_pointer() {
+    fn test_write_pointer() {
         let (_, rp) = crate::test::create_client();
 
         #[cfg(feature = "mock")]
-        assert_eq!(rp.data.get_write_pointer(), Ok(1024));
+        assert_eq!(rp.data.write_pointer(), Ok(1024));
 
         #[cfg(not(feature = "mock"))]
-        assert!(rp.data.get_write_pointer().is_ok());
+        assert!(rp.data.write_pointer().is_ok());
     }
 
     #[test]
-    fn test_get_write_pointer_at_trigger() {
+    fn test_write_pointer_at_trigger() {
         let (_, rp) = crate::test::create_client();
 
         #[cfg(feature = "mock")]
-        assert_eq!(rp.data.get_trigger_position(), Ok(512));
+        assert_eq!(rp.data.trigger_position(), Ok(512));
 
         #[cfg(not(feature = "mock"))]
-        assert!(rp.data.get_trigger_position().is_ok());
+        assert!(rp.data.trigger_position().is_ok());
     }
 
     #[test]
@@ -245,7 +245,7 @@ mod test {
         rp.data.set_units(crate::data::Unit::RAW);
         assert_eq!("ACQ:DATA:UNITS RAW\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.data.get_units(), Ok(crate::data::Unit::RAW));
+        assert_eq!(rp.data.units(), Ok(crate::data::Unit::RAW));
     }
 
     #[test]

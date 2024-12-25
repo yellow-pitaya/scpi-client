@@ -85,7 +85,7 @@ impl Trigger {
      *
      *  If DISABLED -> TD else WAIT.
      */
-    pub fn get_state(&self) -> Result<State, String> {
+    pub fn state(&self) -> Result<State, String> {
         self.socket.send("ACQ:TRIG:STAT?").unwrap().parse()
     }
 
@@ -99,7 +99,7 @@ impl Trigger {
     /**
      * Get trigger delay in samples.
      */
-    pub fn get_delay(&self) -> Result<u16, <u16 as std::str::FromStr>::Err> {
+    pub fn delay(&self) -> Result<u16, <u16 as std::str::FromStr>::Err> {
         self.socket.send("ACQ:TRIG:DLY?").unwrap().parse()
     }
 
@@ -113,7 +113,7 @@ impl Trigger {
     /**
      * Get trigger delay in ns.
      */
-    pub fn get_delay_in_ns(&self) -> Result<u8, <u8 as std::str::FromStr>::Err> {
+    pub fn delay_in_ns(&self) -> Result<u8, <u8 as std::str::FromStr>::Err> {
         self.socket
             .send("ACQ:TRIG:DLY:NS?")
             .unwrap()
@@ -133,7 +133,7 @@ impl Trigger {
     /**
      * Gets currently set trigger threshold hysteresis value in volts.
      */
-    pub fn get_hysteresis(&self) -> Result<f32, <f32 as std::str::FromStr>::Err> {
+    pub fn hysteresis(&self) -> Result<f32, <f32 as std::str::FromStr>::Err> {
         self.socket.send("ACQ:TRIG:HYST?").unwrap().parse()
     }
 
@@ -147,7 +147,7 @@ impl Trigger {
     /**
      * Get trigger level in mV.
      */
-    pub fn get_level(&self) -> Result<f32, <f32 as std::str::FromStr>::Err> {
+    pub fn level(&self) -> Result<f32, <f32 as std::str::FromStr>::Err> {
         self.socket
             .send("ACQ:TRIG:LEV?")
             .unwrap()
@@ -166,10 +166,10 @@ mod test {
         assert_eq!("ACQ:TRIG NOW\r\n", rx.recv().unwrap());
 
         #[cfg(feature = "mock")]
-        assert_eq!(rp.trigger.get_state(), Ok(crate::trigger::State::WAIT));
+        assert_eq!(rp.trigger.state(), Ok(crate::trigger::State::WAIT));
 
         #[cfg(not(feature = "mock"))]
-        assert!(rp.trigger.get_state().is_ok());
+        assert!(rp.trigger.state().is_ok());
 
         rp.trigger.disable();
         assert_eq!("ACQ:TRIG DISABLED\r\n", rx.recv().unwrap());
@@ -182,7 +182,7 @@ mod test {
         rp.trigger.set_delay(2314);
         assert_eq!("ACQ:TRIG:DLY 2314\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.trigger.get_delay(), Ok(2314));
+        assert_eq!(rp.trigger.delay(), Ok(2314));
     }
 
     #[test]
@@ -192,7 +192,7 @@ mod test {
         rp.trigger.set_delay_in_ns(128);
         assert_eq!("ACQ:TRIG:DLY:NS 128\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.trigger.get_delay_in_ns(), Ok(128));
+        assert_eq!(rp.trigger.delay_in_ns(), Ok(128));
     }
 
     #[test]
@@ -202,7 +202,7 @@ mod test {
         rp.trigger.set_hysteresis(0.75);
         assert_eq!("ACQ:TRIG:HYST 0.75\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.trigger.get_hysteresis(), Ok(0.75));
+        assert_eq!(rp.trigger.hysteresis(), Ok(0.75));
     }
 
     #[test]
@@ -212,6 +212,6 @@ mod test {
         rp.trigger.set_level(0.4);
         assert_eq!("ACQ:TRIG:LEV 0.4\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.trigger.get_level(), Ok(0.4));
+        assert_eq!(rp.trigger.level(), Ok(0.4));
     }
 }
