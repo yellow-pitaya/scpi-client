@@ -187,9 +187,8 @@ impl Generator {
      */
     pub fn set_frequency(&self, source: Source, frequency: u32) {
         self.socket.send(format!(
-            "{}:FREQ:FIX {}",
+            "{}:FREQ:FIX {frequency}",
             Into::<String>::into(source),
-            frequency
         ));
     }
 

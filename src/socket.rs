@@ -38,7 +38,7 @@ impl Socket {
 
         let message = message.trim_end_matches("\r\n");
 
-        log::debug!("< {}", message);
+        log::debug!("< {message}");
 
         message.into()
     }

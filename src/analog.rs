@@ -73,11 +73,8 @@ impl Analog {
      * Voltage range of slow analog outputs is: 0 - 1.8 V
      */
     pub fn set_value(&self, pin: OutputPin, value: f32) {
-        self.socket.send(format!(
-            "ANALOG:PIN {},{}",
-            Into::<String>::into(pin),
-            value
-        ));
+        self.socket
+            .send(format!("ANALOG:PIN {},{value}", Into::<String>::into(pin),));
     }
 
     /**

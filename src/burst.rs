@@ -89,9 +89,8 @@ impl Burst {
      */
     pub fn set_count(&self, source: Source, count: u32) {
         self.socket.send(format!(
-            "{}:BURS:NCYC {}",
+            "{}:BURS:NCYC {count}",
             Into::<String>::into(source),
-            count
         ));
     }
 
@@ -110,9 +109,8 @@ impl Burst {
      */
     pub fn set_repetitions(&self, source: Source, repetitions: u32) {
         self.socket.send(format!(
-            "{}:BURS:NOR {}",
+            "{}:BURS:NOR {repetitions}",
             Into::<String>::into(source),
-            repetitions
         ));
     }
 
@@ -133,9 +131,8 @@ impl Burst {
      */
     pub fn set_period(&self, source: Source, period: u32) {
         self.socket.send(format!(
-            "{}:BURS:INT:PER {}",
+            "{}:BURS:INT:PER {period}",
             Into::<String>::into(source),
-            period
         ));
     }
 

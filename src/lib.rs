@@ -64,7 +64,7 @@ mod test {
 
     pub fn launch_server() -> (String, std::sync::mpsc::Receiver<String>) {
         let addr = next_test_ip4();
-        let listener = std::net::TcpListener::bind(format!("{}", addr)).unwrap();
+        let listener = std::net::TcpListener::bind(format!("{addr}")).unwrap();
 
         let (tx, rx) = std::sync::mpsc::channel();
 
@@ -86,7 +86,7 @@ mod test {
     fn next_test_ip4() -> String {
         let port = PORT.fetch_add(1, std::sync::atomic::Ordering::SeqCst) as u16 + base_port();
 
-        format!("127.0.0.1:{}", port)
+        format!("127.0.0.1:{port}")
     }
 
     // The bots run multiple builds at the same time, and these builds

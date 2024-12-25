@@ -106,10 +106,8 @@ impl Data {
         let data = self
             .socket
             .send(format!(
-                "ACQ:{}:DATA:STA:END? {},{}",
+                "ACQ:{}:DATA:STA:END? {start},{end}",
                 Into::<String>::into(source),
-                start,
-                end
             ))
             .unwrap();
 
@@ -124,10 +122,8 @@ impl Data {
         let data = self
             .socket
             .send(format!(
-                "ACQ:{}:DATA:STA:N? {},{}",
+                "ACQ:{}:DATA:STA:N? {start},{len}",
                 Into::<String>::into(source),
-                start,
-                len
             ))
             .unwrap();
 
@@ -158,7 +154,7 @@ impl Data {
             .map(|s| match s.parse::<f64>() {
                 Ok(f) => f,
                 Err(_) => {
-                    log::error!("Invalid data '{}'", s);
+                    log::error!("Invalid data '{s}'");
                     0.0
                 }
             })
@@ -177,9 +173,8 @@ impl Data {
         let data = self
             .socket
             .send(format!(
-                "ACQ:{}:DATA:OLD:N? {}",
+                "ACQ:{}:DATA:OLD:N? {len}",
                 Into::<String>::into(source),
-                len
             ))
             .unwrap();
 
@@ -197,9 +192,8 @@ impl Data {
         let data = self
             .socket
             .send(format!(
-                "ACQ:{}:DATA:LAT:N? {}",
+                "ACQ:{}:DATA:LAT:N? {len}",
                 Into::<String>::into(source),
-                len
             ))
             .unwrap();
 
