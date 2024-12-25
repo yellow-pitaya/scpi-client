@@ -1,6 +1,6 @@
 use std::io::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Socket {
     addr: String,
 }

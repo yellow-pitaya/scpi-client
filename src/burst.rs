@@ -48,7 +48,7 @@ impl std::str::FromStr for Mode {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Burst {
     socket: Socket,
 }

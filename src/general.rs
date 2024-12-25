@@ -1,6 +1,6 @@
 use crate::socket::Socket;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct General {
     socket: Socket,
 }

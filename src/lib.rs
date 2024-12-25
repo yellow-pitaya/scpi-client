@@ -15,7 +15,7 @@ trait Module {
     fn new(socket: socket::Socket) -> Self;
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Redpitaya {
     pub acquire: acquire::Acquire,
     pub analog: analog::Analog,

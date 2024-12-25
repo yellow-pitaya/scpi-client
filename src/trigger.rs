@@ -51,7 +51,7 @@ impl std::str::FromStr for State {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Trigger {
     socket: Socket,
 }

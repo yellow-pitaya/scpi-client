@@ -128,7 +128,7 @@ impl std::convert::From<Direction> for String {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Digital {
     socket: Socket,
 }

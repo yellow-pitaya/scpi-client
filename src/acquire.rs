@@ -207,7 +207,7 @@ impl std::str::FromStr for SamplingRate {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Acquire {
     socket: Socket,
 }

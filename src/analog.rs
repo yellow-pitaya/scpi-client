@@ -48,7 +48,7 @@ impl std::convert::From<InputPin> for String {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Analog {
     socket: Socket,
 }

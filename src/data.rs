@@ -46,7 +46,7 @@ impl std::convert::From<Format> for String {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Data {
     socket: Socket,
 }

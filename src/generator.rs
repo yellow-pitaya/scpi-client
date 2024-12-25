@@ -137,7 +137,7 @@ impl std::fmt::Display for Source {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Generator {
     socket: Socket,
 }
