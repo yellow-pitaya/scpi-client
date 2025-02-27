@@ -361,7 +361,7 @@ mod test {
         rp.acquire.enable_average();
         assert_eq!("ACQ:AVG ON\r\n", rx.recv().unwrap());
 
-        assert_eq!(rp.acquire.is_average_enabled(), true);
+        assert!(rp.acquire.is_average_enabled());
 
         rp.acquire.disable_average();
         assert_eq!("ACQ:AVG OFF\r\n", rx.recv().unwrap());

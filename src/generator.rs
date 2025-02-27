@@ -393,10 +393,7 @@ mod test {
         rp.generator.start(crate::generator::Source::OUT2);
         assert_eq!("OUTPUT2:STATE ON\r\n", rx.recv().unwrap());
 
-        assert_eq!(
-            rp.generator.is_started(crate::generator::Source::OUT2),
-            true
-        );
+        assert!(rp.generator.is_started(crate::generator::Source::OUT2));
 
         rp.generator.stop(crate::generator::Source::OUT2);
         assert_eq!("OUTPUT2:STATE OFF\r\n", rx.recv().unwrap());

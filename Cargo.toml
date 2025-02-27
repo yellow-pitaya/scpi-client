@@ -8,7 +8,7 @@ repository = "https://github.com/yellow-pitaya/scpi-client"
 documentation = "https://docs.rs/redpitaya-scpi/"
 keywords = ["redpitaya", "scpi"]
 categories = ["hardware-support"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 log = "0.4"

@@ -64,7 +64,7 @@ mod test {
 
     pub fn launch_server() -> (String, std::sync::mpsc::Receiver<String>) {
         let addr = next_test_ip4();
-        let listener = std::net::TcpListener::bind(format!("{addr}")).unwrap();
+        let listener = std::net::TcpListener::bind(addr.to_string()).unwrap();
 
         let (tx, rx) = std::sync::mpsc::channel();
 
@@ -123,14 +123,14 @@ mod test {
         loop {
             let mut buffer = [0; 1];
 
-            stream.read(&mut buffer[..]).unwrap();
+            stream.read_exact(&mut buffer[..]).unwrap();
             message.push(buffer[0] as char);
 
-            if buffer[0] == ('\n' as u8) {
+            if buffer[0] == b'\n' {
                 match handle_message(message.clone()) {
                     Some(mut response) => {
                         response.push_str("\r\n");
-                        stream.write(response.as_bytes()).unwrap();
+                        stream.write_all(response.as_bytes()).unwrap();
                     }
                     None => {
                         tx.send(message).unwrap();
