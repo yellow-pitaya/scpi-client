@@ -68,13 +68,15 @@ mod test {
 
         let (tx, rx) = std::sync::mpsc::channel();
 
-        std::thread::spawn(move || loop {
-            if let Ok((mut stream, _)) = listener.accept() {
-                let tx = tx.clone();
+        std::thread::spawn(move || {
+            loop {
+                if let Ok((mut stream, _)) = listener.accept() {
+                    let tx = tx.clone();
 
-                std::thread::spawn(move || {
-                    handle_client(&mut stream, tx);
-                });
+                    std::thread::spawn(move || {
+                        handle_client(&mut stream, tx);
+                    });
+                }
             }
         });
 

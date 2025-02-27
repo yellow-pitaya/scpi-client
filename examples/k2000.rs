@@ -1,7 +1,7 @@
 extern crate redpitaya_scpi;
 
-use redpitaya_scpi::digital::{Led, State};
 use redpitaya_scpi::Redpitaya;
+use redpitaya_scpi::digital::{Led, State};
 use std::thread::sleep;
 use std::time::Duration;
 
