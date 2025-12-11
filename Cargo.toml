@@ -13,10 +13,6 @@ edition = "2024"
 [dependencies]
 log = "0.4"
 
-[badges]
-travis-ci = { repository = "yellow-pitaya/scpi-client" }
-gitlab = { repository = "yellow-pitaya/scpi-client" }
-
 [features]
 default = []
 
